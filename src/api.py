@@ -1,3 +1,10 @@
+"""
+Copyright (c) 2015 Robert Hodgen
+
+All rights reserved.
+"""
+
+
 from ndb_users import users
 
 import webapp2
@@ -212,4 +219,16 @@ def error_handler_unauthorized(request, response, exception):
     'message': 'HTTP/1.1 401 Unauthorized'
   }))
 
+def error_handler_server_error(request, response, exception):
+  """ HTTP/1.1 500 Internal Server Error """
+  logging.exception(exception)
+  response.content_type = 'application/json'
+  response.set_status(500)
+  response.write(json.dumps({
+    'status': 500,
+    'message': 'HTTP/1.1 500 Internal Server Error'
+  }))
+
+
 app.error_handlers[401] = error_handler_unauthorized
+app.error_handlers[500] = error_handler_server_error

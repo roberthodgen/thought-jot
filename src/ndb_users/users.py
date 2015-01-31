@@ -227,6 +227,11 @@ class User(ndb.Model):
   bounceCount = ndb.IntegerProperty(default=0)
   lastBounce = ndb.DateTimeProperty()
 
+  #""" Custom for Time Trail: """
+  first_name = ndb.StringProperty()
+  last_name = ndb.StringProperty()
+  #""" /Custom for Time Trail """
+
   @classmethod
   @ndb.transactional
   def create_user(cls, email, password):
@@ -274,7 +279,11 @@ class User(ndb.Model):
     """ Return a Dictionary representation of this user. Will be the `user`
     object returned by all JSON API requests. """
     return {
-      'email': self.email
+      'email': self.email,
+      #""" Custom for Time Trail: """
+      'first_name': self.first_name,
+      'last_name': self.last_name
+      #""" /Custom for Time Trail """
     }
 
 

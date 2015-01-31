@@ -1,3 +1,10 @@
+"""
+Copyright (c) 2015 Robert Hodgen
+
+All rights reserved.
+"""
+
+
 import string
 
 import re

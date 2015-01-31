@@ -1,8 +1,10 @@
 """
+Copyright (c) 2015 Robert Hodgen
 
-mode.py holds out data models
-
+All rights reserved.
 """
+
+
 from google.appengine.ext import ndb
 
 from datetime import datetime, timedelta, tzinfo

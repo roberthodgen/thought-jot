@@ -1,0 +1,79 @@
+<!-- When visiting the Projects (home), show:
+
+All the Projects this User has access to.
+
+Sorted by last modified,
+
+with "In progress"/Projects with uncompleted Time Records at the TOP
+	- Differientiate "In progress" Projects with a different background color
+	- include a LIVE counter
+
+ -->
+
+<div class="container">
+
+	<div class="row" style="margin-bottom:30px;">
+		<div class="col-sm-8">
+			<div class="input-group">
+				<input type="text" class="form-control" placeholder="Find projects...">
+
+				<div class="input-group-btn">
+					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+						Active &amp; in progress <span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu" role="menu">
+						<li class="active"><a href="#">Active &amp; in progress</a></li>
+						<li><a href="#">Projects I own</a></li>
+						<li><a href="#">Projects shared with me</a></li>
+						<li class="divider"></li>
+						<li><a href="#">Archived</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-4 text-right">
+			<a href="#" class="btn btn-success">New Project</a>
+		</div>
+	</div>
+
+
+
+	 <div class="projects-list-group">
+		<h4>Projects in-progress</h4>
+		<hr class="projects">
+		<div class="list-group">
+			<a href="#" class="list-group-item list-group-item-success">
+				<h4 class="list-group-item-heading">Project Title</h4>
+				<p><span class="glyphicon glyphicon-time"></span> <strong>In progress:</strong> X hours X minutes X seconds</p>
+				<p class="list-group-item-text">Some description....</p>
+			</a>
+			<a href="#" class="list-group-item list-group-item-success">
+				<h4 class="list-group-item-heading">Project Title</h4>
+				<p><span class="glyphicon glyphicon-time"></span> <strong>In progress:</strong> X hours X minutes X seconds</p>
+				<p class="list-group-item-text">Some description....</p>
+			</a>
+		</div>
+	</div>
+
+	<div class="projects-list-group">
+		<h4>Projects <small>most recently updated</small></h4>
+		<hr class="projects">
+		<div class="list-group">
+			<a href="#" class="list-group-item list-group-item">
+				<h4 class="list-group-item-heading">Project Title</h4>
+				<p class="text-primary"><span class="glyphicon glyphicon-time"></span> X hours X minutes X seconds</p>
+				<p class="list-group-item-text">Some description....</p>
+			</a>
+			<a href="#" class="list-group-item list-group-item">
+				<h4 class="list-group-item-heading">Project Title</h4>
+				<p class="text-primary"><span class="glyphicon glyphicon-time"></span> X hours X minutes X seconds</p>
+				<p class="list-group-item-text">Some description....</p>
+			</a>
+			<a href="#" class="list-group-item list-group-item">
+				<h4 class="list-group-item-heading">Project Title</h4>
+				<p class="text-primary"><span class="glyphicon glyphicon-time"></span> X hours X minutes X seconds</p>
+				<p class="list-group-item-text">Some description....</p>
+			</a>
+		</div>
+	</div>
+</div> <!-- /.container -->

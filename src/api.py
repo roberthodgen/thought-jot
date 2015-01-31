@@ -58,6 +58,45 @@ class ProjectCreate(webapp2.RequestHandler):
     self.response.content_type = 'application/json'
     self.response.out.write(json.dumps(response_object))
 
+class ProjectDelete(webapp2.RequestHandler):
+  def post(self):
+    """ Delete this user's Project. """
+    response_object = {};
+    user = users.get_current_user()
+    if not user:
+      # No user
+      self.abort(401)
+      return None
+    # Get JSON request body
+    if self.request.body:
+      request_object = json.loads(self.request.body)
+      project_key_id = request_object.get('project_id')
+      if project_key_id:
+        project = ndb.Key(urlsafe=project_key_id).get()
+        if project:
+          if project.is_owner(user.email):
+            project.key.delete()
+            response_object['project'] = {}
+          else:
+            self.abort(401)
+        else:
+          self.response.set_status(404)
+          response_object['not_found'] = {
+            'project': not bool(project)
+          }
+      else:
+        self.response.set_status(400)
+        response_object['missing'] = {
+          'post_body_json': {
+            'project_id': True
+        }}
+    else:
+      self.response.set_status(400)
+      response_object['missing'] =  {'post_body_json': True}
+    # Send response
+    self.response.content_type = 'application/json'
+    self.response.out.write(json.dumps(response_object))
+
 class ProjectContributorsAdd(webapp2.RequestHandler):
   def post(self):
     """ Add Contributors to this Project. """
@@ -74,8 +113,12 @@ class ProjectContributorsAdd(webapp2.RequestHandler):
         project = ndb.Key(urlsafe=project_key_id).get()
         new_contributor = users.User.user_for_email(contributor_email)
         if project and new_contributor:
-          project.add_contributors([contributor_email])
-          response_object['project'] = project.json_object()
+          if (project.is_owner(user.email)
+            or project.has_contributor(user.email)):
+            project.add_contributors([contributor_email])
+            response_object['project'] = project.json_object()
+          else:
+            self.abort(401)
         else:
           self.response.set_status(404)
           response_object['not_found'] = {
@@ -112,8 +155,12 @@ class ProjectContributorsRemove(webapp2.RequestHandler):
         project = ndb.Key(urlsafe=project_key_id).get()
         new_contributor = users.User.user_for_email(contributor_email)
         if project and new_contributor:
-          project.remove_contributors([contributor_email])
-          response_object['project'] = project.json_object()
+          if (project.is_owner(user.email)
+            or project.has_contributor(user.email)):
+            project.remove_contributors([contributor_email])
+            response_object['project'] = project.json_object()
+          else:
+            self.abort(401)
         else:
           self.response.set_status(404)
           response_object['not_found'] = {
@@ -142,6 +189,9 @@ app = webapp2.WSGIApplication([
   ), webapp2.Route(
     '/api/projects/create.json',
     handler=ProjectCreate
+  ), webapp2.Route(
+    '/api/projects/delete.json',
+    handler=ProjectDelete
   ), webapp2.Route(
     '/api/projects/contributors/add.json',
     handler=ProjectContributorsAdd

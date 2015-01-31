@@ -112,6 +112,10 @@ class Project(ndb.Model):
           self.users.remove(contributor)
     return self.put()
 
+  def is_owner(self, email):
+    """ """
+    return email == self.owner
+
   def has_contributor(self, contributor):
     """ Returns whether `contributor` is a Contributor of this Project. """
     return contributor in self.contributors

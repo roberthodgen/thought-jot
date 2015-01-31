@@ -69,6 +69,12 @@ class Project(ndb.Model):
     """ Return `updated` with tzinfo set to `UTC`. """
     return self.updated.replace(tzinfo=UTC())
 
+  @property
+  def has_uncompleted_time_records(self):
+    """ Run a query to see if this Project has uncompleted Time Records. """
+    query = TimeRecord.query(TimeRecord.completed==None, ancestor=self.key)
+    return (query.count(limit=1) > 0)
+
   @classmethod
   def create_project(cls, name):
     """ Create a new Project for the currently logged in user named `name`. """
@@ -81,6 +87,39 @@ class Project(ndb.Model):
     )
     return new_project.put()
 
+  def add_contributors(self, contributors):
+    """ Add `contributors` to `self.contributors`.
+    `contributors` is expected as an array of email address strings.
+    Update `self.users` as needed. """
+    for contributor in contributors:
+      if contributor != self.owner:
+        if contributor not in self.contributors:
+          self.contributors.append(contributor)
+        if contributor not in self.users:
+          self.users.append(contributor)
+        if contributor in self.observers:
+          self.observers.remove(contributor)
+    return self.put()
+
+  def remove_contributors(self, contributors):
+    """ Remove `contributors` from `self.contributors`.
+    `contributors` is expected to be an array of email address strings.
+    Update `self.users` as needed. """
+    for contributor in contributors:
+      if contributor in self.contributors:
+        self.contributors.remove(contributor)
+        if contributor in self.users and contributor != self.owner:
+          self.users.remove(contributor)
+    return self.put()
+
+  def has_contributor(self, contributor):
+    """ Returns whether `contributor` is a Contributor of this Project. """
+    return contributor in self.contributors
+
+  def has_observor(self, observer):
+    """ Returns whether `observer` is an Observer of this Project. """
+    return observer in self.observers
+
   def json_object(self):
     """ Return a dictionary representing this Project.
     Will be used for JSON requests! """
@@ -92,6 +131,7 @@ class Project(ndb.Model):
       'contributors': self.contributors,
       'observers': self.observers,
       'completed': self.completed,
+      'has_uncompleted_time_records': self.has_uncompleted_time_records,
       'active': self.active,
       'created': self.created_utc.isoformat(),
       'updated': self.updated_utc.isoformat()

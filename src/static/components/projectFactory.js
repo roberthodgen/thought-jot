@@ -47,13 +47,64 @@
 					};
 				}, function(response) {
 					// Error
-					console.log('[app.projectFactory] service.fetchProjects(): Error loading user: '+response.status);
+					console.log('[app.projectFactory] service.fetchProjects(): Request error: '+response.status);
 					return {
 						'error': true,
 						'status': response.status
 					};
 				});
 				return projects;
+			}, create: function(options) {
+
+				var data = {
+					'name': options.name,
+					'description': options.description
+				};
+
+				return $http({
+					method: 'POST',
+					url: '/api/projects/create.json',
+					params: {
+						't': new Date().getTime()
+					}, data: data
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					if (angular.isObject(response.data)) {
+						if (response.data.hasOwnProperty('project')) {
+							// Success!!!
+
+							var _projects = $q.defer();
+							var allProjects = {};
+
+
+							if (!projects) {
+								projects = _projects.promise;
+							} else {
+								projects.then(function(currentProjects) {
+									allProjects = currentProjects;
+								});
+							}
+
+
+							allProjects[response.data.project.id] = response.data.project;
+							allProjects[response.data.project.id]._lastFetch = new Date();
+
+							_projects.resolve(allProjects);	// Resolve projects
+							return allProjects[response.data.project.id];
+						}
+					}
+					console.log('[app.projectFactory] service.create(): Error reading response.');
+					return {
+						'error': true
+					};
+				}, function(response) {
+					// Error
+					console.log('[app.projectFactory] service.create(): Request error: '+response.status);
+					return {
+						'error': true,
+						'status': response.status
+					};
+				});
 			}
 		};
 

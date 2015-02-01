@@ -77,11 +77,11 @@
 				}).then(function(response) {
 					// HTTP 200-299 Status
 					if (angular.isObject(response.data)) {
-						newUser = $q.defer();
+						var newUser = $q.defer();
 						user = newUser.promise;
 						newUser.resolve(response.data);
 
-						return response.data;
+						return user;
 					}
 					console.log('[ndb_users.userFactory] service.userLogin(): Error reading response.');
 					return {};

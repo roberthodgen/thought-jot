@@ -15,7 +15,8 @@
 		'app.errorCtrl',
 		'app.loginCtrl',
 		'app.projectsHomeCtrl',
-		'app.projectsNewCtrl'
+		'app.projectsNewCtrl',
+		'app.projectDetailCtrl'
 
 	]);
 
@@ -28,12 +29,18 @@
 		}).when('/login', {
 			templateUrl: '/login/login.html',
 			controller: 'app.loginCtrl'
+		}).when('/login/login-create', {
+			templateUrl: '/login/login-create.html',
+			controller: 'app.loginCtrl'
 		}).when('/projects', {
 			templateUrl: '/projects/projects-home.html',
 			controller: 'app.projectsHomeCtrl'
 		}).when('/projects/new-project', {
 			templateUrl: '/projects/projects-new.html',
 			controller: 'app.projectsNewCtrl'
+		}).when('/projects/:projectId', {
+			templateUrl: '/projects/project-detail.html',
+			controller: 'app.projectDetailCtrl'
 		}).when('/not-found', {
 			templateUrl: '/error/not-found.html',
 			controller: 'app.errorCtrl'

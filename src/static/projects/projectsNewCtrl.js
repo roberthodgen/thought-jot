@@ -2,7 +2,7 @@
 
 	var app = angular.module('app.projectsNewCtrl', []);
 
-	app.controller('app.projectsNewCtrl', ['$scope', 'app.appFactory', 'ndb_users.userFactory', function($scope, appFactory, userFactory) {
+	app.controller('app.projectsNewCtrl', ['$scope', '$location', 'app.appFactory', 'ndb_users.userFactory', 'app.projectFactory', function($scope, $location, appFactory, userFactory, projectFactory) {
 
 		// Perform setup and reset $scope variables...
 		$scope.init = function() {
@@ -16,17 +16,35 @@
 			$scope.userLoaded = false;
 			$scope.hasUser = false;
 
+			$scope.project = {
+				'name': '',
+				'description': ''
+			};
+			$scope.projectLoaded = true;	// Simply indicates FALSE when a request to create a project is in progress
+
 			userFactory.user().then(function(response) {
 				$scope.userFactory = true;
 				if (response.hasOwnProperty('user')) {
 					$scope.user = response.user;
 					$scope.hasUser = true;
+				} else {
+					// Not logged in
+					$location.path('/login');
 				}
 			});
 		};
 
-		$scope.login = function() {
-			console.log('[app.projectsNewCtrl] $scope.login: called');
+		$scope.create = function() {
+			console.log('[app.projectsNewCtrl] $scope.create(): called');
+			$scope.projectLoaded = false;
+			projectFactory.create($scope.project).then(function(response) {
+				$scope.projectLoaded = true;
+				if (!response.error) {
+					$location.path('/projects/'+response.id);
+				} else {
+					alert('Error creating project.');
+				}
+			});
 		};
 
 

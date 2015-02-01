@@ -42,7 +42,7 @@ with "In progress"/Projects with uncompleted Time Records at the TOP
 		<h4>Projects in-progress</h4>
 		<hr class="projects">
 		<div class="list-group">
-			<a href="#" class="list-group-item list-group-item-success">
+			<a ng-href="/projects/{{ project.id }}" class="list-group-item list-group-item-success">
 				<h4 class="list-group-item-heading">Project Title</h4>
 				<p><span class="glyphicon glyphicon-time"></span> <strong>In progress:</strong> X hours X minutes X seconds</p>
 				<p class="list-group-item-text">Some description....</p>
@@ -59,7 +59,7 @@ with "In progress"/Projects with uncompleted Time Records at the TOP
 		<h4>Projects <small>most recently updated</small></h4>
 		<hr class="projects">
 		<div class="list-group">
-			<a href="#" class="list-group-item list-group-item" ng-repeat="project in projects">
+			<a ng-href="/projects/{{ project.id }}" class="list-group-item list-group-item" ng-repeat="project in projects">
 				<h4 class="list-group-item-heading">{{ project.name }}</h4>
 				<p class="text-primary"><span class="glyphicon glyphicon-time"></span> X hours X minutes X seconds</p>
 				<p class="list-group-item-text">Some description....</p>

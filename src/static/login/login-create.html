@@ -2,13 +2,13 @@
 
 	<div class="row">
 		<div class="col-sm-6">
-			<h2 style="margin-top:0px;">Log in...</h2>
+			<h2 style="margin-top:0px;">Create an account</h2>
 			<ul>
-				<li>View or share your projects.</li>
-				<li>View projects shared with you.</li>
+				<li>Create and share projects with collaborators and observers.</li>
+				<li>Let others share their projects with you.</li>
 				<li>Track your time.</li>
 			</ul>
-			<p>Don't have an account? <a href="/login/login-create">Create an account</a>.</p>
+			<p>Already have an account? <a href="/login">Log in</a>.</p>
 		</div>
 		<div class="col-sm-6">
 			<div class="well">
@@ -21,8 +21,12 @@
 						<label class="control-label">Password</label>
 						<input type="password" class="form-control" name="password" ng-model="login.password" placeholder="Password..." ng-minlength="4" required>
 					</div>
+					<div class="form-group">
+						<label class="control-label">Confirm password</label>
+						<input type="password" class="form-control" name="password2" ng-model="login.password2" placeholder="Confirm password..." ng-minlength="4" required>
+					</div>
 					<div class="form-group" style="margin-bottom:0px;">
-						<button type="submit" class="btn btn-primary" ng-disabled="!loginForm.$valid">Log in</button>
+						<button type="submit" class="btn btn-primary" ng-disabled="!loginForm.$valid">Create account</button>
 					</div>
 				</form>
 			</div> <!-- /.well -->

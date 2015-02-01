@@ -1,11 +1,11 @@
 <div class="container">
 
-	<form class="form-horizontal">
+	<form class="form-horizontal" name="createProjectForm" ng-submit="create()">
 
 		<div class="form-group">
 			<label class="control-label col-md-2">Project name</label>
 			<div class="col-md-10">
-				<input type="text" class="form-control" ng-model="newProject.name" placeholder="New project name..." required>
+				<input type="text" class="form-control" ng-model="project.name" placeholder="New project name..." ng-minlength="4" required>
 			</div>
 		</div>
 
@@ -14,7 +14,7 @@
 		<div class="form-group">
 			<label class="control-label col-md-2">Description <span class="text-muted">(optional)</span></label>
 			<div class="col-md-10">
-				<textarea rows="3" class="form-control"></textarea>
+				<textarea rows="3" class="form-control" ng-model="project.description"></textarea>
 			</div>
 		</div>
 		

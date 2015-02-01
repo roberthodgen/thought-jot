@@ -132,7 +132,6 @@ class Project(ndb.Model):
     return {
       'id': self.key.urlsafe(),
       'name': self.name,
-      'permalink': self.permalink,
       'owner': self.owner,
       'contributors': self.contributors,
       'observers': self.observers,

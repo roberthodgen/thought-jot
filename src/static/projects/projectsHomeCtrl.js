@@ -2,7 +2,7 @@
 
 	var app = angular.module('app.projectsHomeCtrl', []);
 
-	app.controller('app.projectsHomeCtrl', ['$scope', 'app.appFactory', 'ndb_users.userFactory', 'app.projectFactory', function($scope, appFactory, userFactory, projectFactory) {
+	app.controller('app.projectsHomeCtrl', ['$scope', '$location', 'app.appFactory', 'ndb_users.userFactory', 'app.projectFactory', function($scope, $location, appFactory, userFactory, projectFactory) {
 
 		// Perform setup and reset $scope variables...
 		$scope.init = function() {
@@ -34,6 +34,9 @@
 							// Error
 						}
 					});
+				} else {
+					// Not logged in
+					$location.path('/login');
 				}
 			});
 		};

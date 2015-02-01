@@ -11,15 +11,21 @@
 			$scope.config = appFactory.config();
 
 			$scope.user = {};
-			$scope.userLoaded = false;
 			$scope.hasUser = false;
+			$scope.userLoaded = false;
 
-			userFactory.user().then(function(response) {
-				$scope.userLoaded = true;
-				if (response.hasOwnProperty('user')) {
-					$scope.user = response.user;
-					$scope.hasUser = true;
-				}
+			$scope.$watch(function() {
+				return userFactory.user();
+			}, function() {
+				console.log('[app.appCtrl] $scope.$watch: userFactory.user() changed');
+
+				userFactory.user().then(function(response) {
+					$scope.userLoaded = true;
+					if (response.hasOwnProperty('user')) {
+						$scope.user = response.user;
+						$scope.hasUser = true;
+					}
+				});
 			});
 		};
 

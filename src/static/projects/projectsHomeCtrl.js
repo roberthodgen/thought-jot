@@ -1,15 +1,15 @@
 (function() {
 
-	var app = angular.module('app.loginCtrl', []);
+	var app = angular.module('app.projectsHomeCtrl', []);
 
-	app.controller('app.loginCtrl', ['$scope', 'app.appFactory', 'ndb_users.userFactory', function($scope, appFactory, userFactory) {
+	app.controller('app.projectsHomeCtrl', ['$scope', 'app.appFactory', 'ndb_users.userFactory', function($scope, appFactory, userFactory) {
 
 		// Perform setup and reset $scope variables...
 		$scope.init = function() {
-			console.log('[app.loginCtrl] $scope.init(): call');
+			console.log('[app.projectsHomeCtrl] $scope.init(): call');
 			appFactory.config({
-				'pageTitle': 'Log in',
-				'navActive': null
+				'pageTitle': 'Projects',
+				'navActive': 'projects'
 			});
 
 			$scope.user = {};
@@ -26,7 +26,7 @@
 		};
 
 		$scope.login = function() {
-			console.log('[app.loginCtrl] $scope.login: called');
+			console.log('[app.projectsHomeCtrl] $scope.login: called');
 		};
 
 

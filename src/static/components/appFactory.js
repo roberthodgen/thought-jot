@@ -10,7 +10,7 @@
 
 		var configFilters = {
 			pageTitle: function(pageTitle) {
-				if (angular.isDefined(pageTitle)) {
+				if (angular.isString(pageTitle)) {
 					return pageTitle + ' - ' + fixedConfig.pageTitleSuffix;
 				}
 				return fixedConfig.pageTitleSuffix;

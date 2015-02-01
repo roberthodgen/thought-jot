@@ -11,6 +11,7 @@
 		'app.appCtrl',
 
 		'app.homeCtrl',
+		'app.errorCtrl',
 		'app.loginCtrl',
 		'app.projectsHomeCtrl',
 		'app.projectsNewCtrl'
@@ -33,7 +34,8 @@
 			templateUrl: '/projects/projects-new.html',
 			controller: 'app.projectsNewCtrl'
 		}).when('/not-found', {
-			templateUrl: '/error/not-found.html'
+			templateUrl: '/error/not-found.html',
+			controller: 'app.errorCtrl'
 		}).otherwise({
 			redirectTo: '/not-found'
 		})

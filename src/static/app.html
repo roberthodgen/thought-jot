@@ -57,11 +57,15 @@
 		</div> <!-- /.container -->
 	</nav>
 
-	<div ng-view></div>
-
-	<div class="footer">
-		<p class="text-center">Copyright &copy; 2015 Robert Hodgen. {{ pageTitle() }}</p>
+	<div class="wrapper">
+		<div class="main-container" ng-view></div>
 	</div>
+	
+	<div class="footer">
+		<p class="text-center">Copyright &copy; 2015 Robert Hodgen.</p>
+	</div>
+
+	
 
 	<!-- AngularJS -->
 	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular.min.js"></script>
@@ -81,6 +85,7 @@
 	<script src="/components/userFactory.js"></script>
 
 	<script src="/home/homeCtrl.js"></script>
+	<script src="/error/errorCtrl.js"></script>
 	<script src="/login/loginCtrl.js"></script>
 	<script src="/projects/projectsHomeCtrl.js"></script>
 	<script src="/projects/projectsNewCtrl.js"></script>

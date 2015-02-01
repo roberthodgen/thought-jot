@@ -23,10 +23,6 @@
 			});
 		};
 
-		$scope.pageTitle = function() {
-			return appFactory.pageTitle();
-		};
-
 
 		// Init
 		$scope.init();

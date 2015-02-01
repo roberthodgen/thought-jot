@@ -7,6 +7,11 @@
 		// `projects` object caches all our Projects
 		var projects;
 
+		// Data refresh intervals
+		var projects_max_life = 30; 	// seconds
+		var project_max_life = 10;		// seconds
+
+
 		// Service object
 		var service =  {
 			projects: function() {
@@ -105,6 +110,22 @@
 						'status': response.status
 					};
 				});
+			}, project: function(projectId) {
+				console.log('[app.projectFactory] service.project(): call, projectId: '+projectId);
+
+				// Check to see if we have this Project in `projects` with the correct data, and it's not too old...
+
+				var _project = $q.defer();
+
+				service.projects().then(function(response) {
+					if (response.hasOwnProperty(projectId)) {
+
+						// Check age...
+						_project.resolve(response[projectId]);
+					}
+				});
+
+				return _project.promise;
 			}
 		};
 

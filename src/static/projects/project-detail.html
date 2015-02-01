@@ -1,1 +1,43 @@
-<h1>Project</h1>
+<div class="container">
+
+	<h3 ng-class="{ 'text-muted': (!project.name) }">{{ project.name ? project.name : 'Loading project...' }}</h3>
+	<hr>
+
+	<div class="row" style="margin-bottom:30px;">
+		<div class="col-sm-8">
+			<div class="input-group">
+				<input type="text" class="form-control" placeholder="Find time record...">
+
+				<div class="input-group-btn">
+					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+						All time records <span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu" role="menu">
+						<li class="active"><a href="#">All time records</a></li>
+						<li><a href="#">Time records I started</a></li>
+						<li class="divider"></li>
+						<li><a href="#">Deleted</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-4 text-right">
+			<a href="/projects/new-project" class="btn btn-success">New Time Record</a>
+		</div>
+	</div>
+
+	 <div class="projects-list-group">
+		<div class="list-group">
+			<a ng-href="/projects/{{ project.id }}" class="list-group-item list-group-item-success">
+				<h4 class="list-group-item-heading">Project Title</h4>
+				<p><span class="glyphicon glyphicon-time"></span> <strong>In progress:</strong> X hours X minutes X seconds</p>
+				<p class="list-group-item-text">Some description....</p>
+			</a>
+			<a href="#" class="list-group-item list-group-item-success">
+				<h4 class="list-group-item-heading">Project Title</h4>
+				<p><span class="glyphicon glyphicon-time"></span> <strong>In progress:</strong> X hours X minutes X seconds</p>
+				<p class="list-group-item-text">Some description....</p>
+			</a>
+		</div>
+	</div>
+</div> <!-- /.container -->

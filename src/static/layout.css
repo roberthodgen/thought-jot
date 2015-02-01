@@ -19,11 +19,6 @@ html, body {
 	clear: both;
 }
 
-.footer p {
-	line-height: 30px;
-	margin: 0px;
-}
-
 .list-group-item {
 	padding: 15px;
 }

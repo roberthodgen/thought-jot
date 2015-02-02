@@ -32,6 +32,10 @@
 						if (!response.error) {
 							// Success
 							$scope.project = response;
+
+							appFactory.config({
+								'pageTitle': response.name
+							});
 						} else {
 							// Error
 						}
@@ -41,10 +45,6 @@
 					$location.path('/login');
 				}
 			});
-		};
-
-		$scope.login = function() {
-			console.log('[app.projectDetailCtrl] $scope.login: called');
 		};
 
 

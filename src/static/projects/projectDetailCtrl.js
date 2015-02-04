@@ -23,6 +23,12 @@
 			$scope.project = {};
 			$scope.projectLoaded = true;
 
+			$scope.timeRecords = {};
+			$scope.timeRecordsLoaded = false;
+
+			$scope.inProgressResults = [];
+			$scope.activeResults = [];
+
 			userFactory.user().then(function(response) {
 				$scope.userFactory = true;
 				if (response.hasOwnProperty('user')) {
@@ -40,6 +46,16 @@
 							});
 						} else {
 							// Error
+						}
+					});
+
+					projectFactory.timeRecords($scope.projectId).then(function(response) {
+						$scope.timeRecordsLoaded = true;
+						if (!response.error) {
+							// Success
+							$scope.timeRecords = response;
+						} else {
+							alert('Error loading Time Records.');
 						}
 					});
 				} else {

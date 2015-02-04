@@ -13,6 +13,11 @@
 		var project_max_life = 10;		// seconds
 		var projects_force_refetch = true;
 
+		// `timeRecords` object stores promises keyed to Project IDs
+		var timeRecords = {};
+		var time_records_last_fetched = {};	// Keyed to a Project ID
+
+
 		var refreshIntervalPassed = function() {
 
 			var now = new Date().getTime() / 1000;
@@ -60,7 +65,6 @@
 							projects_last_fetched = new Date();
 
 							for (var i = response.data.projects.length - 1; i >= 0; i--) {
-
 								keyedById[response.data.projects[i].id] = response.data.projects[i];
 								keyedById[response.data.projects[i].id]._lastFetch = projects_last_fetched;
 							};
@@ -101,7 +105,6 @@
 
 							var _projects = $q.defer();
 							var allProjects = {};
-
 
 							if (!projects) {
 								projects = _projects.promise;
@@ -147,6 +150,51 @@
 				});
 
 				return _project.promise;
+			}, timeRecords: function(projectId) {
+				console.log('[app.projectFactory] service.timeRecords(): call, projectId: '+projectId);
+				if (!timeRecords[projectId] || projects_force_refetch[projectId] /*|| refreshIntervalPassed()*/) {
+					return service.fetchTimeRecords(projectId);
+				}
+				return timeRecords[projectId];
+			}, fetchTimeRecords: function(projectId) {
+				console.log('[app.projectFactory] service.fetchTimeRecords(): call, projectId: '+projectId)
+				timeRecords[projectId] = $http({
+					method: 'GET',
+					url: '/api/projects/time-records/list.json',
+					params: {
+						't': new Date().getTime(),
+						'project_id': projectId
+					}
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					if (angular.isObject(response.data)) {
+						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('time_records')) {
+							// Iterate through these projects, chang anything that must be changed...
+							console.log('[app.projectFactory] service.fetchTimeRecords(): data.response has projects and time_records, is valid');
+
+							var keyedById = {};
+							time_records_last_fetched[response.data.project.id] = new Date();
+
+							for (var i = response.data.time_records.length - 1; i >= 0; i--) {
+								keyedById[response.data.time_records[i].id] = response.data.time_records[i];
+								keyedById[response.data.time_records[i].id]._lastFetch = time_records_last_fetched[response.data.project.id];
+							};
+							return keyedById;
+						}
+					}
+					console.log('[app.projectFactory] service.fetchTimeRecords(): Error reading response.');
+					return {
+						'error': true
+					};
+				}, function(response) {
+					// Error
+					console.log('[app.projectFactory] service.fetchTimeRecords(): Request error: '+response.status);
+					return {
+						'error': true,
+						'status': response.status
+					};
+				});
+				return timeRecords[projectId];
 			}
 		};
 

@@ -57,13 +57,13 @@
 
 	app.filter('filterActive', function() {
 		return function(projects) {
-			// Return an array of Projects that are active
+			// Return an array of Projects that are active and not in-progress
 			var filtered_projects = [];
 
 			var projects_keys = Object.keys(projects);
 			for (var i = projects_keys.length - 1; i >= 0; i--) {
-				if (projects[projects_keys[i]].hasOwnProperty('active')) {
-					if (projects[projects_keys[i]].active == true) {
+				if (projects[projects_keys[i]].hasOwnProperty('active') && projects[projects_keys[i]].hasOwnProperty('has_uncompleted_time_records')) {
+					if (projects[projects_keys[i]].active == true && projects[projects_keys[i]].has_uncompleted_time_records == false) {
 						filtered_projects.push(projects[projects_keys[i]]);
 					}
 				}
@@ -74,7 +74,7 @@
 
 	app.filter('filterInProgress', function() {
 		return function(projects) {
-			// Return an array of Projects that are in progress
+			// Return an array of Projects that are in-progress
 			var filterd_projects = [];
 
 			var projects_keys = Object.keys(projects);

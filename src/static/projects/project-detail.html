@@ -26,19 +26,27 @@
 		</div>
 	</div>
 
-	 <div class="projects-list-group">
+	<div class="projects-list-group">
+		<h4>Time Records <small>most recently updated</small></h4>
+		<hr class="projects">
 		<div class="list-group">
-			<a ng-href="/projects/{{ project.id }}" class="list-group-item list-group-item-success">
-				<h4 class="list-group-item-heading">Project Title</h4>
-				<p><span class="glyphicon glyphicon-time"></span> <strong>In progress:</strong> {{ project.completed | completedTime }}</p>
-				<p class="list-group-item-text">Some description....</p>
-			</a>
-			<a href="#" class="list-group-item list-group-item-success">
-				<h4 class="list-group-item-heading">Project Title</h4>
-				<p><span class="glyphicon glyphicon-time"></span> <strong>In progress:</strong> {{ project.completed | completedTime }}</p>
-				<p class="list-group-item-text">Some description....</p>
-			</a>
+			<div class="list-group-item list-group-item" ng-repeat="timeRecord in timeRecords | filter:search  | orderBy:'start':true as activeResults">
+				<h4 class="list-group-item-heading">{{ timeRecord.id }}</h4>
+				<p class="text-primary"><span class="glyphicon glyphicon-time"></span> {{ timeRecord.completed | completedTime }}</p>
+				<p ng-show="timeRecord.description">{{ timeRecord.description }}</p>
+				<p class="text-muted" ng-show="!timeRecord.description">No description.</p>
+				<div class="row">
+					<div class="col-md-3">
+						<dl>
+							<dt>Started</dt>
+							<dd>{{ timeRecord.start | date:'medium' }}</dd>
+						</dl>
+					</div>
+				</div>
+				<p class="list-group-item-text text-muted">Updated: {{ timeRecord.updated | date:'medium' }}</p>
+			</div>
 		</div>
+		<p class="text-muted" ng-show="activeResults.length == 0">No results.</p>
 	</div>
 
 </div> <!-- /.container -->

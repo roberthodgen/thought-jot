@@ -36,8 +36,8 @@ with "In progress"/Projects with uncompleted Time Records at the TOP
 		</div>
 	</div>
 
-	 <div class="projects-list-group" ng-show="inProgressResults.length > 0">
-		<h4>Projects in-progress</h4>
+	<div class="projects-list-group" ng-show="inProgressResults.length > 0">
+		<h4>Projects-in-progress</h4>
 		<hr class="projects">
 		<div class="list-group">
 			<a ng-href="/projects/{{ project.id }}" class="list-group-item list-group-item-success" ng-repeat="project in projects | filterInProgress | orderBy:'update':true as inProgressResults">

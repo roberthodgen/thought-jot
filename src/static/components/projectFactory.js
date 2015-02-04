@@ -8,21 +8,41 @@
 		var projects;
 
 		// Data refresh intervals
+		var projects_last_fetched;
 		var projects_max_life = 30; 	// seconds
 		var project_max_life = 10;		// seconds
 		var projects_force_refetch = true;
+
+		var refreshIntervalPassed = function() {
+
+			var now = new Date().getTime() / 1000;
+			if (projects_last_fetched) {
+				var last_fetch = projects_last_fetched.getTime() / 1000;
+			}
+
+			if (!last_fetch) {
+				console.log('[app.projectFactory] refreshIntervalPassed(): No last fetch value.');
+				return true;
+			}
+
+			var seconds = now - last_fetch;
+			console.log('[app.projectFactory] refreshIntervalPassed(): Seconds since last fetch: '+seconds);
+
+			return seconds > projects_max_life;
+		};
 
 
 		// Service object
 		var service =  {
 			projects: function() {
 				console.log('[app.projectFactory] service.projects(): call')
-				if (!projects || projects_force_refetch) {
+				if (!projects || projects_force_refetch || refreshIntervalPassed()) {
 					return service.fetchProjects();
 				}
 				return projects;
 			}, fetchProjects: function() {
 				console.log('[app.projectFactory] service.fetchProjects(): call')
+				projects_force_refetch = false;
 				projects = $http({
 					method: 'GET',
 					url: '/api/projects.json',
@@ -37,12 +57,12 @@
 							console.log('[app.projectFactory] service.fetchProjects(): data.response has projects, is valid');
 
 							var keyedById = {};
-							keyedById._lastFetch = new Date();
+							projects_last_fetched = new Date();
 
 							for (var i = response.data.projects.length - 1; i >= 0; i--) {
 
 								keyedById[response.data.projects[i].id] = response.data.projects[i];
-								keyedById[response.data.projects[i].id]._lastFetch = keyedById._lastFetch;
+								keyedById[response.data.projects[i].id]._lastFetch = projects_last_fetched;
 							};
 							return keyedById;
 						}
@@ -91,7 +111,6 @@
 									allProjects = currentProjects;
 								});
 							}
-
 
 							allProjects[response.data.project.id] = response.data.project;
 							allProjects[response.data.project.id]._lastFetch = new Date();

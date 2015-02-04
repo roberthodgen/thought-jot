@@ -84,7 +84,7 @@ class Project(ndb.Model):
   def create_project(cls, name):
     """ Create a new Project for the currently logged in user named `name`. """
     user = users.get_current_user()
-    new_project = Project(
+    new_project = cls(
       name=name,
       permalink=utilities.permalinkify(name),
       owner=user.email,
@@ -151,7 +151,7 @@ class TimeRecord(ndb.Model):
 
   tags = ndb.StringProperty(repeated=True)
   
-  # The name/description of this Time Record
+  # The name/short description of this Time Record
   name = ndb.StringProperty(default=None)
 
   # The date/time (in UTC) this Time Record was started
@@ -169,6 +169,31 @@ class TimeRecord(ndb.Model):
   # Record WHEN this record was truly created and last updated
   created = ndb.DateTimeProperty(auto_now_add=True)
   updated = ndb.DateTimeProperty(auto_now=True)
+
+  @classmethod
+  def create_time_record(cls, project_key, user_email):
+    """ Create a new TimeRecord for the Project identified by `project_key`. """
+    new_time_record = cls(
+      parent=project_key,
+      user=user_email
+    )
+    return new_time_record.put()
+
+  def json_object(self):
+    """ Return a dictionary representing this Time Record. Will be used for
+    sending information about this Time Record via JSON requests. """
+    start = self.start.replace(tzinfo=UTC())
+    end_string_value = None
+    if self.end:
+      end_string_value = self.end.replace(tzinfo=UTC()).isoformat()
+
+    return {
+      'id': self.key.urlsafe(),
+      'start': start.isoformat(),
+      'end': end_string_value,
+      'completed': self.completed,
+      'name': self.name
+    }
 
 
 class Account(ndb.Model):

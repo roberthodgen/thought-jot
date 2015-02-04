@@ -10,13 +10,14 @@
 		// Data refresh intervals
 		var projects_max_life = 30; 	// seconds
 		var project_max_life = 10;		// seconds
+		var projects_force_refetch = true;
 
 
 		// Service object
 		var service =  {
 			projects: function() {
 				console.log('[app.projectFactory] service.projects(): call')
-				if (!projects) {
+				if (!projects || projects_force_refetch) {
 					return service.fetchProjects();
 				}
 				return projects;
@@ -84,6 +85,7 @@
 
 							if (!projects) {
 								projects = _projects.promise;
+								projects_force_refetch = true; 	// Force refetch of all projects
 							} else {
 								projects.then(function(currentProjects) {
 									allProjects = currentProjects;

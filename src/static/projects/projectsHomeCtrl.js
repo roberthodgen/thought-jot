@@ -50,4 +50,22 @@
 		$scope.init();
 	}]);
 
+
+	app.filter('filterActive', function() {
+		return function(projects) {
+			// Return an array of Projects that are active
+			var active_projects = [];
+
+			var projects_keys = Object.keys(projects);
+			for (var i = projects_keys.length - 1; i >= 0; i--) {
+				if (projects[projects_keys[i]].hasOwnProperty('active')) {
+					if (projects[projects_keys[i]].active == true) {
+						active_projects.push(projects[projects_keys[i]]);
+					}
+				}
+			};
+			return active_projects;
+		};
+	});
+
 })();

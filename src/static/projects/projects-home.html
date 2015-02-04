@@ -59,10 +59,11 @@ with "In progress"/Projects with uncompleted Time Records at the TOP
 		<h4>Projects <small>most recently updated</small></h4>
 		<hr class="projects">
 		<div class="list-group">
-			<a ng-href="/projects/{{ project.id }}" class="list-group-item list-group-item" ng-repeat="project in projects">
+			<a ng-href="/projects/{{ project.id }}" class="list-group-item list-group-item" ng-repeat="project in projects | filterActive | orderBy:'updated':true">
 				<h4 class="list-group-item-heading">{{ project.name }}</h4>
 				<p class="text-primary"><span class="glyphicon glyphicon-time"></span> X hours X minutes X seconds</p>
 				<p class="list-group-item-text">Some description....</p>
+				<p class="list-group-item-text text-muted">Updated: {{ project.updated | date:'medium' }}</p>
 			</a>
 		</div>
 	</div>

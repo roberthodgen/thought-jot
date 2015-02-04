@@ -8,6 +8,7 @@
 		'app.appFactory',
 		'ndb_users.userFactory',
 		'app.projectFactory',
+		'app.completedTimeFilter',
 
 		'app.appCtrl',
 

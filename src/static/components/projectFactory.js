@@ -45,7 +45,7 @@
 				projects_force_refetch = false;
 				projects = $http({
 					method: 'GET',
-					url: '/api/projects.json',
+					url: '/api/projects/list.json',
 					params: {
 						't': new Date().getTime()
 					}

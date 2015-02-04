@@ -191,7 +191,7 @@ class ProjectContributorsRemove(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
   webapp2.Route(
-    '/api/projects.json',
+    '/api/projects/list.json',
     handler=ProjectList
   ), webapp2.Route(
     '/api/projects/create.json',

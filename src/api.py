@@ -188,6 +188,89 @@ class ProjectContributorsRemove(webapp2.RequestHandler):
     self.response.content_type = 'application/json'
     self.response.out.write(json.dumps(response_object))
 
+class TimeRecordsList(webapp2.RequestHandler):
+  def get(self):
+    """ List the Time Records associated with a Project. """
+    response_object= {}
+    user = users.get_current_user()
+    if not user:
+      self.abort(401)
+    project_key_id = self.request.GET.get('project_id')
+    if project_key_id:
+      project_key = ndb.Key(urlsafe=project_key_id)
+      project = project_key.get()
+      if project:
+        response_object['project'] = project.json_object()
+        # Query for Projects this User owns, contributes to, or may observe
+        time_records = model.TimeRecord.query(ancestor=project_key)
+        response_object['time_records'] = []
+        for time_record in time_records:
+          response_object['time_records'].append(time_record.json_object())
+      else:
+        self.response.set_status(404)
+        response_object['not_found'] = {
+          'project': not bool(project)
+        }
+    else:
+      self.response.set_status(400)
+      response_object['missing'] = {
+        'get': {
+          'project_id': not bool(project_key_id)
+        }
+      }
+    # Send response
+    self.response.content_type = 'application/json'
+    self.response.out.write(json.dumps(response_object))
+
+class TimeRecordCreate(webapp2.RequestHandler):
+  def post(self):
+    """ Create a new Time Record associated with this Project. """
+    response_object = {}
+    user = users.get_current_user()
+    if not user:
+      self.abort(401)
+
+     # Get JSON request body
+    if self.request.body:
+      request_object = json.loads(self.request.body)
+      project_key_id = request_object.get('project_id')
+      if project_key_id:
+        project_key = ndb.Key(urlsafe=project_key_id)
+        project = project_key.get()
+        if project:
+          if not project.has_uncompleted_time_records:
+            new_time_record_key = model.TimeRecord.create_time_record(
+              project_key, user.email)
+            new_time_record = new_time_record_key.get()
+            response_object['time_record'] = new_time_record.json_object()
+            response_object['project'] = project_key.get().json_object()
+          else:
+            self.response.set_status(400)
+            response_object['error'] = {
+              'project': {
+                'has_uncompleted_time_records': True
+            }}
+        else:
+          self.response.set_status(404)
+          response_object['not_found'] = {
+            'project': not bool(project)
+          }
+      else:
+        self.response.set_status(400)
+        response_object['missing'] = {
+          'post_body_json': {
+            'project_id': True
+        }}
+    else:
+      self.response.set_status(400)
+      response_object['missing'] =  {
+        'post_body_json': True
+      }
+
+    # Send response
+    self.response.content_type = 'application/json'
+    self.response.out.write(json.dumps(response_object))
+
 
 app = webapp2.WSGIApplication([
   webapp2.Route(
@@ -205,6 +288,12 @@ app = webapp2.WSGIApplication([
   ), webapp2.Route(
     '/api/projects/contributors/remove.json',
     handler=ProjectContributorsRemove
+  ), webapp2.Route(
+    '/api/projects/time-records/list.json',
+    handler=TimeRecordsList
+  ), webapp2.Route(
+    '/api/projects/time-records/create.json',
+    handler=TimeRecordCreate
   )
 ])
 

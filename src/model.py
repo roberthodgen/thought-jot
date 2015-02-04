@@ -171,12 +171,14 @@ class TimeRecord(ndb.Model):
   updated = ndb.DateTimeProperty(auto_now=True)
 
   @classmethod
+  @ndb.transactional()
   def create_time_record(cls, project_key, user_email):
     """ Create a new TimeRecord for the Project identified by `project_key`. """
     new_time_record = cls(
       parent=project_key,
       user=user_email
     )
+    project_key.get().put() # Update the `updated` property
     return new_time_record.put()
 
   def json_object(self):
@@ -192,7 +194,10 @@ class TimeRecord(ndb.Model):
       'start': start.isoformat(),
       'end': end_string_value,
       'completed': self.completed,
-      'name': self.name
+      'created': self.created.replace(tzinfo=UTC()).isoformat(),
+      'updated': self.updated.replace(tzinfo=UTC()).isoformat(),
+      'name': self.name,
+      'user': self.user
     }
 
 

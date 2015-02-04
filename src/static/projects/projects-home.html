@@ -15,7 +15,7 @@ with "In progress"/Projects with uncompleted Time Records at the TOP
 	<div class="row" style="margin-bottom:30px;">
 		<div class="col-sm-8">
 			<div class="input-group">
-				<input type="text" class="form-control" placeholder="Find projects...">
+				<input type="text" class="form-control" ng-model="search" placeholder="Find projects...">
 
 				<div class="input-group-btn">
 					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
@@ -36,21 +36,15 @@ with "In progress"/Projects with uncompleted Time Records at the TOP
 		</div>
 	</div>
 
-
-
-	 <div class="projects-list-group">
+	 <div class="projects-list-group" ng-show="inProgressResults.length > 0">
 		<h4>Projects in-progress</h4>
 		<hr class="projects">
 		<div class="list-group">
-			<a ng-href="/projects/{{ project.id }}" class="list-group-item list-group-item-success">
-				<h4 class="list-group-item-heading">Project Title</h4>
-				<p><span class="glyphicon glyphicon-time"></span> <strong>In progress:</strong> X hours X minutes X seconds</p>
-				<p class="list-group-item-text">Some description....</p>
-			</a>
-			<a href="#" class="list-group-item list-group-item-success">
-				<h4 class="list-group-item-heading">Project Title</h4>
-				<p><span class="glyphicon glyphicon-time"></span> <strong>In progress:</strong> X hours X minutes X seconds</p>
-				<p class="list-group-item-text">Some description....</p>
+			<a ng-href="/projects/{{ project.id }}" class="list-group-item list-group-item-success" ng-repeat="project in projects | filterInProgress | orderBy:'update':true as inProgressResults">
+				<h4 class="list-group-item-heading">{{ project.name }}</h4>
+				<p><span class="glyphicon glyphicon-time"></span> <strong>In progress:</strong> {{ project.completed | completedTime }}</p>
+				<p ng-show="project.description">{{ project.description }}</p>
+				<p class="text-muted" ng-show="!project.description">No description.</p>
 			</a>
 		</div>
 	</div>
@@ -59,12 +53,15 @@ with "In progress"/Projects with uncompleted Time Records at the TOP
 		<h4>Projects <small>most recently updated</small></h4>
 		<hr class="projects">
 		<div class="list-group">
-			<a ng-href="/projects/{{ project.id }}" class="list-group-item list-group-item" ng-repeat="project in projects | filterActive | orderBy:'updated':true">
+			<a ng-href="/projects/{{ project.id }}" class="list-group-item list-group-item" ng-repeat="project in activeProjects | filter:search  | orderBy:'updated':true as activeResults">
 				<h4 class="list-group-item-heading">{{ project.name }}</h4>
-				<p class="text-primary"><span class="glyphicon glyphicon-time"></span> X hours X minutes X seconds</p>
-				<p class="list-group-item-text">Some description....</p>
+				<p class="text-primary"><span class="glyphicon glyphicon-time"></span> {{ project.completed | completedTime }}</p>
+				<p ng-show="project.description">{{ project.description }}</p>
+				<p class="text-muted" ng-show="!project.description">No description.</p>
 				<p class="list-group-item-text text-muted">Updated: {{ project.updated | date:'medium' }}</p>
 			</a>
 		</div>
+		<p class="text-muted" ng-show="activeResults.length == 0">No results.</p>
 	</div>
+	
 </div> <!-- /.container -->

@@ -6,7 +6,7 @@
 	<div class="row" style="margin-bottom:30px;">
 		<div class="col-sm-8">
 			<div class="input-group">
-				<input type="text" class="form-control" placeholder="Find time record...">
+				<input type="text" class="form-control" ng-model="search" placeholder="Find time record...">
 
 				<div class="input-group-btn">
 					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
@@ -22,7 +22,7 @@
 			</div>
 		</div>
 		<div class="col-sm-4 text-right">
-			<a href="/projects/new-project" class="btn btn-success">New Time Record</a>
+			<button type="button" class="btn btn-success">New Time Record</button>
 		</div>
 	</div>
 
@@ -30,14 +30,15 @@
 		<div class="list-group">
 			<a ng-href="/projects/{{ project.id }}" class="list-group-item list-group-item-success">
 				<h4 class="list-group-item-heading">Project Title</h4>
-				<p><span class="glyphicon glyphicon-time"></span> <strong>In progress:</strong> X hours X minutes X seconds</p>
+				<p><span class="glyphicon glyphicon-time"></span> <strong>In progress:</strong> {{ project.completed | completedTime }}</p>
 				<p class="list-group-item-text">Some description....</p>
 			</a>
 			<a href="#" class="list-group-item list-group-item-success">
 				<h4 class="list-group-item-heading">Project Title</h4>
-				<p><span class="glyphicon glyphicon-time"></span> <strong>In progress:</strong> X hours X minutes X seconds</p>
+				<p><span class="glyphicon glyphicon-time"></span> <strong>In progress:</strong> {{ project.completed | completedTime }}</p>
 				<p class="list-group-item-text">Some description....</p>
 			</a>
 		</div>
 	</div>
+
 </div> <!-- /.container -->

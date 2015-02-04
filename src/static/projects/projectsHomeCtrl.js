@@ -2,7 +2,7 @@
 
 	var app = angular.module('app.projectsHomeCtrl', []);
 
-	app.controller('app.projectsHomeCtrl', ['$scope', '$location', 'app.appFactory', 'ndb_users.userFactory', 'app.projectFactory', function($scope, $location, appFactory, userFactory, projectFactory) {
+	app.controller('app.projectsHomeCtrl', ['$scope', '$location', '$filter', 'app.appFactory', 'ndb_users.userFactory', 'app.projectFactory', function($scope, $location, $filter, appFactory, userFactory, projectFactory) {
 
 		// Perform setup and reset $scope variables...
 		$scope.init = function() {
@@ -11,6 +11,8 @@
 				'pageTitle': 'Projects',
 				'navActive': 'projects'
 			});
+
+			$scope.search = '';
 
 			$scope.user = {};
 			$scope.userLoaded = false;
@@ -30,6 +32,8 @@
 						if (!response.error) {
 							// Success
 							$scope.projects = response;
+
+							$scope.activeProjects = $filter('filterActive')(response);
 						} else {
 							// Error
 						}
@@ -54,17 +58,34 @@
 	app.filter('filterActive', function() {
 		return function(projects) {
 			// Return an array of Projects that are active
-			var active_projects = [];
+			var filtered_projects = [];
 
 			var projects_keys = Object.keys(projects);
 			for (var i = projects_keys.length - 1; i >= 0; i--) {
 				if (projects[projects_keys[i]].hasOwnProperty('active')) {
 					if (projects[projects_keys[i]].active == true) {
-						active_projects.push(projects[projects_keys[i]]);
+						filtered_projects.push(projects[projects_keys[i]]);
 					}
 				}
 			};
-			return active_projects;
+			return filtered_projects;
+		};
+	});
+
+	app.filter('filterInProgress', function() {
+		return function(projects) {
+			// Return an array of Projects that are in progress
+			var filterd_projects = [];
+
+			var projects_keys = Object.keys(projects);
+			for (var i = projects_keys.length - 1; i >= 0; i--) {
+				if (projects[projects_keys[i]].hasOwnProperty('has_uncompleted_time_records')) {
+					if (projects[projects_keys[i]].has_uncompleted_time_records == true) {
+						filterd_projects.push(projects[projects_keys[i]]);
+					}
+				}
+			};
+			return filterd_projects;
 		};
 	});
 

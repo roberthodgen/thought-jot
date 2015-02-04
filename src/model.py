@@ -32,8 +32,11 @@ class UTC(tzinfo):
 class Project(ndb.Model):
   """ Project """
 
-  # The name/description of this Project
+  # The name/short description of this Project
   name = ndb.StringProperty(required=True)
+
+  # The long description of this Project
+  description = ndb.StringProperty(default=None)
 
   # The permalink (or web safe name, used in URLs) of this Project
   permalink = ndb.StringProperty(required=True)

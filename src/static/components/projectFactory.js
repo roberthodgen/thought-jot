@@ -108,8 +108,8 @@
 
 							if (!projects) {
 								projects = _projects.promise;
-								projects_force_refetch = true; 	// Force refetch of all projects
 							} else {
+								projects_force_refetch = true; 	// Force refetch of all projects
 								projects.then(function(currentProjects) {
 									allProjects = currentProjects;
 								});

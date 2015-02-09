@@ -15,6 +15,7 @@
 			var _projects = $q.defer();
 			for (var i = newProjects.length - 1; i >= 0; i--) {
 				existingProjects[newProjects[i].id] = newProjects[i];
+				// Configure this Project as necessary...
 				existingProjects[newProjects[i].id]._lastFetch = new Date();
 			}
 			_projects.resolve(existingProjects);	// Resolve Projects
@@ -33,6 +34,7 @@
 			var _timeRecords = $q.defer();
 			for (var i = newTimeRecords.length - 1; i >= 0; i--) {
 				existingTimeRecords[newTimeRecords[i].id] = newTimeRecords[i];
+				// Configure this Time Record as necessary...
 				existingTimeRecords[newTimeRecords[i].id]._lastFetch = new Date();
 			}
 			_timeRecords.resolve(existingTimeRecords);
@@ -128,7 +130,6 @@
 							// Success!!!
 							console.log('[app.projectFactory] service.create(): data.response has project, is valid');
 
-							response.data.project._lastFetch = new Date();
 							if (!projects) {
 								projects_force_refetch = true; 	// Force refetch of all projects
 								projects = promiseForUpdatedProjects({}, [response.data.project]);

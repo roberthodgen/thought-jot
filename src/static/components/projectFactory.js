@@ -13,9 +13,10 @@
 		var project_max_life = 10;		// seconds
 		var projects_force_refetch = true;
 
-		// `timeRecords` object stores promises keyed to Project IDs
-		var timeRecords = {};
+		// `time_records` object stores promises keyed to Project IDs
+		var time_records = {};
 		var time_records_last_fetched = {};	// Keyed to a Project ID
+		var time_records_force_refetch = {};
 
 
 		var refreshIntervalPassed = function() {
@@ -152,13 +153,13 @@
 				return _project.promise;
 			}, timeRecords: function(projectId) {
 				console.log('[app.projectFactory] service.timeRecords(): call, projectId: '+projectId);
-				if (!timeRecords[projectId] || projects_force_refetch[projectId] /*|| refreshIntervalPassed()*/) {
+				if (!time_records[projectId] || time_records_force_refetch[projectId] /*|| refreshIntervalPassed()*/) {
 					return service.fetchTimeRecords(projectId);
 				}
-				return timeRecords[projectId];
+				return time_records[projectId];
 			}, fetchTimeRecords: function(projectId) {
 				console.log('[app.projectFactory] service.fetchTimeRecords(): call, projectId: '+projectId)
-				timeRecords[projectId] = $http({
+				time_records[projectId] = $http({
 					method: 'GET',
 					url: '/api/projects/time-records/list.json',
 					params: {
@@ -172,14 +173,15 @@
 							// Iterate through these projects, chang anything that must be changed...
 							console.log('[app.projectFactory] service.fetchTimeRecords(): data.response has projects and time_records, is valid');
 
-							var keyedById = {};
 							time_records_last_fetched[response.data.project.id] = new Date();
 
-							for (var i = response.data.time_records.length - 1; i >= 0; i--) {
-								keyedById[response.data.time_records[i].id] = response.data.time_records[i];
-								keyedById[response.data.time_records[i].id]._lastFetch = time_records_last_fetched[response.data.project.id];
-							};
-							return keyedById;
+							var _timeRecord = $q.defer();
+
+
+							response.data.time_records._lastFetch = time_records_last_fetched[response.data.project.id];
+							_timeRecord.resolve(response.data.time_records);
+
+							return _timeRecord.promise;
 						}
 					}
 					console.log('[app.projectFactory] service.fetchTimeRecords(): Error reading response.');
@@ -194,7 +196,82 @@
 						'status': response.status
 					};
 				});
-				return timeRecords[projectId];
+				return time_records[projectId];
+			}, createTimeRecord: function(projectId) {
+				return $http({
+					method: 'POST',
+					url: '/api/projects/time-records/create.json',
+					params: {
+						't': new Date().getTime()
+					}, data: {
+						'project_id': projectId
+					}
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					if (angular.isObject(response.data)) {
+						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('time_record')) {
+							// Success!!!
+							console.log('[app.projectFactory] service.createTimeRecord(): data.response has project and time_record, is valid');
+
+							var _projects = $q.defer();
+							var allProjects = {};
+
+							if (!projects) {
+								projects = _projects.promise;
+								projects_force_refetch = true; 	// Force refetch of all projects
+							} else {
+								projects.then(function(currentProjects) {
+									allProjects = currentProjects;
+								});
+							}
+
+							allProjects[response.data.project.id] = response.data.project;
+							allProjects[response.data.project.id]._lastFetch = new Date();
+
+							_projects.resolve(allProjects);	// Resolve Projects
+
+							// Time Record
+							// var keyedById = {};
+							// time_records_last_fetched[response.data.project.id] = new Date();
+
+							var _timeRecords = $q.defer();
+							var allTimeRecords = {};
+
+							if (!time_records[response.data.project.id]) {
+								time_records[response.data.project.id] = _timeRecords.promise;
+								time_records_force_refetch[response.data.project.id] = true;	// Force refetch of all projects
+							} else {
+								time_records[response.data.project.id].then(function(currentTimeRecords) {
+									allTimeRecords = currentTimeRecords;
+								});
+							}
+
+							if (angular.isArray(allTimeRecords[response.data.project.id])) {
+								allTimeRecords[response.data.project.id].push(response.data.time_record);								
+							} else {
+								allTimeRecords[response.data.project.id] = [response.data.time_record];
+							}
+
+							_timeRecords.resolve(allTimeRecords);	// Resolve Time Records
+
+							return {
+								'project': response.data.project,
+								'time_record': response.data.time_record
+							};
+						}
+					}
+					console.log('[app.projectFactory] service.create(): Error reading response.');
+					return {
+						'error': true
+					};
+				}, function(response) {
+					// Error
+					console.log('[app.projectFactory] service.create(): Request error: '+response.status);
+					return {
+						'error': true,
+						'status': response.status
+					};
+				});
 			}
 		};
 

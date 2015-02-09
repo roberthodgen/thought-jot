@@ -22,7 +22,7 @@
 			</div>
 		</div>
 		<div class="col-sm-4 text-right">
-			<button type="button" class="btn btn-success">New Time Record</button>
+			<button type="button" class="btn btn-success" ng-click="createTimeRecord();">New Time Record</button>
 		</div>
 	</div>
 
@@ -30,7 +30,7 @@
 		<h4>Time Records <small>most recently updated</small></h4>
 		<hr class="projects">
 		<div class="list-group">
-			<div class="list-group-item list-group-item" ng-repeat="timeRecord in timeRecords | filter:search  | orderBy:'start':true as activeResults">
+			<div class="list-group-item list-group-item" ng-repeat="timeRecord in timeRecords | orderBy:'updated':true as activeResults">
 				<h4 class="list-group-item-heading">{{ timeRecord.id }}</h4>
 				<p class="text-primary"><span class="glyphicon glyphicon-time"></span> {{ timeRecord.completed | completedTime }}</p>
 				<p ng-show="timeRecord.description">{{ timeRecord.description }}</p>

@@ -23,10 +23,9 @@
 			$scope.project = {};
 			$scope.projectLoaded = true;
 
-			$scope.timeRecords = {};
+			$scope.timeRecords = [];
 			$scope.timeRecordsLoaded = false;
 
-			$scope.inProgressResults = [];
 			$scope.activeResults = [];
 
 			userFactory.user().then(function(response) {
@@ -61,6 +60,17 @@
 				} else {
 					// Not logged in
 					$location.path('/login');
+				}
+			});
+		};
+
+		$scope.createTimeRecord = function() {
+			projectFactory.createTimeRecord($scope.projectId).then(function(response) {
+				if (response.hasOwnProperty('project')) {
+					$scope.project = response.project;
+				}
+				if (response.hasOwnProperty('time_record')) {
+					$scope.timeRecords.push(response.time_record);
 				}
 			});
 		};

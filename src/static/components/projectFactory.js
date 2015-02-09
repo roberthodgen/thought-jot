@@ -4,37 +4,48 @@
 
 	app.factory('app.projectFactory', ['$http', '$q', function($http, $q) {
 
-		// `projects` object caches all our Projects
-		var projects;
-
-		// Data refresh intervals
-		var projects_last_fetched;
-		var projects_max_life = 30; 	// seconds
-		var project_max_life = 10;		// seconds
+		// Projects
+		var projects; // `projects` object caches all our Projects
 		var projects_force_refetch = true;
+		var projects_last_fetched;
+		var promiseForUpdatedProjects = function(existingProjects, newProjects) {
+			/*
+				Return a promise by merging `newProjects` into `existingProjects`.
+			*/
+			var _projects = $q.defer();
+			for (var i = newProjects.length - 1; i >= 0; i--) {
+				existingProjects[newProjects[i].id] = newProjects[i];
+				existingProjects[newProjects[i].id]._lastFetch = new Date();
+			}
+			_projects.resolve(existingProjects);	// Resolve Projects
+			return _projects.promise;
+		};
+		
 
-		// `time_records` object stores promises keyed to Project IDs
-		var time_records = {};
+		// Time Records
+		var time_records = {};	// `time_records` object stores promises keyed to Project IDs
 		var time_records_last_fetched = {};	// Keyed to a Project ID
 		var time_records_force_refetch = {};
 
 
-		var refreshIntervalPassed = function() {
-
-			var now = new Date().getTime() / 1000;
-			if (projects_last_fetched) {
-				var last_fetch = projects_last_fetched.getTime() / 1000;
+		// Timeouts/Refresh intervals
+		var PROJECTS_LIFE = 30;
+		var TIME_RECORDS_LIFE = 30;
+		var refreshIntervalPassed = function(lastFetchDate, interval) {
+			/*
+				Return TRUE if `date` is outside of our max interval.
+			*/
+			var now_seconds = new Date().getTime() / 1000;
+			if (lastFetchDate) {
+				var last_fetch_seconds = lastFetchDate.getTime() / 1000;
 			}
-
-			if (!last_fetch) {
+			if (!last_fetch_seconds) {
 				console.log('[app.projectFactory] refreshIntervalPassed(): No last fetch value.');
 				return true;
 			}
-
-			var seconds = now - last_fetch;
-			console.log('[app.projectFactory] refreshIntervalPassed(): Seconds since last fetch: '+seconds);
-
-			return seconds > projects_max_life;
+			var interval_seconds = now_seconds - last_fetch_seconds;
+			console.log('[app.projectFactory] refreshIntervalPassed(): Seconds since last fetch: '+interval_seconds);
+			return interval_seconds > interval;
 		};
 
 
@@ -42,7 +53,7 @@
 		var service =  {
 			projects: function() {
 				console.log('[app.projectFactory] service.projects(): call')
-				if (!projects || projects_force_refetch || refreshIntervalPassed()) {
+				if (!projects || projects_force_refetch || refreshIntervalPassed(projects_last_fetched, PROJECTS_LIFE)) {
 					return service.fetchProjects();
 				}
 				return projects;
@@ -103,6 +114,7 @@
 					if (angular.isObject(response.data)) {
 						if (response.data.hasOwnProperty('project')) {
 							// Success!!!
+							console.log('[app.projectFactory] service.create(): data.response has project, is valid');
 
 							var _projects = $q.defer();
 							var allProjects = {};
@@ -153,7 +165,7 @@
 				return _project.promise;
 			}, timeRecords: function(projectId) {
 				console.log('[app.projectFactory] service.timeRecords(): call, projectId: '+projectId);
-				if (!time_records[projectId] || time_records_force_refetch[projectId] /*|| refreshIntervalPassed()*/) {
+				if (!time_records[projectId] || time_records_force_refetch[projectId] || refreshIntervalPassed(time_records_last_fetched[projectId], TIME_RECORDS_LIFE)) {
 					return service.fetchTimeRecords(projectId);
 				}
 				return time_records[projectId];
@@ -213,26 +225,17 @@
 							// Success!!!
 							console.log('[app.projectFactory] service.createTimeRecord(): data.response has project and time_record, is valid');
 
-							var _projects = $q.defer();
-							var allProjects = {};
-
 							if (!projects) {
-								projects = _projects.promise;
+								console.log('[app.projectFactory] service.createTimeRecord(): projects not present');
 								projects_force_refetch = true; 	// Force refetch of all projects
+								projects = promiseForUpdatedProjects({}, [response.data.project]);
 							} else {
 								projects.then(function(currentProjects) {
-									allProjects = currentProjects;
+									projects = promiseForUpdatedProjects(currentProjects, [response.data.project]);
 								});
 							}
 
-							allProjects[response.data.project.id] = response.data.project;
-							allProjects[response.data.project.id]._lastFetch = new Date();
-
-							_projects.resolve(allProjects);	// Resolve Projects
-
-							// Time Record
-							// var keyedById = {};
-							// time_records_last_fetched[response.data.project.id] = new Date();
+							
 
 							var _timeRecords = $q.defer();
 							var allTimeRecords = {};

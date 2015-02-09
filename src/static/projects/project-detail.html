@@ -31,8 +31,9 @@
 		<hr class="projects">
 		<div class="list-group">
 			<div class="list-group-item list-group-item" ng-repeat="timeRecord in timeRecords | orderBy:'updated':true as activeResults">
-				<h4 class="list-group-item-heading">{{ timeRecord.id }}</h4>
+				<h4 class="list-group-item-heading">{{ timeRecord.name }}</h4>
 				<p class="text-primary"><span class="glyphicon glyphicon-time"></span> {{ timeRecord.completed | completedTime }}</p>
+				<p class="text-muted">ID: <span>{{ timeRecord.id }}</span></p>
 				<p ng-show="timeRecord.description">{{ timeRecord.description }}</p>
 				<p class="text-muted" ng-show="!timeRecord.description">No description.</p>
 				<div class="row">

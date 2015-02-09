@@ -20,7 +20,7 @@
 			_projects.resolve(existingProjects);	// Resolve Projects
 			return _projects.promise;
 		};
-		
+
 
 		// Time Records
 		var time_records = {};	// `time_records` object stores promises keyed to Project IDs
@@ -116,23 +116,17 @@
 							// Success!!!
 							console.log('[app.projectFactory] service.create(): data.response has project, is valid');
 
-							var _projects = $q.defer();
-							var allProjects = {};
-
+							response.data.project._lastFetch = new Date();
 							if (!projects) {
-								projects = _projects.promise;
-							} else {
 								projects_force_refetch = true; 	// Force refetch of all projects
+								projects = promiseForUpdatedProjects({}, [response.data.project]);
+							} else {
 								projects.then(function(currentProjects) {
-									allProjects = currentProjects;
+									projects = promiseForUpdatedProjects(currentProjects, [response.data.project]);
 								});
 							}
 
-							allProjects[response.data.project.id] = response.data.project;
-							allProjects[response.data.project.id]._lastFetch = new Date();
-
-							_projects.resolve(allProjects);	// Resolve projects
-							return allProjects[response.data.project.id];
+							return response.data.project;
 						}
 					}
 					console.log('[app.projectFactory] service.create(): Error reading response.');

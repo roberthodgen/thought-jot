@@ -10,7 +10,7 @@
 		var projects_last_fetched;
 		var promiseForUpdatedProjects = function(existingProjects, newProjects) {
 			/*
-				Return a promise by merging `newProjects` into `existingProjects`.
+				Return a promise after merging `newProjects` into `existingProjects`.
 			*/
 			var _projects = $q.defer();
 			for (var i = newProjects.length - 1; i >= 0; i--) {
@@ -26,6 +26,18 @@
 		var time_records = {};	// `time_records` object stores promises keyed to Project IDs
 		var time_records_last_fetched = {};	// Keyed to a Project ID
 		var time_records_force_refetch = {};
+		var promiseForUpdatedTimeRecords = function(existingTimeRecords, newTimeRecords) {
+			/*
+				Return a promise after merging `newTimeRecords` into `existingTimeRecords`.
+			*/
+			var _timeRecords = $q.defer();
+			for (var i = newTimeRecords.length - 1; i >= 0; i--) {
+				existingTimeRecords[newTimeRecords[i].id] = newTimeRecords[i];
+				existingTimeRecords[newTimeRecords[i].id]._lastFetch = new Date();
+			}
+			_timeRecords.resolve(existingTimeRecords);
+			return _timeRecords.promise;
+		};
 
 
 		// Timeouts/Refresh intervals
@@ -183,7 +195,6 @@
 
 							var _timeRecord = $q.defer();
 
-
 							response.data.time_records._lastFetch = time_records_last_fetched[response.data.project.id];
 							_timeRecord.resolve(response.data.time_records);
 
@@ -229,27 +240,14 @@
 								});
 							}
 
-							
-
-							var _timeRecords = $q.defer();
-							var allTimeRecords = {};
-
 							if (!time_records[response.data.project.id]) {
-								time_records[response.data.project.id] = _timeRecords.promise;
 								time_records_force_refetch[response.data.project.id] = true;	// Force refetch of all projects
+								time_records[response.data.project.id] = promiseForUpdatedTimeRecords({}, [response.data.time_record]);
 							} else {
 								time_records[response.data.project.id].then(function(currentTimeRecords) {
-									allTimeRecords = currentTimeRecords;
+									time_records[response.data.project.id] = promiseForUpdatedTimeRecords(currentTimeRecords, [response.data.time_record]);
 								});
 							}
-
-							if (angular.isArray(allTimeRecords[response.data.project.id])) {
-								allTimeRecords[response.data.project.id].push(response.data.time_record);								
-							} else {
-								allTimeRecords[response.data.project.id] = [response.data.time_record];
-							}
-
-							_timeRecords.resolve(allTimeRecords);	// Resolve Time Records
 
 							return {
 								'project': response.data.project,

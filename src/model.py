@@ -55,7 +55,7 @@ class Project(ndb.Model):
   users = ndb.StringProperty(repeated=True)
 
   # The number of seconds this Project has recorded
-  completed = ndb.FloatProperty(default=None)
+  completed = ndb.FloatProperty(default=0)
 
   # Whether this Project should appear in a User's Projects list (not archived)
   active = ndb.BooleanProperty(required=True, default=True)
@@ -180,6 +180,25 @@ class TimeRecord(ndb.Model):
     )
     project_key.get().put() # Update the `updated` property
     return new_time_record.put()
+
+  def complete_time_record(self):
+    """ Complete this Time Record by setting the `end` property, computing
+    it's total seconds and setting this Time Record's `completed`
+    property and add its seconds to it's parent Project. """
+
+    # Only proceed if `self.completed` is None
+    if not self.completed:
+      # Update and record
+      self.end = datetime.now()
+      self.completed = (self.end - self.start).total_seconds()
+      self.put()
+
+      # Update the parent Project
+      project_key = self.key.parent()
+      project = project_key.get()
+      project.completed += self.completed
+      project.put()
+    return self
 
   def json_object(self):
     """ Return a dictionary representing this Time Record. Will be used for

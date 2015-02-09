@@ -229,7 +229,6 @@ class TimeRecordCreate(webapp2.RequestHandler):
     user = users.get_current_user()
     if not user:
       self.abort(401)
-
      # Get JSON request body
     if self.request.body:
       request_object = json.loads(self.request.body)
@@ -266,7 +265,51 @@ class TimeRecordCreate(webapp2.RequestHandler):
       response_object['missing'] =  {
         'post_body_json': True
       }
+    # Send response
+    self.response.content_type = 'application/json'
+    self.response.out.write(json.dumps(response_object))
 
+class TimeRecordComplete(webapp2.RequestHandler):
+  def post(self):
+    """ complete the Time Record. """
+    response_object = {}
+    user = users.get_current_user()
+    if not user:
+      self.abort(401)
+    # GET JSON request body
+    if self.request.body:
+      request_object = json.loads(self.request.body)
+      time_record_key_id = request_object.get('time_record_id')
+      if time_record_key_id:
+        time_record_key = ndb.Key(urlsafe=time_record_key_id)
+        time_record = time_record_key.get()
+        if time_record:
+          time_record.complete_time_record()
+          if len(request_object.keys()) > 1:
+            # Process optional items...
+            name = request_object.get('name')
+            if name:
+              time_record.name = name
+            time_record.put()
+          response_object['time_record'] = time_record.json_object()
+          project = time_record.key.parent().get()
+          response_object['project'] = project.json_object()
+        else:
+          self.response.set_status(404)
+          response_object['not_found'] = {
+            'time_record': not bool(time_record)
+          }
+      else:
+        self.response.set_status(400)
+        response_object['missing'] = {
+          'post_body_json': {
+            'time_record_id': True
+        }}
+    else:
+      self.response.set_status(400)
+      response_object['missing'] =  {
+        'post_body_json': True
+      }
     # Send response
     self.response.content_type = 'application/json'
     self.response.out.write(json.dumps(response_object))
@@ -294,6 +337,9 @@ app = webapp2.WSGIApplication([
   ), webapp2.Route(
     '/api/projects/time-records/create.json',
     handler=TimeRecordCreate
+  ), webapp2.Route(
+    '/api/projects/time-records/complete.json',
+    handler=TimeRecordComplete
   )
 ])
 

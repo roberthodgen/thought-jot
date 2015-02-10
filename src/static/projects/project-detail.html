@@ -32,7 +32,7 @@
 		<h4>Time Records <small>most recently updated</small></h4>
 		<hr class="projects">
 		<div class="list-group">
-			<div class="list-group-item list-group-item" ng-repeat="timeRecord in timeRecords | orderBy:'updated':true as activeResults">
+			<div class="list-group-item list-group-item" ng-class="{ 'list-group-item-success': (!timeRecord.completed) }" ng-repeat="timeRecord in timeRecords | orderBy:'updated':true as activeResults">
 				
 				<form class="form-horizontal" ng-show="!timeRecord.completed">
 					<div class="form-group">

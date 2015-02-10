@@ -27,6 +27,7 @@
 		var time_records = {};	// `time_records` object stores promises keyed to Project IDs
 		var time_records_last_fetched = {};	// Keyed to a Project ID
 		var time_records_force_refetch = {};
+		var time_records_fetch_in_progress = {}; // Keyed to Project ID; TRUE when a HTTP request is in progress
 		var promiseForUpdatedTimeRecords = function(existingTimeRecords, newTimeRecords) {
 			/*
 				Return a promise after merging `newTimeRecords` into `existingTimeRecords`.
@@ -170,15 +171,37 @@
 				});
 
 				return _project.promise;
+			}, projectUncompletedUpdate: function(projectId) {
+				// The number of seconds since the UNIX Epoch
+				var nowSeconds = (Date.now() / 1000);
+
+				service.project(projectId).then(function(project) {
+					
+					service.timeRecords(projectId).then(function(timeRecords) {
+
+						// Loop through all our uncompleted Time Records, calculate their uncompleted seconds and pass this along...
+						project._uncompleted = project.completed;
+
+						for (var i = timeRecords.length - 1; i >= 0; i--) {
+							if (timeRecords[i].end == null) {
+
+								var uncompletedSeconds = nowSeconds - (Date.parse(timeRecords[i].start) / 1000);
+								timeRecords[i]._uncompleted = uncompletedSeconds;
+								project._uncompleted += uncompletedSeconds;
+							}
+						}
+					});
+				});
 			}, timeRecords: function(projectId) {
 				console.log('[app.projectFactory] service.timeRecords(): call, projectId: '+projectId);
-				if (!time_records[projectId] || time_records_force_refetch[projectId] || refreshIntervalPassed(time_records_last_fetched[projectId], TIME_RECORDS_LIFE)) {
+				if ((!time_records[projectId] || time_records_force_refetch[projectId] || refreshIntervalPassed(time_records_last_fetched[projectId], TIME_RECORDS_LIFE)) && !time_records_fetch_in_progress[projectId]) {
 					return service.fetchTimeRecords(projectId);
 				}
 				return time_records[projectId];
 			}, fetchTimeRecords: function(projectId) {
 				console.log('[app.projectFactory] service.fetchTimeRecords(): call, projectId: '+projectId)
 				time_records_force_refetch[projectId] = false;
+				time_records_fetch_in_progress[projectId] = true;
 				time_records[projectId] = $http({
 					method: 'GET',
 					url: '/api/projects/time-records/list.json',
@@ -188,6 +211,7 @@
 					}
 				}).then(function(response) {
 					// HTTP 200-299 Status
+					time_records_fetch_in_progress[projectId] = false;
 					if (angular.isObject(response.data)) {
 						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('time_records')) {
 							// Iterate through these projects, chang anything that must be changed...
@@ -209,6 +233,7 @@
 					};
 				}, function(response) {
 					// Error
+					time_records_fetch_in_progress[projectId] = false;
 					console.log('[app.projectFactory] service.fetchTimeRecords(): Request error: '+response.status);
 					return {
 						'error': true,
@@ -216,6 +241,8 @@
 					};
 				});
 				return time_records[projectId];
+			}, timeRecordsFetchInProgress: function(projectId){
+				return time_records_fetch_in_progress[projectId];
 			}, createTimeRecord: function(projectId) {
 				return $http({
 					method: 'POST',

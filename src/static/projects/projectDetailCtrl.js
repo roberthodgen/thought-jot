@@ -87,20 +87,7 @@
 				console.log('Uncompleted Seconds Interval: Start')
 				$scope.uncompletedSecondsInterval = $interval(function() {
 					
-					// The number of seconds since the UNIX Epoch
-					var nowSeconds = (Date.now() / 1000);
-
-					// Loop through all our uncompleted Time Records, calculate their uncompleted seconds and pass this along...
-					$scope.project._uncompleted = $scope.project.completed;
-
-					for (var i = $scope.timeRecords.length - 1; i >= 0; i--) {
-						if ($scope.timeRecords[i].end == null) {
-
-							var uncompletedSeconds = nowSeconds - (Date.parse($scope.timeRecords[i].start) / 1000);
-							$scope.timeRecords[i]._uncompleted = uncompletedSeconds;
-							$scope.project._uncompleted += uncompletedSeconds;
-						}
-					};
+					projectFactory.projectUncompletedUpdate($scope.project.id);
 				}, 333);
 			}
 		};

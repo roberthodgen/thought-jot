@@ -5,10 +5,10 @@
 	var app = angular.module('app', [
 		'ngRoute',
 
+		'app.filters',
 		'app.appFactory',
 		'ndb_users.userFactory',
 		'app.projectFactory',
-		'app.completedTimeFilter',
 
 		'app.appCtrl',
 

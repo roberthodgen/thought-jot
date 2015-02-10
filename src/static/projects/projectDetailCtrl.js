@@ -2,7 +2,7 @@
 
 	var app = angular.module('app.projectDetailCtrl', []);
 
-	app.controller('app.projectDetailCtrl', ['$scope', '$location', '$routeParams', '$interval', 'app.appFactory', 'ndb_users.userFactory', 'app.projectFactory', function($scope, $location, $routeParams, $interval, appFactory, userFactory, projectFactory) {
+	app.controller('app.projectDetailCtrl', ['$scope', '$location', '$routeParams', '$interval', '$filter', 'app.appFactory', 'ndb_users.userFactory', 'app.projectFactory', function($scope, $location, $routeParams, $interval, $filter, appFactory, userFactory, projectFactory) {
 
 		// Perform setup and reset $scope variables...
 		$scope.init = function() {
@@ -55,6 +55,10 @@
 						if (!response.error) {
 							// Success
 							$scope.timeRecords = response;
+
+							// Filter active and in progress projects
+							$scope.activeTimeRecords = $filter('filterActiveTimeRecords')(response);
+							$scope.inProgressTimeRecords = $filter('filterInProgressTimeRecords')(response);
 
 							// Search for uncompleted Time Records (to start the counter)
 							for (var i = response.length - 1; i >= 0; i--) {

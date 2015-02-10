@@ -38,8 +38,8 @@
 							$scope.projects = response;
 
 							// Filter active and in progress projects
-							$scope.activeProjects = $filter('filterActive')(response);
-							$scope.inProgressProjects = $filter('filterInProgress')(response);
+							$scope.activeProjects = $filter('filterActiveProjects')(response);
+							$scope.inProgressProjects = $filter('filterInProgressProjects')(response);
 
 							// Search for uncompleted Time Records (to start the counter)
 							var keys = Object.keys(response);
@@ -105,40 +105,5 @@
 			$scope.stopUncompletedSecondsCount();
 		});
 	}]);
-
-
-	app.filter('filterActive', function() {
-		return function(projects) {
-			// Return an array of Projects that are active and not in-progress
-			var filtered_projects = [];
-
-			var projects_keys = Object.keys(projects);
-			for (var i = projects_keys.length - 1; i >= 0; i--) {
-				if (projects[projects_keys[i]].hasOwnProperty('active') && projects[projects_keys[i]].hasOwnProperty('has_uncompleted_time_records')) {
-					if (projects[projects_keys[i]].active == true && projects[projects_keys[i]].has_uncompleted_time_records == false) {
-						filtered_projects.push(projects[projects_keys[i]]);
-					}
-				}
-			};
-			return filtered_projects;
-		};
-	});
-
-	app.filter('filterInProgress', function() {
-		return function(projects) {
-			// Return an array of Projects that are in-progress
-			var filterd_projects = [];
-
-			var projects_keys = Object.keys(projects);
-			for (var i = projects_keys.length - 1; i >= 0; i--) {
-				if (projects[projects_keys[i]].hasOwnProperty('has_uncompleted_time_records')) {
-					if (projects[projects_keys[i]].has_uncompleted_time_records == true) {
-						filterd_projects.push(projects[projects_keys[i]]);
-					}
-				}
-			};
-			return filterd_projects;
-		};
-	});
 
 })();

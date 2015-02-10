@@ -6,9 +6,12 @@
 
 		// Directive definition object
 		return {
-			// restrict: 'E',
+			restrict: 'A',	// Only match attribute name
+			scope: {	// Isolate the directive's scope...
+				project: '=project'	// We need the project as `project`
+			},
 			templateUrl: '/projects/project-list-group-item.html'
-		}
+		};
 	});
 
 })();

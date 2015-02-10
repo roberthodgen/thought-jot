@@ -22,6 +22,11 @@ html, body {
 .list-group-item {
 	padding: 15px;
 }
+
+.list-group-item dl {
+	margin-bottom: 0px;
+}
+
 .list-group-item-heading {
 	margin-bottom: 15px;
 }

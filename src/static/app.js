@@ -5,6 +5,7 @@
 	var app = angular.module('app', [
 		'ngRoute',
 
+		// Shared components
 		'app.filters',
 		'app.appFactory',
 		'ndb_users.userFactory',
@@ -12,13 +13,17 @@
 
 		'app.appCtrl',
 
+		// Controllers
 		'app.homeCtrl',
 		'app.errorCtrl',
 		'app.loginCtrl',
 		'app.projectsHomeCtrl',
-		'app.projectListGroupItem',
 		'app.projectsNewCtrl',
-		'app.projectDetailCtrl'
+		'app.projectDetailCtrl',
+
+		// Directives
+		'app.projectListGroupItem',
+		'app.timeRecordListGroupItem'
 
 	]);
 

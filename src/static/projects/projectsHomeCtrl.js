@@ -37,10 +37,6 @@
 							// Success
 							$scope.projects = response;
 
-							// Filter active and in progress projects
-							$scope.activeProjects = $filter('filterActiveProjects')(response);
-							$scope.inProgressProjects = $filter('filterInProgressProjects')(response);
-
 							// Search for uncompleted Time Records (to start the counter)
 							var keys = Object.keys(response);
 							for (var i = keys.length - 1; i >= 0; i--) {

@@ -113,7 +113,7 @@
 			});
 		};
 
-		$scope.completeTimeRecord = function(timeRecord) {
+		$scope.timeRecordComplete = function(timeRecord) {
 			timeRecord._completeLoading = true;
 			projectFactory.completeTimeRecord(timeRecord).then(function(response) {
 				if (response.hasOwnProperty('project')) {
@@ -129,14 +129,14 @@
 			});
 		};
 
-		$scope.editTimeRecord = function(timeRecord) {
-			timeRecord._edit = true;
-			timeRecord._name = timeRecord.name;
-		};
-
-		$scope.cancelTimeRecordEdit = function(timeRecord) {
-			timeRecord._edit = false;
-			timeRecord._name = '';
+		$scope.timeRecordShowEditControls = function(timeRecord, show) {
+			if (show) {
+				timeRecord._edit = true;
+				timeRecord._name = timeRecord.name;
+			} else {
+				timeRecord._edit = false;
+				timeRecord._name = '';
+			}
 		};
 
 

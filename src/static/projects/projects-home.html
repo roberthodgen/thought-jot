@@ -40,15 +40,15 @@ with "In progress"/Projects with uncompleted Time Records at the TOP
 		<h4>Projects-in-progress</h4>
 		<hr class="projects">
 		<div class="list-group">
-			<a ng-href="/projects/{{ project.id }}" class="list-group-item list-group-item-success" project-list-group-item project="project" ng-repeat="project in inProgressProjects | filter:search | orderBy:'update':true as inProgressResults"></a>
+			<a ng-href="/projects/{{ project.id }}" class="list-group-item list-group-item-success" project-list-group-item project="project" ng-repeat="project in projects | filterInProgressProjects | filter:search | orderBy:'update':true as inProgressResults"></a>
 		</div>
 	</div>
 
 	<div class="projects-list-group">
-		<h4>Projects <small>most recently updated</small></h4>
+		<h4>Active projects <small>most recently updated</small></h4>
 		<hr class="projects">
 		<div class="list-group">
-			<a ng-href="/projects/{{ project.id }}" class="list-group-item" project-list-group-item project="project" ng-repeat="project in activeProjects | filter:search | orderBy:'updated':true as activeResults"></a>
+			<a ng-href="/projects/{{ project.id }}" class="list-group-item" project-list-group-item project="project" ng-repeat="project in projects | filterActiveProjects | filter:search | orderBy:'updated':true as activeResults"></a>
 		</div>
 		<p class="text-muted" ng-show="activeResults.length == 0">No results.</p>
 	</div>

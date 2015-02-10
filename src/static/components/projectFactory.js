@@ -256,13 +256,73 @@
 							};
 						}
 					}
-					console.log('[app.projectFactory] service.create(): Error reading response.');
+					console.log('[app.projectFactory] service.createTimeRecord(): Error reading response.');
 					return {
 						'error': true
 					};
 				}, function(response) {
 					// Error
-					console.log('[app.projectFactory] service.create(): Request error: '+response.status);
+					console.log('[app.projectFactory] service.createTimeRecord(): Request error: '+response.status);
+					return {
+						'error': true,
+						'status': response.status
+					};
+				});
+			}, completeTimeRecord: function(timeRecord) {
+				var options = {
+					'time_record_id': timeRecord.id
+				};
+
+				if (timeRecord.hasOwnProperty('_name')) {
+					if (timeRecord._name) {
+						options.name = timeRecord._name;						
+					}
+				}
+				return $http({
+					method: 'POST',
+					url: '/api/projects/time-records/complete.json',
+					params: {
+						't': new Date().getTime()
+					}, data: options
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					if (angular.isObject(response.data)) {
+						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('time_record')) {
+							// Success!!!
+							console.log('[app.projectFactory] service.completeTimeRecord(): data.response has project and time_record, is valid');
+
+							if (!projects) {
+								console.log('[app.projectFactory] service.completeTimeRecord(): projects not present');
+								projects_force_refetch = true; 	// Force refetch of all projects
+								projects = promiseForUpdatedProjects({}, [response.data.project]);
+							} else {
+								projects.then(function(currentProjects) {
+									projects = promiseForUpdatedProjects(currentProjects, [response.data.project]);
+								});
+							}
+
+							if (!time_records[response.data.project.id]) {
+								time_records_force_refetch[response.data.project.id] = true;	// Force refetch of all projects
+								time_records[response.data.project.id] = promiseForUpdatedTimeRecords({}, [response.data.time_record]);
+							} else {
+								time_records[response.data.project.id].then(function(currentTimeRecords) {
+									time_records[response.data.project.id] = promiseForUpdatedTimeRecords(currentTimeRecords, [response.data.time_record]);
+								});
+							}
+
+							return {
+								'project': response.data.project,
+								'time_record': response.data.time_record
+							};
+						}
+					}
+					console.log('[app.projectFactory] service.completeTimeRecord(): Error reading response.');
+					return {
+						'error': true
+					};
+				}, function(response) {
+					// Error
+					console.log('[app.projectFactory] service.completeTimeRecord(): Request error: '+response.status);
 					return {
 						'error': true,
 						'status': response.status

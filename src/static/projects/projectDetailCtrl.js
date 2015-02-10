@@ -122,6 +122,22 @@
 			});
 		};
 
+		$scope.completeTimeRecord = function(timeRecord) {
+			timeRecord._completeLoading = true;
+			projectFactory.completeTimeRecord(timeRecord).then(function(response) {
+				if (response.hasOwnProperty('project')) {
+					$scope.project = response.project;
+				}
+				if (response.hasOwnProperty('time_record')) {
+					for (var i = $scope.timeRecords.length - 1; i >= 0; i--) {
+						if ($scope.timeRecords[i].id == response.time_record.id) {
+							$scope.timeRecords[i] = response.time_record;
+						}
+					}
+				}
+			});
+		};
+
 		$scope.editTimeRecord = function(timeRecord) {
 			timeRecord._edit = true;
 			timeRecord._name = timeRecord.name;

@@ -38,7 +38,7 @@
 							<input type="text" class="form-control" placeholder="In progress..." ng-model="timeRecord._name">
 						</div>
 						<div class="col-sm-2">
-							<button class="btn btn-block btn-danger btn-stop" ng-click="timeRecordComplete(timeRecord);" ng-disabled="timeRecordCreateLoading">
+							<button class="btn btn-block btn-danger btn-stop" ng-click="completeTimeRecord(timeRecord);" ng-disabled="timeRecord._completeLoading">
 								<span class="glyphicon glyphicon-stop"></span>
 								Stop
 							</button>

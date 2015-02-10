@@ -178,6 +178,7 @@
 				return time_records[projectId];
 			}, fetchTimeRecords: function(projectId) {
 				console.log('[app.projectFactory] service.fetchTimeRecords(): call, projectId: '+projectId)
+				time_records_force_refetch[projectId] = false;
 				time_records[projectId] = $http({
 					method: 'GET',
 					url: '/api/projects/time-records/list.json',

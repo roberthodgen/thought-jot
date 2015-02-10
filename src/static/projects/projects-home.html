@@ -40,12 +40,7 @@ with "In progress"/Projects with uncompleted Time Records at the TOP
 		<h4>Projects-in-progress</h4>
 		<hr class="projects">
 		<div class="list-group">
-			<a ng-href="/projects/{{ project.id }}" class="list-group-item list-group-item-success" ng-repeat="project in inProgressProjects | filter:search | orderBy:'update':true as inProgressResults">
-				<h4 class="list-group-item-heading">{{ project.name }}</h4>
-				<p><span class="glyphicon glyphicon-time"></span> <strong>In progress:</strong> {{ project._uncompleted | completedTime }}</p>
-				<p ng-show="project.description">{{ project.description }}</p>
-				<p class="text-muted" ng-show="!project.description">No description.</p>
-			</a>
+			<a ng-href="/projects/{{ project.id }}" class="list-group-item list-group-item-success" project-list-group-item ng-repeat="project in inProgressProjects | filter:search | orderBy:'update':true as inProgressResults"></a>
 		</div>
 	</div>
 
@@ -53,13 +48,7 @@ with "In progress"/Projects with uncompleted Time Records at the TOP
 		<h4>Projects <small>most recently updated</small></h4>
 		<hr class="projects">
 		<div class="list-group">
-			<a ng-href="/projects/{{ project.id }}" class="list-group-item" ng-repeat="project in activeProjects | filter:search | orderBy:'updated':true as activeResults">
-				<h4 class="list-group-item-heading">{{ project.name }}</h4>
-				<p class="text-primary"><span class="glyphicon glyphicon-time"></span> {{ project.completed | completedTime }}</p>
-				<p ng-show="project.description">{{ project.description }}</p>
-				<p class="text-muted" ng-show="!project.description">No description.</p>
-				<p class="list-group-item-text text-muted">Updated: {{ project.updated | date:'medium' }}</p>
-			</a>
+			<a ng-href="/projects/{{ project.id }}" class="list-group-item" project-list-group-item ng-repeat="project in activeProjects | filter:search | orderBy:'updated':true as activeResults"></a>
 		</div>
 		<p class="text-muted" ng-show="activeResults.length == 0">No results.</p>
 	</div>

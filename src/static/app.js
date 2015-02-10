@@ -16,6 +16,7 @@
 		'app.errorCtrl',
 		'app.loginCtrl',
 		'app.projectsHomeCtrl',
+		'app.projectListGroupItem',
 		'app.projectsNewCtrl',
 		'app.projectDetailCtrl'
 

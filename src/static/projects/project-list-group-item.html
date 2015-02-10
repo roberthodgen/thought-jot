@@ -1,0 +1,6 @@
+<h4 class="list-group-item-heading">{{ project.name }}</h4>
+<p class="text-primary" ng-show="!project.has_uncompleted_time_records"><span class="glyphicon glyphicon-time"></span> {{ project.completed | completedTime }}</p>
+<p ng-show="project.has_uncompleted_time_records"><span class="glyphicon glyphicon-time"></span> <strong>In progress:</strong> {{ project._uncompleted | completedTime }}</p>
+<p ng-show="project.description">{{ project.description }}</p>
+<p class="text-muted" ng-show="!project.description">No description.</p>
+<p class="list-group-item-text text-muted">Updated: {{ project.updated | date:'medium' }}</p>

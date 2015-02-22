@@ -335,8 +335,10 @@ class TimeRecordUpdate(webapp2.RequestHandler):
             if name:
               time_record.name = name
             time_record.put()
+            project = time_record.key.parent().get()
+            project.put()
           response_object['time_record'] = time_record.json_object()
-          project = time_record.key.parent().get()
+          # project = time_record.key.parent().get()
           response_object['project'] = project.json_object()
         else:
           self.response.set_status(404)

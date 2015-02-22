@@ -36,11 +36,17 @@
 			console.log('[app.loginCtrl] $scope.login(): called');
 			userFactory.userLogin($scope.email, $scope.password, true).then(function(response) {
 				$scope.userLoaded = true;
-				if (response.hasOwnProperty('user')) {
-					$scope.user = response.user;
+				if (!response.error) {
+					$scope.user = response;
 
 					// Redirect...
 					$location.path('/projects');
+				} else {
+					if (response.message) {
+						alert(response.message);
+					} else if (response.status) {
+						alert('Error processing login: HTTP/1.1 '+response.status);
+					}
 				}
 			});
 		};

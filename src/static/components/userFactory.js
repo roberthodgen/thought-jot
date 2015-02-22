@@ -11,18 +11,30 @@
 			*/
 		};
 
+		var internalKey = function(key) {
+			if (angular.isString(key)) {
+				return key.charAt(0) == '_';
+			}
+
+			return false;
+		};
+
 		var mergeResponseData = function(destination, response) {
 			// Assign all keys found in the response to our cache...
 
 			var _response_keys = Object.keys(response);
 			for (var i = _response_keys.length - 1; i >= 0; i--) {
-				destination[_response_keys[i]] = response[_response_keys[i]];
+				if (response[_response_keys[i]] instanceof Object  && angular.isDefined(destination[_response_keys[i]]) && !internalKey(_response_keys[i])) {
+					mergeResponseData(destination[_response_keys[i]], response[_response_keys[i]]);
+				} else {
+					destination[_response_keys[i]] = response[_response_keys[i]];
+				}
 			}
 
 			// Delete any keys from the cache that aren't found in our response (that don't begin with an underscore)
 			var _destination_keys = Object.keys(destination);
 			for (var i = destination.length - 1; i >= 0; i--) {
-				if (indexOf.call(b, destination[_destination_keys[i]]) === -1 && _destination_keys.charAt(0) != '_') {
+				if (indexOf.call(b, destination[_destination_keys[i]]) === -1 && !internalKey(_destination_keys[i])) {
 					delete destination[_destination_keys[i]];
 				}
 			}
@@ -120,11 +132,17 @@
 						}
 					}
 					console.log('[ndb_users.userFactory] service.userCreate(): Error reading response.');
-					return {};
+					return {
+						'error': true,
+						'message': 'Error reading response.'
+					};
 				}, function(response) {
 					// Error
 					console.log('[ndb_users.userFactory] service.userCreate(): Error creating user: '+response.status);
-					return {};
+					return {
+						'error': true,
+						'status': response.status
+					};
 				});
 			}, userLogin: function(email, password, extended) {
 				console.log('[ndb_users.userFactory] service.fetchuserLoginUser(): call');
@@ -144,15 +162,36 @@
 						if (response.data.hasOwnProperty('user')) {
 							mergeResponseData(cache.user, response.data.user);
 							cache.user._loaded = new Date();
+							return response.data.user;
+						} else if (response.data.hasOwnProperty('user_not_verified')) {
+							return {
+								'error': true,
+								'message': 'Your account must be verified before being used. Please check your email for an activation link.'
+							};
+						} else if (response.data.hasOwnProperty('login_fail')) {
+							return {
+								'error': true,
+								'message': 'Email address or password invalid.'
+							};
+						} else if (response.data.hasOwnProperty('email_bounce_limit')) {
+							return {
+								'error': true,
+								'message': 'Your account must be verified before being used. Your email has bounced our activation link.'
+							};
 						}
-						return response.data;
 					}
 					console.log('[ndb_users.userFactory] service.userLogin(): Error reading response.');
-					return {};
+					return {
+						'error': true,
+						'message': 'Error reading response.'
+					};
 				}, function(response) {
 					// Error
 					console.log('[ndb_users.userFactory] service.userLogin(): Error logging in user: '+response.status);
-					return {};
+					return {
+						'error': true,
+						'status': response.status
+					};
 				});
 			}
 		};

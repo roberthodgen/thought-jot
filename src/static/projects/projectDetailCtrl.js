@@ -2,7 +2,7 @@
 
 	var app = angular.module('app.projectDetailCtrl', []);
 
-	app.controller('app.projectDetailCtrl', ['$scope', '$location', '$routeParams', '$interval', '$filter', 'app.appFactory', 'ndb_users.userFactory', 'app.projectFactory', function($scope, $location, $routeParams, $interval, $filter, appFactory, userFactory, projectFactory) {
+	app.controller('app.projectDetailCtrl', ['$scope', '$location', '$routeParams', '$interval', '$filter', 'app.appFactory', 'ndb_users.userFactory', 'app.dataFactory', function($scope, $location, $routeParams, $interval, $filter, appFactory, userFactory, dataFactory) {
 
 		// Perform setup and reset $scope variables...
 		$scope.init = function() {
@@ -18,12 +18,11 @@
 
 			$scope.user = {};
 			$scope.userLoaded = false;
-			$scope.hasUser = false;
 
 			$scope.project = {};
 			$scope.projectLoaded = true;
 
-			$scope.timeRecords = [];
+			$scope.timeRecords = {};
 			$scope.timeRecordsLoaded = false;
 
 			$scope.activeResults = [];
@@ -31,12 +30,34 @@
 			$scope.uncompletedSecondsInterval = null;
 
 			userFactory.user().then(function(response) {
-				$scope.userFactory = true;
-				if (response.hasOwnProperty('user')) {
-					$scope.user = response.user;
-					$scope.hasUser = true;
+				$scope.userLoaded = true;
+				if (!response.error) {
+					$scope.user = response;
 
-					projectFactory.project($scope.projectId).then(function(response) {
+					// Redirect if not logged in
+					if (!response.email) {
+						$location.path('/login');
+					}
+
+					dataFactory.timeRecords($scope.projectId).then(function(response) {
+						$scope.timeRecordsLoaded = true;
+						if (!response.error) {
+							// Success
+							$scope.timeRecords = response;
+
+							// Search for uncompleted Time Records (to start the counter)
+							var _keys = Object.keys(response);
+							for (var i = _keys.length - 1; i >= 0; i--) {
+								if (response[_keys[i]].end == null && response[_keys[i]].start) {
+									$scope.startUncompletedSecondsCount();
+								}
+							}
+						} else {
+							alert('Error loading Time Records.');
+						}
+					});
+
+					dataFactory.project($scope.projectId).then(function(response) {
 						$scope.projectLoaded = true;
 						if (!response.error) {
 							// Success
@@ -50,29 +71,9 @@
 						}
 					});
 
-					projectFactory.timeRecords($scope.projectId).then(function(response) {
-						$scope.timeRecordsLoaded = true;
-						if (!response.error) {
-							// Success
-							$scope.timeRecords = response;
-
-							// Filter active and in progress projects
-							// $scope.activeTimeRecords = $filter('filterActiveTimeRecords')(response);
-							// $scope.inProgressTimeRecords = $filter('filterInProgressTimeRecords')(response);
-
-							// Search for uncompleted Time Records (to start the counter)
-							for (var i = response.length - 1; i >= 0; i--) {
-								if (response[i].end == null) {
-									$scope.startUncompletedSecondsCount();
-								}
-							}
-						} else {
-							alert('Error loading Time Records.');
-						}
-					});
+					
 				} else {
-					// Not logged in
-					$location.path('/login');
+					alert('Error loading User.');
 				}
 			});
 		};
@@ -91,7 +92,7 @@
 				console.log('Uncompleted Seconds Interval: Start')
 				$scope.uncompletedSecondsInterval = $interval(function() {
 					
-					projectFactory.projectUncompletedUpdate($scope.project.id);
+					dataFactory.projectUncompletedUpdate($scope.project.id);
 				}, 333);
 			}
 		};
@@ -103,32 +104,16 @@
 		};
 
 		$scope.createTimeRecord = function() {
-			projectFactory.createTimeRecord($scope.projectId).then(function(response) {
-				if (response.hasOwnProperty('project')) {
-					$scope.project = response.project;
-				}
-				if (response.hasOwnProperty('time_record')) {
-					$scope.timeRecords.push(response.time_record);
-				}
-			});
-		};
-
-		$scope.timeRecordComplete = function(timeRecord) {
-			timeRecord._completeLoading = true;
-			projectFactory.completeTimeRecord(timeRecord).then(function(response) {
-				if (response.hasOwnProperty('project')) {
-					$scope.project = response.project;
-				}
-				if (response.hasOwnProperty('time_record')) {
-					for (var i = $scope.timeRecords.length - 1; i >= 0; i--) {
-						if ($scope.timeRecords[i].id == response.time_record.id) {
-							$scope.timeRecords[i] = response.time_record;
-						}
-					}
+			dataFactory.createTimeRecord($scope.projectId).then(function(response) {
+				if (!response.error) {
+					// $scope.timeRecords[response.id] = response;
+					$scope.startUncompletedSecondsCount();
+				} else {
+					alert('Error creating Time Record: '+response.message);
 				}
 			});
 		};
-
+		
 		$scope.timeRecordShowEditControls = function(timeRecord, show) {
 			if (show) {
 				timeRecord._edit = true;

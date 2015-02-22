@@ -55,17 +55,17 @@
 	app.filter('filterActiveProjects', function() {
 		return function(projects) {
 			// Return an array of Projects that are active and not in-progress
-			var filtered_projects = [];
+			var _filter = [];
 
-			var projects_keys = Object.keys(projects);
-			for (var i = projects_keys.length - 1; i >= 0; i--) {
-				if (projects[projects_keys[i]].hasOwnProperty('active') && projects[projects_keys[i]].hasOwnProperty('has_uncompleted_time_records')) {
-					if (projects[projects_keys[i]].active == true && projects[projects_keys[i]].has_uncompleted_time_records == false) {
-						filtered_projects.push(projects[projects_keys[i]]);
+			var _keys = Object.keys(projects);
+			for (var i = _keys.length - 1; i >= 0; i--) {
+				if (projects[_keys[i]].hasOwnProperty('active') && projects[_keys[i]].hasOwnProperty('has_uncompleted_time_records')) {
+					if (projects[_keys[i]].active == true && projects[_keys[i]].has_uncompleted_time_records == false) {
+						_filter.push(projects[_keys[i]]);
 					}
 				}
 			};
-			return filtered_projects;
+			return _filter;
 		};
 	});
 
@@ -73,17 +73,17 @@
 	app.filter('filterInProgressProjects', function() {
 		return function(projects) {
 			// Return an array of Projects that are in-progress
-			var filterd_projects = [];
+			var _filter = [];
 
-			var projects_keys = Object.keys(projects);
-			for (var i = projects_keys.length - 1; i >= 0; i--) {
-				if (projects[projects_keys[i]].hasOwnProperty('has_uncompleted_time_records')) {
-					if (projects[projects_keys[i]].has_uncompleted_time_records == true) {
-						filterd_projects.push(projects[projects_keys[i]]);
+			var _keys = Object.keys(projects);
+			for (var i = _keys.length - 1; i >= 0; i--) {
+				if (projects[_keys[i]].hasOwnProperty('has_uncompleted_time_records')) {
+					if (projects[_keys[i]].has_uncompleted_time_records == true) {
+						_filter.push(projects[_keys[i]]);
 					}
 				}
 			};
-			return filterd_projects;
+			return _filter;
 		};
 	});
 
@@ -91,16 +91,17 @@
 	app.filter('filterActiveTimeRecords', function() {
 		return function(timeRecords) {
 			// Return an array of Time Records that are not in-progress
-			var filtered_projects = [];
+			var _filter = [];
 
-			for (var i = timeRecords.length - 1; i >= 0; i--) {
-				if (timeRecords[i].hasOwnProperty('end')) {
-					if (timeRecords[i].end != null) {
-						filtered_projects.push(timeRecords[i]);
+			var _keys = Object.keys(timeRecords);
+			for (var i = _keys.length - 1; i >= 0; i--) {
+				if (timeRecords[_keys[i]].hasOwnProperty('end')) {
+					if (timeRecords[_keys[i]].end != null) {
+						_filter.push(timeRecords[_keys[i]]);
 					}
 				}
 			};
-			return filtered_projects;
+			return _filter;
 		};
 	});
 
@@ -108,16 +109,17 @@
 	app.filter('filterInProgressTimeRecords', function() {
 		return function(timeRecords) {
 			// Return an array of Time Records that are in-progress
-			var filterd_projects = [];
+			var _filter = [];
 
-			for (var i = timeRecords.length - 1; i >= 0; i--) {
-				if (timeRecords[i].hasOwnProperty('end')) {
-					if (timeRecords[i].end == null) {
-						filterd_projects.push(timeRecords[i]);
+			var _keys = Object.keys(timeRecords);
+			for (var i = _keys.length - 1; i >= 0; i--) {
+				if (timeRecords[_keys[i]].hasOwnProperty('end')) {
+					if (timeRecords[_keys[i]].end == null) {
+						_filter.push(timeRecords[_keys[i]]);
 					}
 				}
 			};
-			return filterd_projects;
+			return _filter;
 		};
 	});
 

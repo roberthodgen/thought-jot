@@ -35,12 +35,12 @@
 			<!-- Collect nav links for collapse -->
 			<div class="collapse navbar-collapse" id="navbar-collapse">
 				<ul class="nav navbar-nav">
-					<li ng-class="{ 'active': (config.navActive == 'projects') }" ng-show="hasUser"><a href="/projects">Projects</a></li>
-					<li ng-class="{ 'active': (config.navActive == 'team') }" ng-show="hasUser"><a href="/team">Team</a></li>
-					<li ng-class="{ 'active': (config.navActive == 'statistics') }" ng-show="hasUser"><a href="/stats">Stats</a></li>
+					<li ng-class="{ 'active': (config.navActive == 'projects') }" ng-show="user.email"><a href="/projects">Projects</a></li>
+					<li ng-class="{ 'active': (config.navActive == 'team') }" ng-show="user.email"><a href="/team">Team</a></li>
+					<li ng-class="{ 'active': (config.navActive == 'statistics') }" ng-show="user.email"><a href="/stats">Stats</a></li>
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
-					<li class="dropdown" ng-show="hasUser">
+					<li class="dropdown" ng-show="user.email">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
 							{{ user.first_name ? user.first_name : user.email }}
 							<span class="caret"></span>
@@ -52,7 +52,7 @@
 							<li><a href="/_login?action=logout&continue=%2F" target="_self">Log out</a></li>
 						</ul>
 					</li>
-					<li ng-class="{ 'active': (config.navActive == 'login') }" ng-show="!hasUser"><a href="/login">Log in</a></li>
+					<li ng-class="{ 'active': (config.navActive == 'login') }" ng-show="!user.email"><a href="/login">Log in</a></li>
 				</ul>
 			</div> <!-- ./navbar-collapse -->
 		</div> <!-- /.container -->
@@ -69,8 +69,8 @@
 	
 
 	<!-- AngularJS -->
-	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular.min.js"></script>
-	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular-route.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.9/angular.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.9/angular-route.min.js"></script>
 
 	<!-- jQuery -->
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
@@ -85,7 +85,7 @@
 	<script src="/components/filters.js"></script>
 	<script src="/components/appFactory.js"></script>
 	<script src="/components/userFactory.js"></script>
-	<script src="/components/projectFactory.js"></script>
+	<script src="/components/dataFactory.js"></script>
 
 	<script src="/home/homeCtrl.js"></script>
 	<script src="/error/errorCtrl.js"></script>

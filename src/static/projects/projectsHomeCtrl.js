@@ -2,7 +2,7 @@
 
 	var app = angular.module('app.projectsHomeCtrl', []);
 
-	app.controller('app.projectsHomeCtrl', ['$scope', '$location', '$filter', '$interval', 'app.appFactory', 'ndb_users.userFactory', 'app.projectFactory', function($scope, $location, $filter, $interval, appFactory, userFactory, projectFactory) {
+	app.controller('app.projectsHomeCtrl', ['$scope', '$location', '$filter', '$interval', 'app.appFactory', 'ndb_users.userFactory', 'app.dataFactory', function($scope, $location, $filter, $interval, appFactory, userFactory, dataFactory) {
 
 		// Perform setup and reset $scope variables...
 		$scope.init = function() {
@@ -16,7 +16,6 @@
 
 			$scope.user = {};
 			$scope.userLoaded = false;
-			$scope.hasUser = false;
 
 			$scope.projects = {};
 			$scope.projectsLoaded = true;
@@ -26,12 +25,16 @@
 			$scope.inProgressResults = [];	// After search
 
 			userFactory.user().then(function(response) {
-				$scope.userFactory = true;
-				if (response.hasOwnProperty('user')) {
-					$scope.user = response.user;
-					$scope.hasUser = true;
+				$scope.userLoaded = true;
+				if (!response.error) {
+					$scope.user = response;
 
-					projectFactory.projects().then(function(response) {
+					// Redirect if not logged in
+					if (!response.email) {
+						$location.path('/login');
+					}
+
+					dataFactory.projects().then(function(response) {
 						$scope.projectsLoaded = true;
 						if (!response.error) {
 							// Success
@@ -48,9 +51,6 @@
 							// Error
 						}
 					});
-				} else {
-					// Not logged in
-					$location.path('/login');
 				}
 			});
 		};
@@ -77,7 +77,7 @@
 					for (ki = keys.length - 1; ki >= 0; ki--) {
 						if ($scope.projects[keys[ki]].has_uncompleted_time_records) {
 
-							projectFactory.projectUncompletedUpdate(keys[ki]);
+							dataFactory.projectUncompletedUpdate(keys[ki]);
 							
 						}
 					}

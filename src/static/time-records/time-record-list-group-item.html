@@ -4,7 +4,7 @@
 			<input type="text" class="form-control" placeholder="In progress..." ng-model="timeRecord._name">
 		</div>
 		<div class="col-sm-2">
-			<button class="btn btn-block btn-danger btn-stop" ng-click="complete({ timeRecord: timeRecord });" ng-disabled="timeRecord._completeLoading">
+			<button class="btn btn-block btn-danger btn-stop" ng-click="complete();" ng-disabled="timeRecord._complete_in_progress">
 				<span class="glyphicon glyphicon-stop"></span>
 				Stop
 			</button>
@@ -18,15 +18,15 @@
 			<input type="text" class="form-control" placeholder="Title..." ng-model="timeRecord._name">
 		</div>
 		<div class="col-sm-2">
-			<button class="btn btn-block btn-success btn-stop" ng-click="save({ timeRecord: timeRecord });" ng-disabled="timeRecordUpdateLoading">
+			<button class="btn btn-block btn-success btn-stop" ng-click="save(timeRecord);" ng-disabled="timeRecordUpdateLoading">
 				Save
 			</button>
 		</div>
 	</div>
 </form>
 
-<a class="text-muted" href="" ng-show="timeRecord.completed && !timeRecord._edit" ng-click="showEditControls({ timeRecord: timeRecord, show: true });" style="float:right;">Edit</a>
-<a class="text-muted" href="" ng-show="timeRecord.completed && timeRecord._edit" ng-click="showEditControls({ timeRecord: timeRecord, show: false });" style="float:right;">Cancel</a>
+<a class="text-muted" href="" ng-show="timeRecord.completed && !timeRecord._edit" ng-click="showEditControls(timeRecord, true);" style="float:right;">Edit</a>
+<a class="text-muted" href="" ng-show="timeRecord.completed && timeRecord._edit" ng-click="showEditControls(timeRecord, false);" style="float:right;">Cancel</a>
 
 <h4 class="list-group-item-heading" style="margin-right:80px;" ng-show="timeRecord.name && timeRecord.completed && !timeRecord._edit">{{ timeRecord.name }}</h4>
 <h4 class="list-group-item-heading text-muted" style="margin-right:80px;" ng-show="!timeRecord.name && timeRecord.completed">No name</h4>
@@ -38,13 +38,13 @@
 	<div class="col-sm-4">
 		<dl>
 			<dt>Start time</dt>
-			<dd>{{ timeRecord.start | date:'EEE, MMM d yyyy' }} <span class="text-muted">{{ timeRecord.start | date:'h:mm:ss a' }}</span></dd>
+			<dd>{{ timeRecord._start | date:'EEE, MMM d yyyy' }} <span class="text-muted">{{ timeRecord._start | date:'h:mm:ss a' }}</span></dd>
 		</dl>
 	</div>
 	<div class="col-sm-4" ng-show="timeRecord.end">
 		<dl>
 			<dt>End time</dt>
-			<dd>{{ timeRecord.end | date:'EEE, MMM d yyyy' }} <span class="text-muted">{{ timeRecord.end | date:'h:mm:ss a' }}</span></dd>
+			<dd>{{ timeRecord._end | date:'EEE, MMM d yyyy' }} <span class="text-muted">{{ timeRecord._end | date:'h:mm:ss a' }}</span></dd>
 		</dl>
 	</div>
 </div>

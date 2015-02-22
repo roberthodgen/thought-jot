@@ -14,26 +14,30 @@
 
 			$scope.user = {};
 			$scope.userLoaded = false;
-			$scope.hasUser = false;
 
 			userFactory.user().then(function(response) {
-				$scope.userFactory = true;
-				if (response.hasOwnProperty('user')) {
-					$scope.user = response.user;
-					$scope.hasUser = true;
+				$scope.userLoaded = true;
+				if (!response.error) {
+					$scope.user = response;
 
-					$location.path('/projects')
+					// Redirect if logged in
+					if (response.email) {
+						$location.path('/projects');
+					}
 				}
 			});
+
+			$scope.email = '';
+			$scope.password = '';
+			$scope.password2 = '';
 		};
 
 		$scope.login = function() {
 			console.log('[app.loginCtrl] $scope.login(): called');
-			userFactory.userLogin($scope.login.email, $scope.login.password, true).then(function(response) {
+			userFactory.userLogin($scope.email, $scope.password, true).then(function(response) {
 				$scope.userLoaded = true;
 				if (response.hasOwnProperty('user')) {
 					$scope.user = response.user;
-					$scope.hasUser = true;
 
 					// Redirect...
 					$location.path('/projects');
@@ -43,8 +47,21 @@
 
 		$scope.create = function() {
 			console.log('[app.loginCtrl] $scope.create(): called');
-			userFactory.userCreate($scope.newUser.email, $scope.newUser.password).then(function(response) {
+			userFactory.userCreate($scope.email, $scope.password).then(function(response) {
+				$scope.userLoaded = true;
+				if (!response.error) {
 
+					if (response.hasOwnProperty('email')) {
+						// Redirect
+						$location.path('/projects');
+					} else {
+						// Success
+						$location.path('/login/login-create-success');
+					}
+					
+				} else {
+					alert('Error creating your account: '+response.message);
+				}
 			});
 		};
 

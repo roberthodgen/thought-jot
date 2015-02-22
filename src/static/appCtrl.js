@@ -14,18 +14,14 @@
 			$scope.hasUser = false;
 			$scope.userLoaded = false;
 
-			$scope.$watch(function() {
-				return userFactory.user();
-			}, function() {
-				console.log('[app.appCtrl] $scope.$watch: userFactory.user() changed');
-
-				userFactory.user().then(function(response) {
-					$scope.userLoaded = true;
-					if (response.hasOwnProperty('user')) {
-						$scope.user = response.user;
-						$scope.hasUser = true;
-					}
-				});
+			userFactory.user().then(function(response) {
+				$scope.userLoaded = true;
+				if (!response.error) {
+					$scope.user = response;
+					$hasUser = true;
+				} else {
+					alert('Error loading User.');
+				}
 			});
 		};
 

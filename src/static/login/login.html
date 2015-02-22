@@ -15,11 +15,11 @@
 				<form name="loginForm" ng-submit="login()">
 					<div class="form-group">
 						<label class="control-label">Email address</label>
-						<input type="email" class="form-control" name="email" ng-model="login.email" placeholder="Email address..." required>
+						<input type="email" class="form-control" name="email" ng-model="email" placeholder="Email address..." required>
 					</div>
 					<div class="form-group">
 						<label class="control-label">Password</label>
-						<input type="password" class="form-control" name="password" ng-model="login.password" placeholder="Password..." ng-minlength="4" required>
+						<input type="password" class="form-control" name="password" ng-model="password" placeholder="Password..." ng-minlength="4" required>
 					</div>
 					<div class="form-group" style="margin-bottom:0px;">
 						<button type="submit" class="btn btn-primary" ng-disabled="!loginForm.$valid">Log in</button>

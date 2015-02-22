@@ -9,7 +9,7 @@
 		'app.filters',
 		'app.appFactory',
 		'ndb_users.userFactory',
-		'app.projectFactory',
+		'app.dataFactory',
 
 		'app.appCtrl',
 
@@ -38,6 +38,9 @@
 			controller: 'app.loginCtrl'
 		}).when('/login/login-create', {
 			templateUrl: '/login/login-create.html',
+			controller: 'app.loginCtrl'
+		}).when('/login/login-create-success', {
+			templateUrl: '/login/login-create-success.html',
 			controller: 'app.loginCtrl'
 		}).when('/projects', {
 			templateUrl: '/projects/projects-home.html',

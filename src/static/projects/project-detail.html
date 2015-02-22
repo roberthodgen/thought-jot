@@ -1,6 +1,7 @@
 <div class="container">
 
 	<h3 ng-class="{ 'text-muted': (!project.name) }">{{ project.name ? project.name : 'Loading project...' }}</h3>
+	<p>{{ project._touched }}</p>
 	<p class="text-success" ng-show="project.has_uncompleted_time_records"><span class="glyphicon glyphicon-time"></span> In progress: {{ project._uncompleted | completedTime }}</p>
 	<p class="text-primary" ng-show="!project.has_uncompleted_time_records"><span class="glyphicon glyphicon-time"></span> {{ project.completed | completedTime }}</p>
 	<hr>
@@ -32,7 +33,7 @@
 		<h4>Time records-in-progress</h4>
 		<hr class="projects">
 		<div class="list-group">
-			<div class="list-group-item list-group-item-success" time-record-list-group-item time-record="timeRecord" complete="timeRecordComplete(timeRecord);" save="timeRecordUpdate(timeRecord);" show-edit-controls="timeRecordShowEditControls(timeRecord, show);" ng-repeat="timeRecord in timeRecords | filterInProgressTimeRecords | filter:search | orderBy:'update':true as inProgressResults"></div>
+			<div class="list-group-item list-group-item-success" time-record-list-group-item time-record="timeRecord" ng-repeat="timeRecord in timeRecords | filterInProgressTimeRecords | filter:search | orderBy:'update':true as inProgressResults"></div>
 		</div>
 	</div>
 
@@ -40,7 +41,7 @@
 		<h4>Completed time records <small>most recently updated</small></h4>
 		<hr class="projects">
 		<div class="list-group">
-			<div class="list-group-item" time-record-list-group-item time-record="timeRecord" complete="timeRecordComplete(timeRecord);" save="timeRecordUpdate(timeRecord);" show-edit-controls="timeRecordShowEditControls(timeRecord, show);" ng-repeat="timeRecord in timeRecords | filterActiveTimeRecords | filter:search | orderBy:'updated':true as activeResults"></div>
+			<div class="list-group-item" time-record-list-group-item time-record="timeRecord" ng-repeat="timeRecord in timeRecords | filterActiveTimeRecords | filter:search | orderBy:'updated':true as activeResults"></div>
 		</div>
 		<p class="text-muted" ng-show="activeResults.length == 0">No results.</p>
 	</div>

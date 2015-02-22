@@ -16,13 +16,20 @@
 			*/
 		};
 
+		var internalKey = function(key) {
+			if (angular.isString(key)) {
+				return key.charAt(0) == '_';
+			}
+
+			return false;
+		};
+
 		var mergeResponseData = function(destination, response) {
 			// Assign all keys found in the response to our cache...
 
 			var _response_keys = Object.keys(response);
 			for (var i = _response_keys.length - 1; i >= 0; i--) {
-				if (response[_response_keys[i]] instanceof Object  &&
-				 angular.isDefined(destination[_response_keys[i]])) {
+				if (response[_response_keys[i]] instanceof Object  && angular.isDefined(destination[_response_keys[i]]) && !internalKey(_response_keys[i])) {
 					mergeResponseData(destination[_response_keys[i]], response[_response_keys[i]]);
 				} else {
 					destination[_response_keys[i]] = response[_response_keys[i]];
@@ -32,7 +39,7 @@
 			// Delete any keys from the cache that aren't found in our response (that don't begin with an underscore)
 			var _destination_keys = Object.keys(destination);
 			for (var i = destination.length - 1; i >= 0; i--) {
-				if (indexOf.call(b, destination[_destination_keys[i]]) === -1 && _destination_keys.charAt(0) != '_') {
+				if (indexOf.call(b, destination[_destination_keys[i]]) === -1 && !internalKey(_destination_keys[i])) {
 					delete destination[_destination_keys[i]];
 				}
 			}
@@ -387,6 +394,68 @@
 					// Error
 					delete timeRecord._complete_in_progress;
 					console.log('[app.dataFactory] service.completeTimeRecord(): Request error: '+response.status);
+					return {
+						'error': true,
+						'status': response.status
+					};
+				});
+			}, updateTimeRecord: function(timeRecord) {
+				timeRecord._update_in_progress = true;
+				var options = {
+					'time_record_id': timeRecord.id
+				};
+
+				if (timeRecord.hasOwnProperty('_name')) {
+					if (timeRecord._name) {
+						options.name = timeRecord._name;
+					}
+				}
+				return $http({
+					method: 'POST',
+					url: '/api/projects/time-records/update.json',
+					params: {
+						't': new Date().getTime()
+					}, data: options
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					delete timeRecord._update_in_progress;
+					if (angular.isObject(response.data)) {
+						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('time_record')) {
+							// Success!!
+							console.log('[app.dataFactory] service.updateTimeRecord(): data.response has `project` and `time_record`, is valid');
+
+							var _date = new Date();
+
+							// Project
+							response.data.project._loaded = _date;
+							response.data.project._updated = new Date(response.data.project.updated);
+							response.data.project._created = new Date(response.data.project.created);
+							var _project_keyed = {};
+							_project_keyed[response.data.project.id] = response.data.project;
+							mergeResponseData(cache.projects, _project_keyed);
+
+							// Time Record
+							response.data.time_record._loaded = _date;
+							response.data.time_record._created = new Date(response.data.time_record.created);
+							response.data.time_record._start = new Date(response.data.time_record.start);
+							response.data.time_record._end = new Date(response.data.time_record.end);
+							response.data.time_record._updated = new Date(response.data.time_record.updated);
+							var _time_record_keyed = {};
+							_time_record_keyed[response.data.time_record.id] = response.data.time_record;
+							mergeResponseData(cache.timeRecords[response.data.project.id], _time_record_keyed);
+
+							return response.data.time_record;
+						}
+					}
+					console.log('[app.dataFactory] service.updateTimeRecord(): Error reading response.');
+					return {
+						'error': true
+					};
+				}, function(response) {
+					// Error
+					delete timeRecord._update_in_progress;
+					console.log('[app.dataFactory] service.updateTimeRecord(): Request error: '+response.status);
+
 					return {
 						'error': true,
 						'status': response.status

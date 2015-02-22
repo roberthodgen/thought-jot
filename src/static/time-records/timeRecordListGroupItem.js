@@ -22,14 +22,24 @@
 					});
 				};
 
-				$scope.showEditControls = function(timeRecord, show) {
+				$scope.showEditControls = function(show) {
 					if (show) {
-						timeRecord._edit = true;
-						timeRecord._name = timeRecord.name;
+						$scope.timeRecord._edit = true;
+						$scope.timeRecord._name = angular.copy($scope.timeRecord.name);
 					} else {
-						timeRecord._edit = false;
-						timeRecord._name = '';
+						$scope.timeRecord._edit = false;
+						$scope.timeRecord._name = '';
 					}
+				};
+
+				$scope.update = function() {
+					dataFactory.updateTimeRecord($scope.timeRecord).then(function(response) {
+						$scope.timeRecord._edit = false;
+						$scope.timeRecord._name = '';
+						if (response.error) {
+							alert('Error updating Time Record: '+response.message);
+						}
+					});
 				};
 			}],
 			templateUrl: '/time-records/time-record-list-group-item.html'

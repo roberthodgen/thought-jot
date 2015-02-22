@@ -36,19 +36,20 @@ with "In progress"/Projects with uncompleted Time Records at the TOP
 		</div>
 	</div>
 
-	<div class="projects-list-group" ng-show="inProgressResults.length > 0">
+	<div class="projects-list-group" ng-hide="inProgressProjects.length == 0">
 		<h4>Projects-in-progress</h4>
 		<hr class="projects">
 		<div class="list-group">
-			<a ng-href="/projects/{{ project.id }}" class="list-group-item list-group-item-success" project-list-group-item project="project" ng-repeat="project in projects | filterInProgressProjects | filter:search | orderBy:'update':true as inProgressResults"></a>
+			<a ng-href="/projects/{{ project.id }}" class="list-group-item list-group-item-success" project-list-group-item project="project" ng-repeat="project in projects | filterInProgressProjects | filter:search | orderBy:'_update':true as inProgressResults"></a>
 		</div>
+		<p class="text-muted" ng-show="inProgressResults.length == 0">No results.</p>
 	</div>
 
 	<div class="projects-list-group">
 		<h4>Active projects <small>most recently updated</small></h4>
 		<hr class="projects">
 		<div class="list-group">
-			<a ng-href="/projects/{{ project.id }}" class="list-group-item" project-list-group-item project="project" ng-repeat="project in projects | filterActiveProjects | filter:search | orderBy:'updated':true as activeResults"></a>
+			<a ng-href="/projects/{{ project.id }}" class="list-group-item" project-list-group-item project="project" ng-repeat="project in projects | filterActiveProjects | filter:search | orderBy:'_updated':true as activeResults"></a>
 		</div>
 		<p class="text-muted" ng-show="activeResults.length == 0">No results.</p>
 	</div>

@@ -29,19 +29,20 @@
 		</div>
 	</div>
 
-	<div class="projects-list-group">
+	<div class="projects-list-group" ng-hide="inProgressTimeRecords.length == 0">
 		<h4>Time records-in-progress</h4>
 		<hr class="projects">
 		<div class="list-group">
-			<div class="list-group-item list-group-item-success" time-record-list-group-item time-record="timeRecord" ng-repeat="timeRecord in timeRecords | filterInProgressTimeRecords | filter:search | orderBy:'update':true as inProgressResults"></div>
+			<div class="list-group-item list-group-item-success" time-record-list-group-item time-record="timeRecord" ng-repeat="timeRecord in timeRecords | filterInProgressTimeRecords | filter:search | orderBy:'_start':true as inProgressResults"></div>
 		</div>
+		<p class="text-muted" ng-show="inProgressResults.length == 0">No results.</p>
 	</div>
 
 	<div class="projects-list-group">
-		<h4>Completed time records <small>most recently updated</small></h4>
+		<h4>Completed time records <small>most recently started</small></h4>
 		<hr class="projects">
 		<div class="list-group">
-			<div class="list-group-item" time-record-list-group-item time-record="timeRecord" ng-repeat="timeRecord in timeRecords | filterActiveTimeRecords | filter:search | orderBy:'updated':true as activeResults"></div>
+			<div class="list-group-item" time-record-list-group-item time-record="timeRecord" ng-repeat="timeRecord in timeRecords | filterActiveTimeRecords | filter:search | orderBy:'_start':true as activeResults"></div>
 		</div>
 		<p class="text-muted" ng-show="activeResults.length == 0">No results.</p>
 	</div>

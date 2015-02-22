@@ -18,15 +18,15 @@
 			<input type="text" class="form-control" placeholder="Title..." ng-model="timeRecord._name">
 		</div>
 		<div class="col-sm-2">
-			<button class="btn btn-block btn-success btn-stop" ng-click="save(timeRecord);" ng-disabled="timeRecordUpdateLoading">
+			<button class="btn btn-block btn-success btn-stop" ng-click="update();" ng-disabled="timeRecordUpdateLoading">
 				Save
 			</button>
 		</div>
 	</div>
 </form>
 
-<a class="text-muted" href="" ng-show="timeRecord.completed && !timeRecord._edit" ng-click="showEditControls(timeRecord, true);" style="float:right;">Edit</a>
-<a class="text-muted" href="" ng-show="timeRecord.completed && timeRecord._edit" ng-click="showEditControls(timeRecord, false);" style="float:right;">Cancel</a>
+<a class="text-muted" href="" ng-show="timeRecord.completed && !timeRecord._edit" ng-click="showEditControls(true);" style="float:right;">Edit</a>
+<a class="text-muted" href="" ng-show="timeRecord.completed && timeRecord._edit" ng-click="showEditControls(false);" style="float:right;">Cancel</a>
 
 <h4 class="list-group-item-heading" style="margin-right:80px;" ng-show="timeRecord.name && timeRecord.completed && !timeRecord._edit">{{ timeRecord.name }}</h4>
 <h4 class="list-group-item-heading text-muted" style="margin-right:80px;" ng-show="!timeRecord.name && timeRecord.completed">No name</h4>

@@ -19,10 +19,9 @@
 
 			$scope.projects = {};
 			$scope.projectsLoaded = true;
-			$scope.activeProjects = [];
-			$scope.activeResults = [];	// After search
+			$scope.activeResults = [];
 			$scope.inProgressProjects = [];
-			$scope.inProgressResults = [];	// After search
+			$scope.inProgressResults = [];
 
 			userFactory.user().then(function(response) {
 				$scope.userLoaded = true;
@@ -90,6 +89,13 @@
 			$interval.cancel($scope.uncompletedSecondsInterval);
 			$scope.uncompletedSecondsInterval = null;
 		};
+
+		// Watch for changes in $scope.inProgressResults (an alias from an ngRepeat), to update our inProgressProjects (used for count; hiding the section)
+		$scope.$watch(function() {
+			return $scope.inProgressResults;
+		}, function(newValue, oldValue) {
+			$scope.inProgressProjects = $filter('filterInProgressProjects')($scope.projects);
+		});
 
 
 		// Init

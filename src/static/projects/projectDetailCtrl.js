@@ -24,6 +24,8 @@
 
 			$scope.timeRecords = {};
 			$scope.timeRecordsLoaded = false;
+			$scope.inProgressTimeRecords = [];
+			$scope.inProgressResults = [];
 
 			$scope.activeResults = [];
 
@@ -113,7 +115,7 @@
 				}
 			});
 		};
-		
+
 		$scope.timeRecordShowEditControls = function(timeRecord, show) {
 			if (show) {
 				timeRecord._edit = true;
@@ -123,6 +125,13 @@
 				timeRecord._name = '';
 			}
 		};
+
+		// Watch for changes in $scope.inProgressResults (an alias from an ngRepeat), to update our inProgressTimeRecords (used for count; hiding the section)
+		$scope.$watch(function() {
+			return $scope.inProgressResults;
+		}, function(newValue, oldValue) {
+			$scope.inProgressTimeRecords = $filter('filterInProgressTimeRecords')($scope.timeRecords);
+		});
 
 
 		// Init

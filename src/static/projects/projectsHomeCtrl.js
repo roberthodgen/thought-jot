@@ -12,7 +12,9 @@
 				'navActive': 'projects'
 			});
 
-			$scope.search = '';
+			$scope.search = {
+				'name': ''
+			};
 
 			$scope.user = {};
 			$scope.userLoaded = false;

@@ -76,10 +76,20 @@
 	</div>
 </div>
 
-<form name="editForm" ng-show="timeRecord._edit">
+<div class="row" style="margin-bottom:-15px; padding-top:15px; border-top:1px solid #dddddd; background-color:#ececec;" ng-show="timeRecord._edit">
+	
+	<div class="col-md-10">
+		<form name="editForm">
 
-	<div class="form-group">
-		<textarea name="" id="" cols="30" rows="10"></textarea>
+			<div class="form-group">
+				<textarea class="form-control" name="" id="" placeholder="Reply..."></textarea>
+			</div>
+
+		</form>
 	</div>
-
-</form>
+	<div class="col-md-2">
+		<div class="form-group">
+			<button class="btn btn-block btn-primary">Reply</button>
+		</div>
+	</div>
+</div>

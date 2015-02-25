@@ -31,35 +31,25 @@ class UTC(tzinfo):
 
 class Project(ndb.Model):
   """ Project """
-
   # The name/short description of this Project
   name = ndb.StringProperty(required=True)
-
   # The long description of this Project
   description = ndb.StringProperty(default=None)
-
   # The permalink (or web safe name, used in URLs) of this Project
   permalink = ndb.StringProperty(required=True)
-
   # The primary User's email address
   owner = ndb.StringProperty(required=True)
-
   # Other User's email address whom can contribute (create/end) Time Records
   contributors = ndb.StringProperty(repeated=True)
-
   # Other User's email address whom can view the Project and Time Records
   observers = ndb.StringProperty(repeated=True)
-
   # Holds the `owner`, every `contributors` and every `observers`;
   # Used for querying Projects to avoid massive OR queries...
   users = ndb.StringProperty(repeated=True)
-
   # The number of seconds this Project has recorded
   completed = ndb.FloatProperty(default=0)
-
   # Whether this Project should appear in a User's Projects list (not archived)
   active = ndb.BooleanProperty(required=True, default=True)
-
   # Record WHEN this record was truly created and last updated
   created = ndb.DateTimeProperty(auto_now_add=True)
   updated = ndb.DateTimeProperty(auto_now=True)
@@ -148,51 +138,42 @@ class Project(ndb.Model):
 
 class TimeRecord(ndb.Model):
   """ Time Record """
-
   tags = ndb.StringProperty(repeated=True)
-  
   # The name/short description of this Time Record
   name = ndb.StringProperty(default=None)
-
   # The date/time (in UTC) this Time Record was started
   start = ndb.DateTimeProperty(required=True, auto_now_add=True)
-  
   # Store a the User's email address who (created) this Time Record
   user = ndb.StringProperty(required=True)
-
   # The date/time (in UTC) this Time Record was ended
   end = ndb.DateTimeProperty(default=None)
-  
   # The number of seconds this Time Record counted for
   completed = ndb.FloatProperty(default=None)
-
   # Record WHEN this record was truly created and last updated
   created = ndb.DateTimeProperty(auto_now_add=True)
   updated = ndb.DateTimeProperty(auto_now=True)
 
   @classmethod
-  @ndb.transactional()
+  @ndb.transactional(xg=True)
   def create_time_record(cls, project_key, user_email):
     """ Create a new TimeRecord for the Project identified by `project_key`. """
     new_time_record = cls(
       parent=project_key,
       user=user_email
     )
-    project_key.get().put() # Update the `updated` property
+    project_key.get().put() # Update the `updated` property of our parent
     return new_time_record.put()
 
   def complete_time_record(self):
     """ Complete this Time Record by setting the `end` property, computing
     it's total seconds and setting this Time Record's `completed`
     property and add its seconds to it's parent Project. """
-
     # Only proceed if `self.completed` is None
     if not self.completed:
       # Update and record
       self.end = datetime.now()
       self.completed = (self.end - self.start).total_seconds()
       self.put()
-
       # Update the parent Project
       project_key = self.key.parent()
       project = project_key.get()
@@ -218,6 +199,34 @@ class TimeRecord(ndb.Model):
       'name': self.name,
       'user': self.user
     }
+
+
+class Comment(ndb.Model):
+  """ Comments left on TimeRecords or general Project comments. """
+  # The content of the comment
+  comment = ndb.StringProperty(required=True)
+  # Store the User's email address who (created) this Comment
+  user = ndb.StringProperty(required=True)
+  # Store the Project to which this Comment is held
+  project = ndb.KeyProperty(required=True, kind=Project)
+  # Record WHEN this comment was truly created and last updated
+  created = ndb.DateTimeProperty(auto_now_add=True)
+  updated = ndb.DateTimeProperty(auto_now=True)
+
+  @classmethod
+  @ndb.transactional(xg=True)
+  def create_comment(cls, comment, parent_key, project_key, user_email):
+    """ Create a new Comment belonging to `parent_key`. """
+    new_comment = cls(
+      parent=parent_key,
+      project=project_key,
+      comment=comment,
+      user=user_email
+    )
+    parent_key.get().put() # Update the `updated` property of our parent
+    if parent_key != project_key:
+      project_key.get().put() # Update the `updated` property of our Project
+    return new_comment.put()
 
 
 class Account(ndb.Model):

@@ -29,8 +29,9 @@
 
 		var currentConfiguration = {
 			/*
-			'pageTitle': '',	// The current page title, if any
-			'navActive': '',	// A string aproximating the current active nav bar item
+			'pageTitle': '',		// The current page title, if any
+			'navActive': '',		// A string aproximating the current active nav bar item
+			'activeProject': {},	// A Project object representing the currently active/viewed project
 			*/
 		};
 
@@ -43,62 +44,39 @@
 					console.log('[app.appFactory] service.config(): New configuration.');
 
 					// Get all of `newConfig`'s keys...
-					var newKeys = Object.keys(newConfig);
+					var _newKeys = Object.keys(newConfig);
 
-					for (var i = newKeys.length - 1; i >= 0; i--) {
-						// Just override the key...
+					// Delete these keys from the `currentConfiguration` property if they're not set in `newConfig`
+					var _keysToDelete = ['project'];
+
+					// Loop through our `_newKeys` and replace or set them on `currentConfiguration` as necessary
+					for (var i = _newKeys.length - 1; i >= 0; i--) {
+
+						// If this key is being set (it's in our `newConfig`), remove it from our `_keysToDelete` array...
+						var _keysToDeleteIndex = _keysToDelete.indexOf(_newKeys[i])
+						if (_keysToDeleteIndex > -1) {
+							_keysToDelete.splice(_keysToDeleteIndex, 1)
+						}
 
 						// If `configFilters` responds for this configuration key...
-						if (configFilters.hasOwnProperty(newKeys[i])) {
+						if (configFilters.hasOwnProperty(_newKeys[i])) {
 							// Use the filter to update the current configuration value...
-							console.log('[app.appFactory] service.config(): New config via filter, key: '+newKeys[i]);
-							currentConfiguration[newKeys[i]] = (configFilters[newKeys[i]])(newConfig[newKeys[i]]);
+							console.log('[app.appFactory] service.config(): New config via filter, key: '+_newKeys[i]);
+							currentConfiguration[_newKeys[i]] = (configFilters[_newKeys[i]])(newConfig[_newKeys[i]]);
 						} else {
 							// ... otherwise set directly
-							console.log('[app.appFactory] service.config(): New config key: '+newKeys[i]);
-							currentConfiguration[newKeys[i]] = newConfig[newKeys[i]];
+							console.log('[app.appFactory] service.config(): New config key: '+_newKeys[i]);
+							currentConfiguration[_newKeys[i]] = newConfig[_newKeys[i]];
 						}
-					};
+					}
+
+					// Delete keys that were left in `_keysToDelete` from `currentConfiguration`
+					for (var i = _keysToDelete.length - 1; i >= 0; i--) {
+						delete currentConfiguration[_keysToDelete[i]];
+					}
 				}
 
 				return currentConfiguration;
-			}, pageTitle: function() {
-				if (angular.isDefined(currentConfiguration.pageTitle)) {
-					return currentConfiguration.pageTitle + ' - ' + fixedConfig.pageTitleSuffix;
-				} else {
-					return fixedConfig.pageTitleSuffix;
-				}
-			}, navActive: function() {
-
-			}
-		};
-
-		// Return the service object
-		return service;
-
-
-		var pageTitle;
-		var titleSuffix = 'ThoughtJot!';
-
-		// Service object
-		var service =  {
-			pageTitle: function() {
-				if (angular.isDefined(pageTitle)) {
-					return pageTitle + ' - ' + titleSuffix;
-				} else {
-					return titleSuffix;
-				}
-			}, setPageTitle: function(newPageTitle) {
-				console.log('[app.appFactory] service.setPageTitle(): New page title: '+newPageTitle);
-				pageTitle = newPageTitle;
-			}, navSelection: function() {
-				if (angular.isDefined(navSelection)) {
-					return navSelection;
-				} else {
-					return 'home';
-				}
-			}, setNavSelection: function() {
-
 			}
 		};
 

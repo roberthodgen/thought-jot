@@ -60,6 +60,8 @@ html, body {
 	margin-bottom: 60px;
 	font-size: 92px;
 	transform: rotate(-7deg);
+	-ms-transform: rotate(-7deg);
+	-webkit-transform: rotate(-7deg);
 }
 
 /*

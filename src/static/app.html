@@ -5,8 +5,8 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1 user-scalable=no">
 
-	<title ng-bind="config.pageTitle">Time Trail</title>
-	
+	<title ng-bind="config.pageTitle">ThoughtJot!</title>
+
 	<!-- HTML5 base -->
 	<base href="/">
 
@@ -31,7 +31,10 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a href="/projects" class="navbar-brand">Test Project Name</a>
+				<a href="/projects" class="navbar-brand">
+					<span ng-show="config.project">{{ config.project.name }}</span>
+					<span class="satisfy-font" ng-show="!config.project">ThoughtJot!</span>
+				</a>
 			</div>
 
 			<!-- Collect nav links for collapse -->
@@ -63,8 +66,6 @@
 		<p class="text-center">Copyright &copy; 2015 Robert Hodgen.</p>
 	</div>
 
-	
-
 	<!-- AngularJS -->
 	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.10/angular.min.js"></script>
 	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.10/angular-route.min.js"></script>
@@ -78,12 +79,12 @@
 	<!-- App-specific AngularJS modules -->
 	<script src="/app.js"></script>
 	<script src="/appCtrl.js"></script>
-
+	<!-- App-specific components -->
 	<script src="/components/filters.js"></script>
 	<script src="/components/appFactory.js"></script>
 	<script src="/components/userFactory.js"></script>
 	<script src="/components/dataFactory.js"></script>
-
+	<!-- App-specific controllers -->
 	<script src="/home/homeCtrl.js"></script>
 	<script src="/error/errorCtrl.js"></script>
 	<script src="/login/loginCtrl.js"></script>
@@ -91,6 +92,7 @@
 	<script src="/projects/projectListGroupItem.js"></script>
 	<script src="/projects/projectsNewCtrl.js"></script>
 	<script src="/projects/projectDetailCtrl.js"></script>
+	<!-- App-specific directives -->
 	<script src="/time-records/timeRecordListGroupItem.js"></script>
 
 </body>

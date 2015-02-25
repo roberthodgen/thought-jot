@@ -68,7 +68,8 @@
 							$scope.project = response;
 
 							appFactory.config({
-								'pageTitle': response.name
+								'pageTitle': response.name,
+								'project': response
 							});
 						} else {
 							// Error

@@ -50,7 +50,8 @@
 			controller: 'app.projectsNewCtrl'
 		}).when('/projects/:projectId', {
 			templateUrl: '/projects/project-detail.html',
-			controller: 'app.projectDetailCtrl'
+			controller: 'app.projectDetailCtrl',
+			reloadOnSearch: false
 		}).when('/not-found', {
 			templateUrl: '/error/not-found.html',
 			controller: 'app.errorCtrl'

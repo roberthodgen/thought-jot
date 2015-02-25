@@ -123,4 +123,20 @@
 		};
 	});
 
+	// Return time records for a given day
+	app.filter('filterTimeRecords', function() {
+		return function(timeRecords) {
+			// Return an array of Time Records that are valid
+			var _filter = [];
+
+			var _keys = Object.keys(timeRecords);
+			for (var i = _keys.length - 1; i >= 0; i--) {
+				if (timeRecords[_keys[i]].hasOwnProperty('_start')) {
+					_filter.push(timeRecords[_keys[i]]);
+				}
+			}
+			return _filter;
+		}
+	});
+
 })();

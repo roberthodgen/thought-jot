@@ -1,10 +1,12 @@
-<div class="container">
+<div class="click-watch" ng-click="backgroundClick();"></div>
 
-	<h3 ng-class="{ 'text-muted': (!project.name) }">{{ project.name ? project.name : 'Loading project...' }}</h3>
+<div class="container">
 	<p>{{ project._touched }}</p>
-	<p class="text-success" ng-show="project.has_uncompleted_time_records"><span class="glyphicon glyphicon-time"></span> In progress: {{ project._uncompleted | completedTime }}</p>
-	<p class="text-primary" ng-show="!project.has_uncompleted_time_records"><span class="glyphicon glyphicon-time"></span> {{ project.completed | completedTime }}</p>
-	<hr>
+	<p class="text-primary" ng-show="project.has_uncompleted_time_records"><span class="glyphicon glyphicon-time"></span> In progress: {{ project._uncompleted | completedTime }}</p>
+	<p ng-show="!project.has_uncompleted_time_records"><span class="glyphicon glyphicon-time"></span> {{ project.completed | completedTime }}</p>
+</div>
+
+<div class="container">
 
 	<div class="row" style="margin-bottom:30px;">
 		<div class="col-sm-8">
@@ -25,26 +27,17 @@
 			</div>
 		</div>
 		<div class="col-sm-4 text-right">
-			<button type="button" class="btn btn-success" ng-click="createTimeRecord();">New Time Record</button>
+			<button type="button" class="btn btn-primary" ng-click="createTimeRecord();">New Time Record</button>
 		</div>
-	</div>
-
-	<div class="projects-list-group" ng-hide="inProgressTimeRecords.length == 0">
-		<h4>Time records-in-progress</h4>
-		<hr class="projects">
-		<div class="list-group">
-			<div class="list-group-item list-group-item-success" time-record-list-group-item time-record="timeRecord" ng-repeat="timeRecord in timeRecords | filterInProgressTimeRecords | filter:search | orderBy:'_start':true as inProgressResults"></div>
-		</div>
-		<p class="text-muted" ng-show="inProgressResults.length == 0">No results.</p>
 	</div>
 
 	<div class="projects-list-group">
-		<h4>Completed time records <small>most recently started</small></h4>
-		<hr class="projects">
+		<h4>Time records <small>most recently started</small></h4>
 		<div class="list-group">
-			<div class="list-group-item" time-record-list-group-item time-record="timeRecord" ng-repeat="timeRecord in timeRecords | filterActiveTimeRecords | filter:search | orderBy:'_start':true as activeResults"></div>
+			<div class="list-group-item" ng-class="{ 'list-group-item-in-progress': (!timeRecord.completed), 'list-group-item-edit': (timeRecord._edit) }" time-record-list-group-item time-record="timeRecord" ng-click="timeRecordClick(timeRecord)" ng-repeat="timeRecord in timeRecords | filterTimeRecords | filter:search | orderBy:'_start':true as timeRecordResults"></div>
 		</div>
-		<p class="text-muted" ng-show="activeResults.length == 0">No results.</p>
+		<p class="text-muted" ng-show="timeRecordResults.length == 0">No results.</p>
 	</div>
 
 </div> <!-- /.container -->
+

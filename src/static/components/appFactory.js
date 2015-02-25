@@ -5,7 +5,7 @@
 	app.factory('app.appFactory', [function() {
 
 		var fixedConfig = {
-			'pageTitleSuffix': 'Time Trail'		// The suffix of the page title
+			'pageTitleSuffix': 'ThoughtJot!'		// The suffix of the page title
 		}
 
 		var configFilters = {
@@ -78,7 +78,7 @@
 
 
 		var pageTitle;
-		var titleSuffix = 'Time Trail';
+		var titleSuffix = 'ThoughtJot!';
 
 		// Service object
 		var service =  {

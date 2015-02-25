@@ -80,6 +80,7 @@
 					alert('Error loading User.');
 				}
 			});
+
 		};
 
 		$scope.startUncompletedSecondsCount = function() {
@@ -128,12 +129,36 @@
 			}
 		};
 
+		$scope.timeRecordClick = function(timeRecord) {
+			$location.search('edit', timeRecord.id);
+
+			timeRecord._edit = true;
+			
+			// Loop through and set all not equal to this timeRecord to false
+			var _keys = Object.keys($scope.timeRecords);
+			for (var i = _keys.length - 1; i >= 0; i--) {
+				if ($scope.timeRecords[_keys[i]] != timeRecord) {
+					delete $scope.timeRecords[_keys[i]]._edit;
+				}
+			}
+		};
+
+		$scope.backgroundClick = function() {
+			// Remove the edit search property
+			var _search = $location.search();
+			if (_search.hasOwnProperty('edit')) {
+				// End the Time Record edit
+				delete $scope.timeRecords[_search.edit]._edit;
+			}
+			$location.search('edit', null);
+		};
+
 		// Watch for changes in $scope.inProgressResults (an alias from an ngRepeat), to update our inProgressTimeRecords (used for count; hiding the section)
-		$scope.$watch(function() {
-			return $scope.inProgressResults;
-		}, function(newValue, oldValue) {
-			$scope.inProgressTimeRecords = $filter('filterInProgressTimeRecords')($scope.timeRecords);
-		});
+		// $scope.$watch(function() {
+		// 	return $scope.inProgressResults;
+		// }, function(newValue, oldValue) {
+		// 	$scope.inProgressTimeRecords = $filter('filterInProgressTimeRecords')($scope.timeRecords);
+		// });
 
 
 		// Init

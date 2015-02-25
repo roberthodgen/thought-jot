@@ -42,3 +42,44 @@ html, body {
 	margin-bottom: 10px;
 	margin-top: 10px;
 }
+
+
+/*
+*	Home
+*/
+
+.home-splash {
+	margin-top: -29px;
+	height: 100vh;
+	min-height: 750px;
+	text-align: center;
+}
+
+.home-splash h1 {
+	margin-top: 30vh;
+	margin-bottom: 60px;
+	font-size: 92px;
+	transform: rotate(-7deg);
+}
+
+/*
+*	Page Splash
+*/
+
+.page-splash.purple {
+	margin-top: -29px;
+	padding-top: 10px;
+	padding-bottom: 20px;
+	margin-bottom: 29px;
+}
+
+
+/*
+*	Click Watch
+*/
+
+.click-watch {
+	position: fixed;
+	height: 100%;
+	width: 100%;
+}

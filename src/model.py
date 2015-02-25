@@ -164,6 +164,7 @@ class TimeRecord(ndb.Model):
     project_key.get().put() # Update the `updated` property of our parent
     return new_time_record.put()
 
+  @ndb.transactional(xg=True)
   def complete_time_record(self):
     """ Complete this Time Record by setting the `end` property, computing
     it's total seconds and setting this Time Record's `completed`

@@ -34,9 +34,10 @@
 
 				$scope.update = function() {
 					dataFactory.updateTimeRecord($scope.timeRecord).then(function(response) {
-						$scope.timeRecord._edit = false;
-						$scope.timeRecord._name = '';
-						if (response.error) {
+						if (!response.error) {
+							$scope.timeRecord._name = response.name;
+							$scope.editForm.$setPristine();
+						} else {
 							alert('Error updating Time Record: '+response.message);
 						}
 					});

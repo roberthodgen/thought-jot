@@ -133,13 +133,17 @@
 		$scope.timeRecordClick = function(timeRecord) {
 			$location.search('edit', timeRecord.id);
 
-			timeRecord._edit = true;
-			
-			// Loop through and set all not equal to this timeRecord to false
-			var _keys = Object.keys($scope.timeRecords);
-			for (var i = _keys.length - 1; i >= 0; i--) {
-				if ($scope.timeRecords[_keys[i]] != timeRecord) {
-					delete $scope.timeRecords[_keys[i]]._edit;
+			if (!timeRecord._edit) {
+				timeRecord._edit = true;
+				timeRecord._name = angular.copy(timeRecord.name);
+				
+				// Loop through and set all not equal to this timeRecord to false
+				var _keys = Object.keys($scope.timeRecords);
+				for (var i = _keys.length - 1; i >= 0; i--) {
+					if ($scope.timeRecords[_keys[i]] != timeRecord) {
+						delete $scope.timeRecords[_keys[i]]._edit;
+						delete $scope.timeRecords[_keys[i]]._name;
+					}
 				}
 			}
 		};
@@ -150,6 +154,7 @@
 			if (_search.hasOwnProperty('edit')) {
 				// End the Time Record edit
 				delete $scope.timeRecords[_search.edit]._edit;
+				delete $scope.timeRecords[_search.edit]._name;
 			}
 			$location.search('edit', null);
 		};

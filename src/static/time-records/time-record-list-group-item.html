@@ -31,7 +31,7 @@
 
 		<span ng-show="!timeRecord.completed" class="in-progress-bold"><span class="glyphicon glyphicon-time"></span> In progress:</span>
 
-		<span ng-show="!timeRecord.name" class="text-muted">No description.</span>
+		<span ng-show="!timeRecord.name" class="text-muted">No subject.</span>
 		<span class="in-progress-bold">{{ timeRecord.name }}</span>
 
 	</div>
@@ -39,57 +39,77 @@
 		<span class="in-progress-bold">{{ timeRecord.completed ? timeRecord.completed : timeRecord._uncompleted | completedTime }}</span>
 	</div>
 	<div class="col-md-2">
-		Robert
+		me
 		<span class="time-record-hover-only pull-right">
 			<a href="#" title="Stop." class="text-muted" ng-show="!timeRecord.completed" ng-click="complete();" ng-disabled="timeRecord._complete_in_progress" style="padding:10px;"><span class="glyphicon glyphicon-stop"></span></a>
 			<!-- <a ng-href="/projects/{{ projectId }}?edit={{ timeRecord.id }}" title="Edit." class="text-muted" style="padding:10px;"><span class="glyphicon glyphicon-pencil"></span></a> -->
 		</span>
 	</div>
-	
 
-<!-- 	<div class="col-md-4">
-		<dl>
-			<dt>Start time</dt>
-			<dd>{{ timeRecord._start | date:'EEE, MMM d yyyy' }} <span class="text-muted">{{ timeRecord._start | date:'h:mm:ss a' }}</span></dd>
-		</dl>
-	</div>
-	<div class="col-md-4" ng-show="timeRecord.end">
-		<dl>
-			<dt>End time</dt>
-			<dd>{{ timeRecord._end | date:'EEE, MMM d yyyy' }} <span class="text-muted">{{ timeRecord._end | date:'h:mm:ss a' }}</span></dd>
-		</dl>
-	</div> -->
 </div>
 
-<div class="row" ng-show="timeRecord._edit">
-	<div class="col-md-7">
-		<h4 class="list-group-item-heading" style="margin-right:80px;" ng-show="timeRecord.name && timeRecord.completed && !timeRecord._edit">{{ timeRecord.name }}</h4>
-		<h4 class="list-group-item-heading text-muted" style="margin-right:80px;" ng-show="!timeRecord.name && timeRecord.completed">No name</h4>
-	</div>
-	<div class="col-md-3">
-		<span class="in-progress-bold">{{ timeRecord.completed ? timeRecord.completed : timeRecord._uncompleted | completedTime }}</span>
-	</div>
-	<div class="col-md-2 text-right">
-		<a href="#" title="Stop." class="text-muted" ng-show="!timeRecord.completed" ng-click="complete();" ng-disabled="timeRecord._complete_in_progress" style="padding:10px;"><span class="glyphicon glyphicon-stop"></span></a>
-		<a href="#" title="Save." class="text-muted" style="padding:10px;"><span class="glyphicon glyphicon-ok"></span></a>
-		<a href="#" title="Discard change." class="text-muted" style="padding:10px;"><span class="glyphicon glyphicon-remove"></span></a>
-	</div>
-</div>
-
-<div class="row" style="margin-bottom:-15px; padding-top:15px; border-top:1px solid #dddddd; background-color:#ececec;" ng-show="timeRecord._edit">
+<form name="editForm" ng-show="timeRecord._edit">
 	
-	<div class="col-md-10">
-		<form name="editForm">
-
+	<div class="row">
+		<div class="col-md-10">
 			<div class="form-group">
-				<textarea class="form-control" name="" id="" placeholder="Reply..."></textarea>
+				<input name="name" class="form-control" ng-model="timeRecord._name" placeholder="Subject..." required>
 			</div>
-
-		</form>
-	</div>
-	<div class="col-md-2">
-		<div class="form-group">
-			<button class="btn btn-block btn-primary">Reply</button>
+			<!-- <h4 class="list-group-item-heading" style="margin-right:80px;" ng-show="timeRecord.name && timeRecord.completed && !timeRecord._edit">{{ timeRecord.name }}</h4>
+			<h4 class="list-group-item-heading text-muted" style="margin-right:80px;" ng-show="!timeRecord.name && timeRecord.completed">No name</h4> -->
+		</div>
+		<div class="col-md-2">
+			<div class="form-group">
+				<button class="btn btn-block btn-primary" ng-click="update();" ng-disabled="!editForm.name.$dirty || !editForm.name.$valid">Save Subject</button>
+			</div>
 		</div>
 	</div>
-</div>
+	<div class="row">
+		<div class="col-md-3">
+			<dl>
+				<dt>Started</dt>
+				<dd>{{ timeRecord._start | date:'medium' }}</dd>
+			</dl>
+		</div>
+		<div class="col-md-3">
+			<dl>
+				<dt>Completed</dt>
+				<dd>{{ timeRecord.completed ? timeRecord.completed : timeRecord._uncompleted | completedTime }}</dd>
+			</dl>
+		</div>
+		<div class="col-md-3">
+			<button class="btn btn-primary" ng-show="!timeRecord.completed" ng-click="complete();" ng-disabled="timeRecord._complete_in_progress">
+				<span class="glyphicon glyphicon-stop"></span>
+				End
+			</button>
+			<dl ng-show="timeRecord.end">
+				<dt>Finished</dt>
+				<dd>
+					{{ timeRecord._end | date:'medium' }}
+				</dd>
+			</dl>
+		</div>
+		<div class="col-md-3">
+			<dl>
+				<dt>Contributors</dt>
+				<dd>me</dd>
+			</dl>
+		</div>
+	</div>
+
+	<div class="row" style="margin-bottom:-15px; padding-top:15px; border-top:1px solid #dddddd; background-color:#ececec;" ng-show="timeRecord._edit">
+		
+		<div class="col-md-10">
+
+			<div class="form-group">
+				<textarea class="form-control" name="" id="" ng-model="_newComment" placeholder="Comment..."></textarea>
+			</div>
+
+		</div>
+		<div class="col-md-2">
+			<div class="form-group">
+				<button class="btn btn-block btn-primary">Add Comment</button>
+			</div>
+		</div>
+	</div>
+</form>

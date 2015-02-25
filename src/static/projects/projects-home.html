@@ -40,7 +40,7 @@ with "In progress"/Projects with uncompleted Time Records at the TOP
 		<h4>Projects-in-progress</h4>
 		<hr class="projects">
 		<div class="list-group">
-			<a ng-href="/projects/{{ project.id }}" class="list-group-item list-group-item-success" project-list-group-item project="project" ng-repeat="project in projects | filterInProgressProjects | filter:search | orderBy:'_update':true as inProgressResults"></a>
+			<a ng-href="/projects/{{ project.id }}" class="list-group-item list-group-item-success" project-list-group-item project="project" ng-repeat="project in projects | filterInProgressProjects | filter:search | orderBy:'_updated':true as inProgressResults"></a>
 		</div>
 		<p class="text-muted" ng-show="inProgressResults.length == 0">No results.</p>
 	</div>

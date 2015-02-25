@@ -207,6 +207,21 @@ fieldset[disabled] .navbar-thoughtjot .btn-link:focus {
 			box-shadow: none;
 }
 
+/*
+*	btn:disabled
+*/
+
+.btn.disabled,
+.btn[disabled],
+fieldset[disabled] .btn {
+	pointer-events: none;
+	cursor: not-allowed;
+	filter: alpha(opacity=55);
+	-webkit-box-shadow: none;
+			box-shadow: none;
+	opacity: .55;
+}
+
 
 /*
 *   btn-primary

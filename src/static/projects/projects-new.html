@@ -9,17 +9,19 @@
 			</div>
 		</div>
 
-		<hr>
-		
 		<div class="form-group">
 			<label class="control-label col-md-2">Description <span class="text-muted">(optional)</span></label>
 			<div class="col-md-10">
-				<ul class="nav nav-tabs">
-					<li class="active"><a href="">Edit</a></li>
-					<li><a href="">Preview</a></li>
-				</ul>
-				<textarea rows="10" class="form-control" ng-model="project.description"></textarea>
-				<p class="help-block">Description parsed using <a href="https://help.github.com/articles/markdown-basics/">GitHub Flavored Markdown</a>.</p>
+				<div ng-show="!projectDescriptionPreview">
+					<textarea class="form-control with-btn-preview" name="description" ng-model="project.description" style="height:200px;"></textarea>
+				</div>
+				<div class="well with-btn-preview" ng-show="projectDescriptionPreview">
+					<md ng-model="project.description"></md>
+				</div>
+				<div class="preview-link">
+					<span class="btn btn-primary btn-preview" ng-click="projectDescriptionPreview = !projectDescriptionPreview">{{ projectDescriptionPreview ? 'Edit' : 'Preview' }}</span>
+					<p class="help-block">Description parsed using <a href="https://help.github.com/articles/markdown-basics/">GitHub Flavored Markdown</a>.</p>
+				</div>
 			</div>
 		</div>
 		
@@ -28,7 +30,6 @@
 				<p class="help-block">You will be the owner of this project. Contributors and observers may be added on the ensuing page.</p>
 			</div>
 		</div>
-		<hr>
 		
 		<div class="form-group">
 			<div class="col-md-offset-2 col-md-10">

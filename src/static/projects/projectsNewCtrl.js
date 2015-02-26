@@ -27,6 +27,8 @@
 			};
 			$scope.projectLoaded = true;	// Simply indicates FALSE when a request to create a project is in progress
 
+			$scope.projectDescriptionPreview = false;
+
 			userFactory.user().then(function(response) {
 				$scope.userLoaded = true;
 				if (!response.error) {

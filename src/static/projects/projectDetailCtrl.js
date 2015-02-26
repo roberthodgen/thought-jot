@@ -9,7 +9,13 @@
 			console.log('[app.projectDetailCtrl] $scope.init(): call');
 			appFactory.config({
 				'pageTitle': 'Project',
-				'navActive': 'projects'
+				'navActive': 'projects',
+				'navbar': {
+					'title': 'Loading...',
+					'link': $location.path()
+				}, 'sidebar': {
+					'selection': $routeParams.projectId
+				}
 			});
 
 			$scope.projectId = $routeParams.projectId;
@@ -81,6 +87,11 @@
 
 							appFactory.config({
 								'pageTitle': response.name,
+								'navbar': {
+									'title': response.name
+								}, 'sidebar': {
+									'selection': response.id
+								},
 								'project': response
 							});
 						} else {
@@ -101,6 +112,7 @@
 			return _search.edit;
 		}, function(newValue, oldValue) {
 			// Loop through and delete all not equal to this `newValue`
+			console.log('[app.projectDetailCtrl] $scope.$watch(): Detected new `edit` search value: '+newValue);
 			var _keys = Object.keys($scope.timeRecords);
 			if (angular.isString(newValue)) {
 				// Loop through and delete all but this key
@@ -108,6 +120,9 @@
 					if ($scope.timeRecords[_keys[i]].id != newValue) {
 						delete $scope.timeRecords[_keys[i]]._edit;
 						delete $scope.timeRecords[_keys[i]]._name;
+					} else {
+						$scope.timeRecords[_keys[i]]._edit = true;
+						$scope.timeRecords[_keys[i]].name = angular.copy($scope.timeRecords[_keys[i]].name);
 					}
 				}
 			} else {
@@ -157,11 +172,6 @@
 
 		$scope.timeRecordClick = function(timeRecord) {
 			$location.search('edit', timeRecord.id);
-
-			if (!timeRecord._edit) {
-				timeRecord._edit = true;
-				timeRecord._name = angular.copy(timeRecord.name);
-			}
 		};
 
 		$scope.backgroundClick = function() {

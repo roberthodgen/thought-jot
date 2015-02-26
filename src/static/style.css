@@ -21,34 +21,6 @@ body {
 	color: #999;
 }
 
-.projects-toggle {
-	position: relative;
-	padding: 10px 10px;
-	margin: 6px;
-	height: 44px;
-	width: 44px;
-	background-color: transparent;
-	border: 1px solid transparent;
-	border-radius: 22px;
-}
-.projects-toggle:hover {
-	outline: 0;
-	background-color: #7757c7;
-}
-.projects-toggle:focus {
-	outline: 0;
-}
-.projects-toggle .icon-bar {
-	display: block;
-	width: 22px;
-	height: 2px;
-	border-radius: 1px;
-	background-color: white;
-}
-.projects-toggle .icon-bar + .icon-bar {
-	margin-top: 4px;
-}
-
 
 /*
 *   Header Styles
@@ -393,10 +365,10 @@ a.list-group-item:focus {
 
 
 /*
-*	Projects Sidebar
+*	ThoughtJot Sidebar
 */
 
-.projects-sidebar {
+.thoughtjot-sidebar {
 	height: 100%;
 	width: 332px;
 	background-color: white;
@@ -404,37 +376,82 @@ a.list-group-item:focus {
 	padding-top: 56px;
 	box-shadow: 0 0 4px rgba(0,0,0,.14), 2px 4px 8px rgba(0,0,0,.28);
 	z-index: 980;
+}
+
+.thoughtjot-sidebar hr {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.sidebar-list {
+	display: block;
+	height: 100%;
 	overflow-y: scroll;
 }
 
-.projects-list {
-	margin-top: 10px;
-}
-
-.projects-list {
-	display: block;
-}
-
-.projects-list-item a {
+.sidebar-list-item a {
 	padding: 15px 10px 15px 20px;
 	display: block;
 	color: #757575;
 }
 
-.projects-list-item-name {
+.sidebar-list .sidebar-list-item:first-child {
+	margin-top: 10px;
+}
+
+.sidebar-list .sidebar-list-item:last-child {
+	margin-bottom: 10px;
+}
+
+.sidebar-list-item-name {
 	font-weight: 700;
 	margin-bottom: 2px;
 }
 
-.projects-list-item a:hover,
-.projects-list-item a:focus,
-.projects-list-item a:active {
+.sidebar-list-item a:hover,
+.sidebar-list-item a:focus,
+.sidebar-list-item a:active {
 	background-color: #f0f0f0;
 	text-decoration: none;
 	color: #757575;
+	outline: 0;
 }
 
-.projects-list-item.active a {
+.sidebar-list-item.active a {
 	color: #7757c7;
 	background-color: #f0f0f0;
+}
+
+
+/*
+*	ThoughtJot Toggle for Sidebar
+*	Based off Bootstrap's `navbar-toggle`
+*/
+
+.thoughtjot-toggle {
+	position: relative;
+	padding: 10px 10px;
+	margin: 6px;
+	height: 44px;
+	width: 44px;
+	background-color: transparent;
+	border: 1px solid transparent;
+	border-radius: 22px;
+}
+.thoughtjot-toggle:hover {
+	outline: 0;
+	background-color: #7757c7;
+}
+.thoughtjot-toggle:focus {
+	outline: 0;
+}
+.thoughtjot-toggle .icon-bar {
+	display: block;
+	width: 22px;
+	height: 2px;
+	border-radius: 1px;
+	background-color: white;
+}
+.thoughtjot-toggle .icon-bar + .icon-bar {
+	margin-top: 4px;
 }

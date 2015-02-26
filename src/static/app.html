@@ -27,14 +27,14 @@
 	<nav class="navbar navbar-thoughtjot navbar-fixed-top">
 		<div class="container-flexible">
 			<div class="navbar-header">
-				<button class="projects-toggle pull-left" ng-click="projectsSidebarVisible = !projectsSidebarVisible">
+				<button class="thoughtjot-toggle pull-left" ng-click="toggleSidebar();">
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a ng-href="/projects{{ config.project.id ? '/' + config.project.id : '' }}" class="navbar-brand">
-					<span ng-show="config.project">{{ config.project.name }}</span>
-					<span class="satisfy-font" ng-show="!config.project">ThoughtJot!</span>
+				<a ng-href="{{ config.navbar.link }}" class="navbar-brand">
+					<span ng-show="config.navbar.title">{{ config.navbar.title }}</span>
+					<span class="satisfy-font" ng-show="!config.navbar.title">ThoughtJot!</span>
 				</a>
 			</div>
 
@@ -59,9 +59,9 @@
 		</div> <!-- /.container-flexible -->
 	</nav>
 
-	<div class="projects-sidebar" projects-sidebar projects="projects" active-project="config.project" project-click="hideProjectsSidebar();" ng-show="projectsSidebarVisible"></div>
+	<div class="thoughtjot-sidebar" projects-sidebar projects="projects" active-project="config.project" ng-show="config.sidebar.show"></div>
 
-	<div class="wrapper" ng-click="hideProjectsSidebar();">
+	<div class="wrapper" ng-click="wrapperClick();">
 		<div class="main-container" ng-view></div>
 	</div>
 

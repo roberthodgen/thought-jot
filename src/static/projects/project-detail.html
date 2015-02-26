@@ -34,7 +34,7 @@
 	<div class="projects-list-group">
 		<h4>Time records <small>most recently started</small></h4>
 		<div class="list-group">
-			<div class="list-group-item" ng-class="{ 'list-group-item-in-progress': (!timeRecord.completed), 'list-group-item-edit': (timeRecord._edit) }" time-record-list-group-item time-record="timeRecord" ng-click="timeRecordClick(timeRecord)" ng-repeat="timeRecord in timeRecords | filterTimeRecords | filter:search | orderBy:'_start':true as timeRecordResults"></div>
+			<div class="list-group-item" ng-class="{ 'list-group-item-in-progress': (!timeRecord.completed), 'list-group-item-edit': (timeRecord._edit) }" time-record-list-group-item time-record="timeRecord" ng-click="timeRecordClick(timeRecord);" ng-repeat="timeRecord in timeRecords | filterTimeRecords | filter:search | orderBy:'_start':true as timeRecordResults"></div>
 		</div>
 		<p class="text-muted" ng-show="timeRecordResults.length == 0">No results.</p>
 	</div>

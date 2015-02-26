@@ -23,32 +23,37 @@
 					$scope.user = response;
 					$hasUser = true;
 
-					dataFactory.projects().then(function(response) {
-						$scope.projectsLoaded = true;
-						if (!response.error) {
-							$scope.projects = response;
-						}
-					});
+					
 				} else {
 					alert('Error loading User.');
 				}
 			});
 
-			$scope.projectsSidebarVisible = false;
+			$scope.config.sidebar.show = false;
 		};
 
-		$scope.showProjects = function() {
-			console.log('[app.appCtrl] showProjects(): Called.');
+		$scope.toggleSidebar = function() {
+			console.log('[app.appCtrl] toggleSidebar(): Called.');
 
-			if ($scope.projectsLoaded) {
-				$scope.projectsSidebarVisible
+			if ($scope.config.sidebar.show) {
+				$scope.config.sidebar.show = false;
+			} else {
+
+				dataFactory.projects().then(function(response) {
+					$scope.projectsLoaded = true;
+					if (!response.error) {
+						$scope.projects = response;
+					}
+				});
+
+				$scope.config.sidebar.show = true;
 			}
 		};
 
-		$scope.hideProjectsSidebar = function() {
-			if ($scope.projectsSidebarVisible) {
-				console.log('[app.appCtrl] hideProjectsSidebar(): Called.');
-				$scope.projectsSidebarVisible = false;
+		$scope.wrapperClick = function() {
+			if ($scope.config.sidebar.show) {
+				console.log('[app.appCtrl] wrapperClick(): Called.');
+				$scope.config.sidebar.show = false;
 			}
 		};
 

@@ -11,9 +11,23 @@
 		var configFilters = {
 			pageTitle: function(pageTitle) {
 				if (angular.isString(pageTitle)) {
-					return pageTitle + ' - ' + fixedConfig.pageTitleSuffix;
+					currentConfiguration.pageTitle = pageTitle + ' - ' + fixedConfig.pageTitleSuffix;
 				}
-				return fixedConfig.pageTitleSuffix;
+				currentConfiguration.pageTitle = fixedConfig.pageTitleSuffix;
+			}, sidebar: function(sidebar) {
+
+				// Loop through each property and copy if it's available
+				var _keys = Object.keys(sidebar);
+				for (var i = _keys.length - 1; i >= 0; i--) {
+					currentConfiguration.sidebar[_keys[i]] = sidebar[_keys[i]];
+				}
+			}, navbar: function(navbar) {
+
+				// Loop through each property and copy if it's available
+				var _keys = Object.keys(navbar);
+				for (var i = _keys.length - 1; i >= 0; i--) {
+					currentConfiguration.navbar[_keys[i]] = navbar[_keys[i]];
+				}
 			}
 		}
 
@@ -28,11 +42,17 @@
 
 
 		var currentConfiguration = {
-			/*
-			'pageTitle': '',		// The current page title, if any
-			'navActive': '',		// A string aproximating the current active nav bar item
-			'activeProject': {},	// A Project object representing the currently active/viewed project
-			*/
+			'pageTitle': '',			// The current page title, if any
+			'navActive': '',			// A string aproximating the current active nav bar item
+			'sidebar': {
+				'show': false			// A Boolean indicating whether the Sidebar should be visible
+		//		'selection': ''			// A String used to compare which item is currently selected
+			},
+			'navbar': {
+				'title': ''				// The name that should appear in the navbar
+		//		'link': ''				// The href attribute of the main navbar link
+			}
+		//	'project': {},				// A Project object representing the currently active/viewed project
 		};
 
 		var service = {
@@ -62,7 +82,7 @@
 						if (configFilters.hasOwnProperty(_newKeys[i])) {
 							// Use the filter to update the current configuration value...
 							console.log('[app.appFactory] service.config(): New config via filter, key: '+_newKeys[i]);
-							currentConfiguration[_newKeys[i]] = (configFilters[_newKeys[i]])(newConfig[_newKeys[i]]);
+							(configFilters[_newKeys[i]])(newConfig[_newKeys[i]]);
 						} else {
 							// ... otherwise set directly
 							console.log('[app.appFactory] service.config(): New config key: '+_newKeys[i]);

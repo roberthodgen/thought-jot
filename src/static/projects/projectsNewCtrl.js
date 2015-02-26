@@ -9,7 +9,14 @@
 			console.log('[app.projectsNewCtrl] $scope.init(): call');
 			appFactory.config({
 				'pageTitle': 'New Project',
-				'navActive': 'projects'
+				'navActive': 'projects',
+				'navbar': {
+					'title': 'New Project',
+					'link': $location.path()
+				},
+				'sidebar': {
+					'selection': 'new-project'
+				}
 			});
 
 			$scope.user = {};

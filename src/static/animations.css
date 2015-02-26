@@ -1,18 +1,18 @@
 /*
-*	Projects Sidebar
+*	ThoughtJot Sidebar
 */
 
-.projects-sidebar {
+.thoughtjot-sidebar {
 	left: 0px;
 }
 
-.projects-sidebar.ng-hide-add.ng-hide-add-active,
-.projects-sidebar.ng-hide-remove.ng-hide-remove-active {
+.thoughtjot-sidebar.ng-hide-add.ng-hide-add-active,
+.thoughtjot-sidebar.ng-hide-remove.ng-hide-remove-active {
 	-webkit-transition: all ease-in-out 0.15s;
 	transition: all ease-in-out 0.15s;
 }
 
-.projects-sidebar.ng-hide {
+.thoughtjot-sidebar.ng-hide {
 	/*display: none;*/
 	left: -332px;
 }

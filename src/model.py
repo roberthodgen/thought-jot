@@ -190,7 +190,6 @@ class TimeRecord(ndb.Model):
     end_string_value = None
     if self.end:
       end_string_value = self.end.replace(tzinfo=UTC()).isoformat()
-
     return {
       'id': self.key.urlsafe(),
       'start': start.isoformat(),
@@ -230,6 +229,18 @@ class Comment(ndb.Model):
       project_key.get().put() # Update the `updated` property of our Project
     return new_comment.put()
 
+  def json_object(self):
+    """ Return a dictionary representing this Comment. Will be used for
+    sending information about this Comment via JSON requests. """
+    return {
+      'id': self.key.urlsafe(),
+      'created': self.created.replace(tzinfo=UTC()).isoformat(),
+      'updated': self.updated.replace(tzinfo=UTC()).isoformat(),
+      'comment': self.comment,
+      'project': self.project.urlsafe(),
+      'parent': self.key.parent().urlsafe(),
+      'user': self.user
+    }
 
 class Account(ndb.Model):
 

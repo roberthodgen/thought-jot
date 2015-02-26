@@ -413,6 +413,53 @@ class TimeRecordUpdate(webapp2.RequestHandler):
     self.response.out.write(json.dumps(response_object))
 
 
+class CommentCreate(webapp2.RequestHandler):
+  def post(self):
+    """ Create a new Comment in the specified Project, optionally bound to a
+    Time Record, Project, or other parent object. """
+    response_object = {};
+    user = users.get_current_user()
+    if not user:
+      self.abort(401)
+    # Get JSON request body
+    if self.request.body:
+      request_object = json.loads(self.request.body)
+      project_key_id = request_object.get('project_id')
+      parent_key_id = request_object.get('parent_id')
+      comment_content = request_object.get('comment')
+      if project_key_id and parent_key_id and comment_content:
+        project_key = ndb.Key(urlsafe=project_key_id)
+        project = project_key.get()
+        parent_key = ndb.Key(urlsafe=parent_key_id)
+        parent = parent_key.get()
+        if project and parent:
+          new_comment_key = model.Comment.create_comment(
+            comment_content, parent_key, project_key, user.email)
+          response_object['comment'] = new_comment_key.get().json_object()
+        else:
+          self.response.set_status(404)
+          response_object['not_found'] = {
+            'project': not bool(project),
+            'parent': not bool(parent)
+          }
+      else:
+        self.response.set_status(400)
+        response_object['missing'] = {
+          'post_body_json': {
+            'project_id': not bool(project_key_id),
+            'parent_id': not bool(parent_key_id),
+            'comment': not bool(comment_content)
+        }}
+    else:
+      self.response.set_status(400)
+      response_object['missing'] =  {
+        'post_body_json': True
+      }
+    # Send response
+    self.response.content_type = 'application/json'
+    self.response.out.write(json.dumps(response_object))
+
+
 app = webapp2.WSGIApplication([
   webapp2.Route(
     '/api/projects/list.json',
@@ -444,6 +491,9 @@ app = webapp2.WSGIApplication([
   ), webapp2.Route(
     '/api/projects/time-records/update.json',
     handler=TimeRecordUpdate
+  ), webapp2.Route(
+    '/api/projects/comments/create.json',
+    handler=CommentCreate
   )
 ])
 

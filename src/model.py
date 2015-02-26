@@ -34,7 +34,7 @@ class Project(ndb.Model):
   # The name/short description of this Project
   name = ndb.StringProperty(required=True)
   # The long description of this Project
-  description = ndb.StringProperty(default=None)
+  description = ndb.TextProperty(default=None)
   # The permalink (or web safe name, used in URLs) of this Project
   permalink = ndb.StringProperty(required=True)
   # The primary User's email address
@@ -206,7 +206,7 @@ class TimeRecord(ndb.Model):
 class Comment(ndb.Model):
   """ Comments left on TimeRecords or general Project comments. """
   # The content of the comment
-  comment = ndb.StringProperty(required=True)
+  comment = ndb.TextProperty(required=True)
   # Store the User's email address who (created) this Comment
   user = ndb.StringProperty(required=True)
   # Store the Project to which this Comment is held

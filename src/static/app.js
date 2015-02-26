@@ -4,6 +4,7 @@
 	// Declare the AngularJS app-level module as `app`
 	var app = angular.module('app', [
 		'ngRoute',
+		'ngAnimate',
 
 		// Shared components
 		'app.filters',
@@ -23,7 +24,8 @@
 
 		// Directives
 		'app.projectListGroupItem',
-		'app.timeRecordListGroupItem'
+		'app.timeRecordListGroupItem',
+		'app.projectsSidebar'
 
 	]);
 

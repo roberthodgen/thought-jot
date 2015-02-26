@@ -1,0 +1,18 @@
+/*
+*	Projects Sidebar
+*/
+
+.projects-sidebar {
+	left: 0px;
+}
+
+.projects-sidebar.ng-hide-add.ng-hide-add-active,
+.projects-sidebar.ng-hide-remove.ng-hide-remove-active {
+	-webkit-transition: all ease-in-out 0.15s;
+	transition: all ease-in-out 0.15s;
+}
+
+.projects-sidebar.ng-hide {
+	/*display: none;*/
+	left: -332px;
+}

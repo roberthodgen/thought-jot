@@ -54,7 +54,7 @@
 							for (var i = _keys.length - 1; i >= 0; i--) {
 
 								// Delete our temp `_edit` property
-								delete response[_keys[i]]._edit;
+								// delete response[_keys[i]]._edit;
 
 								// Go ahead and start the click IF there's not `end` property								
 								if (response[_keys[i]].end == null && response[_keys[i]].start) {
@@ -86,8 +86,31 @@
 					alert('Error loading User.');
 				}
 			});
-
 		};
+
+		// Watch for changes in the `edit` search parameter...
+		$scope.$watch(function() {
+			var _search = $location.search();
+			return _search.edit;
+		}, function(newValue, oldValue) {
+			// Loop through and delete all not equal to this `newValue`
+			var _keys = Object.keys($scope.timeRecords);
+			if (angular.isString(newValue)) {
+				// Loop through and delete all but this key
+				for (var i = _keys.length - 1; i >= 0; i--) {
+					if ($scope.timeRecords[_keys[i]].id != newValue) {
+						delete $scope.timeRecords[_keys[i]]._edit;
+						delete $scope.timeRecords[_keys[i]]._name;
+					}
+				}
+			} else {
+				// Loop through all and remove `_edit` and `_name`
+				for (var i = _keys.length - 1; i >= 0; i--) {
+					delete $scope.timeRecords[_keys[i]]._edit;
+					delete $scope.timeRecords[_keys[i]]._name;
+				}
+			}
+		});
 
 		$scope.startUncompletedSecondsCount = function() {
 			/*
@@ -125,51 +148,20 @@
 			});
 		};
 
-		$scope.timeRecordShowEditControls = function(timeRecord, show) {
-			if (show) {
-				timeRecord._edit = true;
-				timeRecord._name = timeRecord.name;
-			} else {
-				timeRecord._edit = false;
-				timeRecord._name = '';
-			}
-		};
-
 		$scope.timeRecordClick = function(timeRecord) {
 			$location.search('edit', timeRecord.id);
 
 			if (!timeRecord._edit) {
 				timeRecord._edit = true;
 				timeRecord._name = angular.copy(timeRecord.name);
-				
-				// Loop through and set all not equal to this timeRecord to false
-				var _keys = Object.keys($scope.timeRecords);
-				for (var i = _keys.length - 1; i >= 0; i--) {
-					if ($scope.timeRecords[_keys[i]] != timeRecord) {
-						delete $scope.timeRecords[_keys[i]]._edit;
-						delete $scope.timeRecords[_keys[i]]._name;
-					}
-				}
 			}
 		};
 
 		$scope.backgroundClick = function() {
 			// Remove the edit search property
 			var _search = $location.search();
-			if (_search.hasOwnProperty('edit')) {
-				// End the Time Record edit
-				delete $scope.timeRecords[_search.edit]._edit;
-				delete $scope.timeRecords[_search.edit]._name;
-			}
 			$location.search('edit', null);
 		};
-
-		// Watch for changes in $scope.inProgressResults (an alias from an ngRepeat), to update our inProgressTimeRecords (used for count; hiding the section)
-		// $scope.$watch(function() {
-		// 	return $scope.inProgressResults;
-		// }, function(newValue, oldValue) {
-		// 	$scope.inProgressTimeRecords = $filter('filterInProgressTimeRecords')($scope.timeRecords);
-		// });
 
 
 		// Init

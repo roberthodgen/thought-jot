@@ -49,12 +49,19 @@
 							// Success
 							$scope.timeRecords = response;
 
+							var _search = $location.search();
+
 							// Search for uncompleted Time Records (to start the counter)
 							var _keys = Object.keys(response);
 							for (var i = _keys.length - 1; i >= 0; i--) {
 
 								// Delete our temp `_edit` property
-								// delete response[_keys[i]]._edit;
+								if (response[_keys[i]].id === _search.edit) {
+									response[_keys[i]]._edit = true;
+									response[_keys[i]]._name = angular.copy(response[_keys[i]].name);
+								} else {
+									delete response[_keys[i]]._edit;
+								}
 
 								// Go ahead and start the click IF there's not `end` property								
 								if (response[_keys[i]].end == null && response[_keys[i]].start) {

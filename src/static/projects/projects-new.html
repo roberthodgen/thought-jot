@@ -14,7 +14,12 @@
 		<div class="form-group">
 			<label class="control-label col-md-2">Description <span class="text-muted">(optional)</span></label>
 			<div class="col-md-10">
-				<textarea rows="3" class="form-control" ng-model="project.description"></textarea>
+				<ul class="nav nav-tabs">
+					<li class="active"><a href="">Edit</a></li>
+					<li><a href="">Preview</a></li>
+				</ul>
+				<textarea rows="10" class="form-control" ng-model="project.description"></textarea>
+				<p class="help-block">Description parsed using <a href="https://help.github.com/articles/markdown-basics/">GitHub Flavored Markdown</a>.</p>
 			</div>
 		</div>
 		

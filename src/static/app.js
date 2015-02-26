@@ -25,7 +25,11 @@
 		// Directives
 		'app.projectListGroupItem',
 		'app.timeRecordListGroupItem',
-		'app.projectsSidebar'
+		'app.projectsSidebar',
+
+
+		// Third-party
+		'yaru22.md'		// Markdown via https://github.com/yaru22/angular-md
 
 	]);
 

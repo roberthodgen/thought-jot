@@ -54,6 +54,12 @@ class ProjectCreate(webapp2.RequestHandler):
       if name:
         new_project_key = model.Project.create_project(name)
         new_project = new_project_key.get()
+        if len(request_object.keys()) > 1:
+          # Process optional items...
+          description = request_object.get('description')
+          if description:
+            new_project.description = description
+          new_project.put()
         response_object['project'] = new_project.json_object()
       else:
         self.response.set_status(400)

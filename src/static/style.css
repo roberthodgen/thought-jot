@@ -286,6 +286,14 @@ fieldset[disabled] .btn-primary.active {
 	color: white;
 }
 
+.home-splash h1 {
+	font-size: 92px;
+	transform: rotate(-7deg);
+	-ms-transform: rotate(-7deg);
+	-webkit-transform: rotate(-7deg);
+}
+
+
 /*
 *   Page Splash
 */
@@ -381,4 +389,52 @@ a.list-group-item:focus {
 
 .list-group-item:hover .time-record-hover-only {
 	display: inline-block;
+}
+
+
+/*
+*	Projects Sidebar
+*/
+
+.projects-sidebar {
+	height: 100%;
+	width: 332px;
+	background-color: white;
+	position: fixed;
+	padding-top: 56px;
+	box-shadow: 0 0 4px rgba(0,0,0,.14), 2px 4px 8px rgba(0,0,0,.28);
+	z-index: 980;
+	overflow-y: scroll;
+}
+
+.projects-list {
+	margin-top: 10px;
+}
+
+.projects-list {
+	display: block;
+}
+
+.projects-list-item a {
+	padding: 15px 10px 15px 20px;
+	display: block;
+	color: #757575;
+}
+
+.projects-list-item-name {
+	font-weight: 700;
+	margin-bottom: 2px;
+}
+
+.projects-list-item a:hover,
+.projects-list-item a:focus,
+.projects-list-item a:active {
+	background-color: #f0f0f0;
+	text-decoration: none;
+	color: #757575;
+}
+
+.projects-list-item.active a {
+	color: #7757c7;
+	background-color: #f0f0f0;
 }

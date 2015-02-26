@@ -41,10 +41,10 @@ h6,
 	font-weight: 400; /* Normal */
 }
 
+
 /*
 *   Navbar
 */
-
 
 .navbar-thoughtjot {
 	background-color: #967adc;
@@ -454,4 +454,44 @@ a.list-group-item:focus {
 }
 .thoughtjot-toggle .icon-bar + .icon-bar {
 	margin-top: 4px;
+}
+
+
+/*
+*	Markdown Preview Link
+*/
+
+textarea.form-control.with-btn-preview {
+	border-bottom-left-radius: 0;
+}
+
+.preview-link {
+	display: block;
+	position: relative;
+	top: -1px;
+}
+
+.preview-link .btn-preview {
+	/*position: absolute;*/
+	/*right: 0;*/
+	z-index: 10;
+	/*top: -8px;*/
+	border-radius: 0;
+	border-bottom-left-radius: 3px;
+	border-bottom-right-radius: 3px;
+}
+
+.preview-link p.help-block {
+	display: inline-block;
+	margin-left: 5px;
+}
+
+.well.with-btn-preview {
+	background-color: white;
+	margin: 0;
+	border-bottom-left-radius: 0;
+	border-color: #ccc;
+	height: 200px;
+	max-height: 200px;
+	overflow-y: auto;
 }

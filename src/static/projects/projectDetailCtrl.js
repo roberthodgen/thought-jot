@@ -8,8 +8,7 @@
 		$scope.init = function() {
 			console.log('[app.projectDetailCtrl] $scope.init(): call');
 			appFactory.config({
-				'pageTitle': 'Project',
-				'navActive': 'projects',
+				'pageTitle': 'Loading...',
 				'navbar': {
 					'title': 'Loading...',
 					'link': $location.path()
@@ -91,15 +90,12 @@
 									'title': response.name
 								}, 'sidebar': {
 									'selection': response.id
-								},
-								'project': response
+								}
 							});
 						} else {
 							// Error
 						}
 					});
-
-					
 				} else {
 					alert('Error loading User.');
 				}

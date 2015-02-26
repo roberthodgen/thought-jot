@@ -21,6 +21,7 @@
 		'app.projectsHomeCtrl',
 		'app.projectsNewCtrl',
 		'app.projectDetailCtrl',
+		'app.projectSettingsCtrl',
 
 		// Directives
 		'app.projectListGroupItem',
@@ -58,6 +59,9 @@
 			templateUrl: '/projects/project-detail.html',
 			controller: 'app.projectDetailCtrl',
 			reloadOnSearch: false
+		}).when('/projects/:projectId/settings', {
+			templateUrl: '/project-settings/project-settings.html',
+			controller: 'app.projectSettingsCtrl'
 		}).when('/not-found', {
 			templateUrl: '/error/not-found.html',
 			controller: 'app.errorCtrl'

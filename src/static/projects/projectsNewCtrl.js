@@ -9,7 +9,6 @@
 			console.log('[app.projectsNewCtrl] $scope.init(): call');
 			appFactory.config({
 				'pageTitle': 'New Project',
-				'navActive': 'projects',
 				'navbar': {
 					'title': 'New Project',
 					'link': $location.path()

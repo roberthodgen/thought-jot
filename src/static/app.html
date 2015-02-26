@@ -53,20 +53,20 @@
 							<li><a href="/_login?action=logout&continue=%2F" target="_self">Log out</a></li>
 						</ul>
 					</li>
-					<li ng-class="{ 'active': (config.navActive == 'login') }" ng-show="!user.email"><a href="/login">Log in</a></li>
+					<li ng-show="!user.email"><a href="/login">Log in</a></li>
 				</ul>
 			</div> <!-- ./navbar-collapse -->
 		</div> <!-- /.container-flexible -->
 	</nav>
 
-	<div class="thoughtjot-sidebar" projects-sidebar projects="projects" active-project="config.project" ng-show="config.sidebar.show"></div>
+	<div class="thoughtjot-sidebar" projects-sidebar projects="projects" ng-show="config.sidebar.show"></div>
 
 	<div class="wrapper" ng-click="wrapperClick();">
 		<div class="main-container" ng-view></div>
 	</div>
 
 	<div class="footer">
-		<p class="text-center">Copyright &copy; 2015 Robert Hodgen.</p>
+		<p class="text-center">Copyright &copy; 2015 <a href="http://roberthodgen.com/">Robert Hodgen</a>.</p>
 	</div>
 
 	<!-- AngularJS -->
@@ -96,6 +96,7 @@
 	<script src="/projects/projectListGroupItem.js"></script>
 	<script src="/projects/projectsNewCtrl.js"></script>
 	<script src="/projects/projectDetailCtrl.js"></script>
+	<script src="/project-settings/project-settings-ctrl.js"></script>
 	<!-- App-specific directives -->
 	<script src="/time-records/timeRecordListGroupItem.js"></script>
 	<script src="/projects-sidebar/projectsSidebar.js"></script>

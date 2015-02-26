@@ -8,8 +8,7 @@
 		$scope.init = function() {
 			console.log('[app.projectsHomeCtrl] $scope.init(): call');
 			appFactory.config({
-				'pageTitle': 'Projects',
-				'navActive': 'projects'
+				'pageTitle': 'Projects'
 			});
 
 			$scope.search = {

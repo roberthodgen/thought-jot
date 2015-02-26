@@ -43,7 +43,6 @@
 
 		var currentConfiguration = {
 			'pageTitle': '',			// The current page title, if any
-			'navActive': '',			// A string aproximating the current active nav bar item
 			'sidebar': {
 				'show': false			// A Boolean indicating whether the Sidebar should be visible
 		//		'selection': ''			// A String used to compare which item is currently selected

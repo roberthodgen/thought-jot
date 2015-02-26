@@ -8,8 +8,7 @@
 		$scope.init = function() {
 			console.log('[app.loginCtrl] $scope.init(): call');
 			appFactory.config({
-				'pageTitle': 'Log in',
-				'navActive': 'login'
+				'pageTitle': 'Log in'
 			});
 
 			$scope.user = {};

@@ -8,8 +8,7 @@
 		$scope.init = function() {
 			console.log('[app.homeCtrl] $scope.init(): call');
 			appFactory.config({
-				'pageTitle': null,
-				'navActive': null
+				'pageTitle': null
 			});
 
 			$scope.user = {};

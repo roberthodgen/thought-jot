@@ -21,10 +21,6 @@
 					'pageTitle': null
 				})
 			}
-
-			appFactory.config({
-				'navActive': null
-			});
 		};
 
 

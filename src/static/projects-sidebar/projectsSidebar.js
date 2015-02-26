@@ -8,8 +8,7 @@
 		return {
 			restrict: 'A',	// Only match attribute name
 			scope: {	// Isolate the directive's scope...
-				projects: '=projects',	// We need the projects as `projects`
-				activeProject: '=activeProject'
+				projects: '=projects'	// We need the projects as `projects`
 			}, controller: ['$scope', 'app.appFactory', 'app.dataFactory', function($scope, appFactory, dataFactory) {
 
 				$scope.init = function() {

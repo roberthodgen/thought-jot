@@ -189,6 +189,64 @@
 				});
 
 				return _project.promise;
+			}, updateProject: function(project) {
+				project._update_in_progress = true;
+				var options = {
+					'project_id': project.id
+				};
+
+				if (project.hasOwnProperty('_name')) {
+					if (project._name) {
+						options.name = project._name;
+					}
+				}
+
+				if (project.hasOwnProperty('_description')) {
+					if (project._description) {
+						options.description = project._description;
+					}
+				}
+				return $http({
+					method: 'POST',
+					url: '/api/projects/update.json',
+					params: {
+						't': new Date().getTime()
+					}, data: options
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					delete project._update_in_progress;
+					if (angular.isObject(response.data)) {
+						if (response.data.hasOwnProperty('project')) {
+							// Success!!
+							console.log('[app.dataFactory] service.updateProject(): data.response has `project`, is valid');
+
+							var _date = new Date();
+
+							// Project
+							response.data.project._loaded = _date;
+							response.data.project._updated = new Date(response.data.project.updated);
+							response.data.project._created = new Date(response.data.project.created);
+							var _project_keyed = {};
+							_project_keyed[response.data.project.id] = response.data.project;
+							mergeResponseData(cache.projects, _project_keyed);
+
+							return response.data.project;
+						}
+					}
+					console.log('[app.dataFactory] service.updateProject(): Error reading response.');
+					return {
+						'error': true
+					};
+				}, function(response) {
+					// Error
+					delete timeRecord._update_in_progress;
+					console.log('[app.dataFactory] service.updateProject(): Request error: '+response.status);
+
+					return {
+						'error': true,
+						'status': response.status
+					};
+				});
 			}, projectUncompletedUpdate: function(projectId) {
 				// The number of seconds since the UNIX Epoch
 				var nowSeconds = (Date.now() / 1000);

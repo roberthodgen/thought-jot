@@ -125,6 +125,7 @@ class Project(ndb.Model):
     return {
       'id': self.key.urlsafe(),
       'name': self.name,
+      'description': self.description,
       'owner': self.owner,
       'contributors': self.contributors,
       'observers': self.observers,

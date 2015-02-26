@@ -122,7 +122,7 @@
 						delete $scope.timeRecords[_keys[i]]._name;
 					} else {
 						$scope.timeRecords[_keys[i]]._edit = true;
-						$scope.timeRecords[_keys[i]].name = angular.copy($scope.timeRecords[_keys[i]].name);
+						$scope.timeRecords[_keys[i]]._name = angular.copy($scope.timeRecords[_keys[i]].name);
 					}
 				}
 			} else {

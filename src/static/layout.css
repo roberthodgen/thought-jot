@@ -81,3 +81,55 @@ html, body {
 	height: 100%;
 	width: 100%;
 }
+
+/*
+*	Projects Sidebar
+*	.projects-sidebar
+*/
+
+.projects-sidebar {
+	height:100%;
+	width:332px;
+	background-color:white;
+	position:fixed;
+	padding-top:56px;
+	box-shadow: 0 0 4px rgba(0,0,0,.14),2px 4px 8px rgba(0,0,0,.28);
+	z-index:980;
+	y-overflow:scroll;
+}
+
+.projects-sidebar > .projects-list {
+	margin-top: 10px;
+}
+
+.projects-sidebar > .projects-list {
+	display: block;
+}
+
+.projects-sidebar > .projects-list > .projects-list-item {
+
+}
+
+.projects-sidebar > .projects-list > .projects-list-item a {
+	padding: 15px 10px 15px 20px;
+	display: block;
+	color: #757575;
+}
+
+.projects-list-item-name {
+	font-weight: 700;
+	margin-bottom: 2px;
+}
+
+.projects-sidebar > .projects-list > .projects-list-item a:hover,
+.projects-sidebar > .projects-list > .projects-list-item a:focus,
+.projects-sidebar > .projects-list > .projects-list-item a:active {
+	background-color: #f0f0f0;
+	text-decoration: none;
+	color: #757575;
+}
+
+.projects-sidebar > .projects-list > .projects-list-item.active a {
+	color: #7757c7;
+	background-color: #f0f0f0;
+}

@@ -9,7 +9,8 @@ body {
 }
 
 .text-primary {
-	color: #967adc;;
+	/*color: #967adc;;*/
+	color: #7757c7;
 }
 
 .text-light {
@@ -30,10 +31,12 @@ body {
 	border: 1px solid transparent;
 	border-radius: 22px;
 }
-.projects-toggle:focus,
 .projects-toggle:hover {
 	outline: 0;
-	background-color: #765cb6;
+	background-color: #7757c7;
+}
+.projects-toggle:focus {
+	outline: 0;
 }
 .projects-toggle .icon-bar {
 	display: block;

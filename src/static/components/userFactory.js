@@ -34,7 +34,7 @@
 			// Delete any keys from the cache that aren't found in our response (that don't begin with an underscore)
 			var _destination_keys = Object.keys(destination);
 			for (var i = destination.length - 1; i >= 0; i--) {
-				if (indexOf.call(b, destination[_destination_keys[i]]) === -1 && !internalKey(_destination_keys[i])) {
+				if (_response_keys.indexOf(_destination_keys[i]) === -1 && !internalKey(_destination_keys[i])) {
 					delete destination[_destination_keys[i]];
 				}
 			}

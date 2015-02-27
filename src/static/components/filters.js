@@ -129,22 +129,6 @@
 		};
 	});
 
-	// Return time records for a given day
-	app.filter('filterProjects', function() {
-		return function(projects) {
-			// Return an array of Time Records that are valid
-			var _filter = [];
-
-			var _keys = Object.keys(projects);
-			for (var i = _keys.length - 1; i >= 0; i--) {
-				if (projects[_keys[i]].hasOwnProperty('id')) {
-					_filter.push(projects[_keys[i]]);
-				}
-			}
-			return _filter;
-		}
-	});
-
 	// Return all Time Records that are not in-progress
 	app.filter('filterActiveTimeRecords', function() {
 		return function(timeRecords) {
@@ -181,20 +165,20 @@
 		};
 	});
 
-	// Return time records for a given day
-	app.filter('filterTimeRecords', function() {
-		return function(timeRecords) {
-			// Return an array of Time Records that are valid
+	// Return Objects that have an `id` property
+	app.filter('filterDisplayObjects', function() {
+		return function(objects) {
+			// Return an array of Objects that are valid (have an `id` property)
 			var _filter = [];
 
-			var _keys = Object.keys(timeRecords);
+			var _keys = Object.keys(objects);
 			for (var i = _keys.length - 1; i >= 0; i--) {
-				if (timeRecords[_keys[i]].hasOwnProperty('id')) {
-					_filter.push(timeRecords[_keys[i]]);
+				if (objects[_keys[i]].hasOwnProperty('id')) {
+					_filter.push(objects[_keys[i]]);
 				}
 			}
 			return _filter;
-		}
+		};
 	});
 
 

@@ -47,7 +47,7 @@
 		$scope.create = function() {
 			console.log('[app.projectsNewCtrl] $scope.create(): called');
 			$scope.projectLoaded = false;
-			dataFactory.create($scope.project).then(function(response) {
+			dataFactory.createProject($scope.project).then(function(response) {
 				$scope.projectLoaded = true;
 				if (!response.error) {
 					$location.path('/projects/'+response.id);

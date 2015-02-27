@@ -86,6 +86,8 @@ class ProjectUpdate(webapp2.RequestHandler):
         project_key = ndb.Key(urlsafe=project_key_id)
         project = project_key.get()
         if project:
+          if user.email not in project.users:
+            self.abort(401)
           if len(request_object.keys()) > 1:
             # Process optional items...
             name = request_object.get('name')
@@ -252,6 +254,8 @@ class TimeRecordsList(webapp2.RequestHandler):
       project_key = ndb.Key(urlsafe=project_key_id)
       project = project_key.get()
       if project:
+        if user.email not in project.users:
+            self.abort(401)
         response_object['project'] = project.json_object()
         # Query for Projects this User owns, contributes to, or may observe
         time_records = model.TimeRecord.query(ancestor=project_key)
@@ -289,6 +293,9 @@ class TimeRecordCreate(webapp2.RequestHandler):
         project_key = ndb.Key(urlsafe=project_key_id)
         project = project_key.get()
         if project:
+          if ((user.email not in project.contributors)
+            and (user.email != project.owner)):
+            self.abort(401)
           if not project.has_uncompleted_time_records:
             new_time_record_key = model.TimeRecord.create_time_record(
               project_key, user.email)
@@ -336,6 +343,10 @@ class TimeRecordComplete(webapp2.RequestHandler):
         time_record_key = ndb.Key(urlsafe=time_record_key_id)
         time_record = time_record_key.get()
         if time_record:
+          project = time_record.key.parent().get()
+          if ((user.email not in project.contributors)
+            and (user.email != project.owner)):
+            self.abort(401)
           time_record.complete_time_record()
           if len(request_object.keys()) > 1:
             # Process optional items...
@@ -344,7 +355,7 @@ class TimeRecordComplete(webapp2.RequestHandler):
               time_record.name = name
             time_record.put()
           response_object['time_record'] = time_record.json_object()
-          project = time_record.key.parent().get()
+          project = time_record.key.parent().get() # Get again
           response_object['project'] = project.json_object()
         else:
           self.response.set_status(404)
@@ -381,13 +392,16 @@ class TimeRecordUpdate(webapp2.RequestHandler):
         time_record_key = ndb.Key(urlsafe=time_record_key_id)
         time_record = time_record_key.get()
         if time_record:
+          project = time_record.key.parent().get()
+          if ((user.email not in project.contributors)
+            and (user.email != project.owner)):
+            self.abort(401)
           if len(request_object.keys()) > 1:
             # Process optional items...
             name = request_object.get('name')
             if name:
               time_record.name = name
             time_record.put()
-            project = time_record.key.parent().get()
             project.put()
           response_object['time_record'] = time_record.json_object()
           # project = time_record.key.parent().get()
@@ -430,6 +444,9 @@ class CommentCreate(webapp2.RequestHandler):
       if project_key_id and parent_key_id and comment_content:
         project_key = ndb.Key(urlsafe=project_key_id)
         project = project_key.get()
+        if ((user.email not in project.contributors)
+          and (user.email != project.owner)):
+          self.abort(401)
         parent_key = ndb.Key(urlsafe=parent_key_id)
         parent = parent_key.get()
         if project and parent:

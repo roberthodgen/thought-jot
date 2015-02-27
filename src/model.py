@@ -190,7 +190,7 @@ class TimeRecord(ndb.Model):
     end_string_value = None
     if self.end:
       end_string_value = self.end.replace(tzinfo=UTC()).isoformat()
-    return {
+    response_object = {
       'id': self.key.urlsafe(),
       'start': start.isoformat(),
       'end': end_string_value,
@@ -200,6 +200,12 @@ class TimeRecord(ndb.Model):
       'name': self.name,
       'user': self.user
     }
+    # Query all Comments that have this Time Record as their parent
+    comments = Comment.query(ancestor=self.key)
+    response_object['comments'] = []
+    for comment in comments:
+      response_object['comments'].append(comment.json_object())
+    return response_object
 
 
 class Comment(ndb.Model):
@@ -237,8 +243,8 @@ class Comment(ndb.Model):
       'created': self.created.replace(tzinfo=UTC()).isoformat(),
       'updated': self.updated.replace(tzinfo=UTC()).isoformat(),
       'comment': self.comment,
-      'project': self.project.urlsafe(),
-      'parent': self.key.parent().urlsafe(),
+      'project_id': self.project.urlsafe(),
+      'parent_id': self.key.parent().urlsafe(),
       'user': self.user
     }
 

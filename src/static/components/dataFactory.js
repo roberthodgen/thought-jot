@@ -641,7 +641,7 @@
 				// Update once API is written to fetch Comments for a particular parent object
 
 				var _comments = $q.defer();
-				_comments.response(service._comments(parentId));
+				_comments.resolve(service._comments(parentId));
 				return _comments.promise;
 			}
 		};

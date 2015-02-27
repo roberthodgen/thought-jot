@@ -9,10 +9,26 @@
 			restrict: 'A',	// Only match attribute name
 			scope: {	// Isolate the directive's scope...
 				timeRecord: '=timeRecord'	// We need the Time Record as `timeRecord`
-			}, controller: ['$scope', 'app.dataFactory', function($scope, dataFactory) {
+			}, controller: ['$scope', '$routeParams', 'app.dataFactory', function($scope, $routeParams, dataFactory) {
 				/*
 					Controller for timeRecordListGroupItem directive
 				*/
+
+				$scope.init = function() {
+
+					$scope.comments = {};
+					$scope.commentsLoaded = false;
+					$scope.commentsError = false;
+
+					dataFactory.comments($scope.timeRecord.id).then(function(response) {
+						$scope.commentsLoaded = true;
+						if (!response.error) {
+							$scope.comments = response;
+						} else {
+							$scope.commentsError = true;
+						}
+					});
+				};
 
 				$scope.complete = function() {
 					dataFactory.completeTimeRecord($scope.timeRecord).then(function(response) {
@@ -42,6 +58,25 @@
 						}
 					});
 				};
+
+				$scope.addComment = function(timeRecord) {
+					var options = {
+						'project_id': $routeParams.projectId,
+						'parent_id': timeRecord.id,
+						'comment': timeRecord._new_comment
+					};
+					dataFactory.createComment(options).then(function(response) {
+						if (!response.error) {
+							$scope.timeRecord._new_comment = '';
+						} else {
+							alert('Error adding Comment: '+response.message);
+						}
+					});
+				};
+
+
+				// Init
+				$scope.init();
 			}],
 			templateUrl: '/time-records/time-record-list-group-item.html'
 		};

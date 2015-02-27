@@ -10,12 +10,125 @@
 			*	Stores all the Projects and information about each...
 			*/
 		};
+
+		/*
+		*	Merges Projects into the Cache
+		*	@param {Array} newOrUpdatedProjects - The new or updated Project objects
+		*/
+		var cacheProjects = function(newOrUpdatedProjects) {
+
+			// Get the current time these Projects are being processed...
+			var _date = new Date();
+
+			// Get an Object that we'll later pass to `mergeResponseData()`
+			var _keyed = {
+				'_loaded': _date
+			};
+
+			// Loop through all `newOrUpdatedProjects` and perform any necessary tasks...
+			for (var i = newOrUpdatedProjects.length - 1; i >= 0; i--) {
+
+				// Perform necessary tasks, like Date objects...
+				newOrUpdatedProjects[i]._loaded = _date;
+				newOrUpdatedProjects[i]._updated = new Date(newOrUpdatedProjects[i].updated);
+				newOrUpdatedProjects[i]._created = new Date(newOrUpdatedProjects[i].created);
+
+				// Add this Project to `_keyed`
+				_keyed[newOrUpdatedProjects[i].id] = newOrUpdatedProjects[i];
+			}
+
+			// Merge our Projects into the cache
+			mergeResponseData(service._projects(), _keyed);
+		};
+
 		cache.timeRecords = {
 			/*
 			*	Stores all the Time Records and information for each keyed to a Project.
 			*/
 		};
 
+		/*
+		*	Merges Time Records into the Cache
+		*	@param {Array} newOrUpdatedTimeRecords		- The new or updated Time Record objects
+		*	@param {String} cacheKey					- The Key in which new or updated Time Record objects will be added in the global `cache.timeRecords` object
+		*/
+		var cahceTimeRecords = function(newOrUpdatedTimeRecords, cacheKey) {
+
+			// Get the current time these Projects are being processed...
+			var _date = new Date();
+
+			// Get an Object that we'll later pass to `mergeResponseData()`
+			var _keyed = {
+				'_loaded': _date
+			};
+
+			// Loop through all `newOrUpdatedTimeRecords` and perform any necessary tasks...
+			for (var i = newOrUpdatedTimeRecords.length - 1; i >= 0; i--) {
+				
+				// Perform necessary tasks, like Date objects...
+				newOrUpdatedTimeRecords[i]._loaded = _date;
+				newOrUpdatedTimeRecords[i]._created = new Date(newOrUpdatedTimeRecords[i].created);
+				newOrUpdatedTimeRecords[i]._start = new Date(newOrUpdatedTimeRecords[i].start);
+				newOrUpdatedTimeRecords[i]._end = new Date(newOrUpdatedTimeRecords[i].end);
+				newOrUpdatedTimeRecords[i]._updated = new Date(newOrUpdatedTimeRecords[i].updated);
+
+				// Copy this Time Record's Comments into the Comments Cache
+				cacheComments(newOrUpdatedTimeRecords[i].comments, [cacheKey, newOrUpdatedTimeRecords[i].id]);
+				delete newOrUpdatedTimeRecords[i].comments;
+
+				// Add this Time Record to `_keyed`
+				_keyed[newOrUpdatedTimeRecords[i].id] = newOrUpdatedTimeRecords[i];
+			}
+
+			// Merge our Time Records into the cache
+			mergeResponseData(service._timeRecords(cacheKey), _keyed);
+		};
+
+		cache.comments = {
+			/*
+			*	Stores all Comments keyed to both Project and Parent IDs.
+			*/
+		};
+
+		/*
+		*	Merges Comments into the Cache
+		*	@param {Array} newOrUpdatedComments		- The new or updated Comment objects
+		*	@param {Array} cacheKeys				- The Keys in which new or updated Comment objects will be added in the global `cache.comments` object
+		*/
+		var cacheComments = function(newOrUpdatedComments, cacheKeys) {
+
+			// Get the current time these Comments are being processed...
+			var _date = new Date();
+
+			// Get an Object we'll later pass to `mergeResponseData()`
+			var _keyed = {
+				'_loaded': _date
+			};
+
+			// Loop through all `newOrUpdatedComments` and perform any necessary tasks...
+			for (var i = newOrUpdatedComments.length - 1; i >= 0; i--) {
+				
+				// Perform necessary tasks, like Date objects...
+				newOrUpdatedComments[i]._loaded = _date;
+				newOrUpdatedComments[i]._updated = new Date(newOrUpdatedComments[i].updated);
+				newOrUpdatedComments[i]._created = new Date(newOrUpdatedComments[i].created);
+
+				// Add this Comment to `_keyed`
+				_keyed[newOrUpdatedComments[i].id] = newOrUpdatedComments[i];
+			}
+			
+			// Merge our Comments into the cache
+			for (var i = cacheKeys.length - 1; i >= 0; i--) {
+				// console.log('[app.dataFactory] cacheComments(): calling `mergeResponseData()` with destination key: '+cacheKeys[i]);
+				mergeResponseData(service._comments(cacheKeys[i]), _keyed);	// Use `service._comments()` so we get the actual Array
+			}
+		};
+
+		/*
+		*	Determines if `key` is an Internal key (not from the API)
+		*	@param {String} key
+		*	@returns {Boolean}
+		*/
 		var internalKey = function(key) {
 			if (angular.isString(key)) {
 				return key.charAt(0) == '_';
@@ -24,8 +137,17 @@
 			return false;
 		};
 
+		/*
+		*	Merge two Objects
+		*	@param {Object} destination		- The Object to copy into
+		*	@param {Object} response		- The source Object from which to copy
+		*/
 		var mergeResponseData = function(destination, response) {
 			// Assign all keys found in the response to our cache...
+
+			if (!angular.isDefined(destination)) {
+				destination = {};
+			}
 
 			var _response_keys = Object.keys(response);
 			for (var i = _response_keys.length - 1; i >= 0; i--) {
@@ -39,7 +161,8 @@
 			// Delete any keys from the cache that aren't found in our response (that don't begin with an underscore)
 			var _destination_keys = Object.keys(destination);
 			for (var i = destination.length - 1; i >= 0; i--) {
-				if (indexOf.call(b, destination[_destination_keys[i]]) === -1 && !internalKey(_destination_keys[i])) {
+				if (_response_keys.indexOf(_destination_keys[i]) === -1 && !internalKey(_destination_keys[i])) {
+					console.log('deleting key: '+_destination_keys[i]);
 					delete destination[_destination_keys[i]];
 				}
 			}
@@ -68,20 +191,28 @@
 
 		// Service object
 		var service =  {
-			projects: function() {
-				console.log('[app.dataFactory] service.projects(): call')
-				if ((!cache.projects || cache.projects._force_fetch || refreshIntervalPassed(cache.projects._loaded, PROJECTS_LIFE)) && !cache.projects._fetch_in_progress) {
+			_projects: function() {
+				return cache.projects;
+			}, projects: function() {
+				console.log('[app.dataFactory] service.projects(): call');
+
+				var _cache = service._projects();
+
+				if ((!_cache || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, PROJECTS_LIFE)) && !_cache._fetch_in_progress) {
 					return service.fetchProjects();
-				} else if (cache.projects._fetch_in_progress) {
-					return cache.projects._fetch_in_progress;	// return the $http promise
+				} else if (_cache._fetch_in_progress) {
+					return _cache._fetch_in_progress;	// return the $http promise
 				}
 				var _projects = $q.defer();
-				_projects.resolve(cache.projects);
+				_projects.resolve(_cache);
 				return _projects.promise;
 			}, fetchProjects: function() {
 				console.log('[app.dataFactory] service.fetchProjects(): call')
-				cache.projects._force_fetch = false;
-				cache.projects._fetch_in_progress = $http({
+
+				var _cache = service._projects();
+
+				_cache._force_fetch = false;
+				_cache._fetch_in_progress = $http({
 					method: 'GET',
 					url: '/api/projects/list.json',
 					params: {
@@ -89,25 +220,15 @@
 					}
 				}).then(function(response) {
 					// HTTP 200-299 Status
-					delete cache.projects._fetch_in_progress;
+					delete _cache._fetch_in_progress;
 					if (angular.isObject(response.data)) {
 						if (response.data.hasOwnProperty('projects')) {
 							// Iterate through these projects, chang anything that must be changed...
 							console.log('[app.dataFactory] service.fetchProjects(): data.response has `projects`, is valid');
 
-							var _date = new Date();
-							response.data.projects._loaded = _date;
-							for (var i = response.data.projects.length - 1; i >= 0; i--) {
-								response.data.projects[i]._loaded = _date;
-								response.data.projects[i]._loaded = new Date();
-								response.data.projects[i]._updated = new Date(response.data.projects[i].updated);
-								response.data.projects[i]._created = new Date(response.data.projects[i].created);
-								response.data.projects[response.data.projects[i].id] = response.data.projects[i];
-								delete response.data.projects[i];
-							}
-
-							mergeResponseData(cache.projects, response.data.projects);
-							return cache.projects;
+							// Cache these Projects
+							cacheProjects(response.data.projects);
+							return _cache;
 						}
 					}
 					console.log('[app.dataFactory] service.fetchProjects(): Error reading response.');
@@ -116,15 +237,15 @@
 					};
 				}, function(response) {
 					// Error
-					delete cache.projects._fetch_in_progress;
+					delete _cache._fetch_in_progress;
 					console.log('[app.dataFactory] service.fetchProjects(): Request error: '+response.status);
 					return {
 						'error': true,
 						'status': response.status
 					};
 				});
-				return cache.projects._fetch_in_progress;
-			}, create: function(options) {
+				return _cache._fetch_in_progress;
+			}, createProject: function(options) {
 
 				var data = {
 					'name': options.name,
@@ -142,53 +263,55 @@
 					if (angular.isObject(response.data)) {
 						if (response.data.hasOwnProperty('project')) {
 							// Success!!!
-							console.log('[app.dataFactory] service.create(): data.response has `project`, is valid');
+							console.log('[app.dataFactory] service.createProject(): data.response has `project`, is valid');
 
-							response.data.project._loaded = new Date();
-							response.data.project._updated = new Date(response.data.project.updated);
-							response.data.project._created = new Date(response.data.project.created);
-
-							var _project_keyed = {};
-							_project_keyed[response.data.project.id] = response.data.project;
-							mergeResponseData(cache.projects, _project_keyed);
+							// Cache this Project
+							cacheProjects([response.data.project]);
 							return response.data.project;
 						}
 					}
-					console.log('[app.dataFactory] service.create(): Error reading response.');
+					console.log('[app.dataFactory] service.createProject(): Error reading response.');
 					return {
 						'error': true
 					};
 				}, function(response) {
 					// Error
 					delete cache.projects._create_in_progress;
-					console.log('[app.dataFactory] service.create(): Request error: '+response.status);
+					console.log('[app.dataFactory] service.createProject(): Request error: '+response.status);
 					return {
 						'error': true,
 						'status': response.status
 					};
 				});
+			}, _project: function(projectId) {
+				if (!angular.isDefined(cache.projects[projectId])) {
+					cache.projects[projectId] = {};
+				}
+				return cache.projects[projectId];
 			}, project: function(projectId) {
 				console.log('[app.dataFactory] service.project(): call, projectId: '+projectId);
 
-				// Check to see if we have this Project in `projects` with the correct data, and it's not too old...
+				var _cache = service._project(projectId);
+				var _projects_cache = service._projects();
+				var _projects_fetch_promise;
 
-				var _project = $q.defer();
+				if ((!_cache || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, PROJECTS_LIFE)) && !_projects_cache._fetch_in_progress) {
+					_projects_fetch_promise = service.fetchProjects();
+				} else if (_projects_cache._fetch_in_progress) {
+					_projects_fetch_promise = _projects_cache._fetch_in_progress;
+				}
 
-				service.projects().then(function(response) {
-					if (response.hasOwnProperty(projectId)) {
-
-						// Check age...
-						_project.resolve(response[projectId]);
-					} else {
-						_project.resolve({
-							'error': true,
-							'status': 404,
-							'message': 'Project not found.'
-						});
-					}
-				});
-
-				return _project.promise;
+				var _projects = $q.defer();
+				if (_projects_fetch_promise) {
+					_projects_fetch_promise.then(function(response) {
+						if (!response.error) {
+							_projects.resolve(response[projectId]);
+						}
+					});
+				} else {
+					_projects.resolve(_cache);
+				}
+				return _projects.promise;
 			}, updateProject: function(project) {
 				project._update_in_progress = true;
 				var options = {
@@ -197,13 +320,13 @@
 
 				if (project.hasOwnProperty('_name')) {
 					if (project._name) {
-						options.name = project._name;
+						options.name = angular.copy(project._name);
 					}
 				}
 
 				if (project.hasOwnProperty('_description')) {
 					if (project._description) {
-						options.description = project._description;
+						options.description = angular.copy(project._description);
 					}
 				}
 				return $http({
@@ -220,16 +343,8 @@
 							// Success!!
 							console.log('[app.dataFactory] service.updateProject(): data.response has `project`, is valid');
 
-							var _date = new Date();
-
-							// Project
-							response.data.project._loaded = _date;
-							response.data.project._updated = new Date(response.data.project.updated);
-							response.data.project._created = new Date(response.data.project.created);
-							var _project_keyed = {};
-							_project_keyed[response.data.project.id] = response.data.project;
-							mergeResponseData(cache.projects, _project_keyed);
-
+							// Cache this Project
+							cacheProjects([response.data.project]);
 							return response.data.project;
 						}
 					}
@@ -271,26 +386,29 @@
 						});
 					}
 				});
+			}, _timeRecords: function(projectId) {
+				if (!angular.isDefined(cache.timeRecords[projectId])) {
+					cache.timeRecords[projectId] = {};
+				}
+				return cache.timeRecords[projectId];
 			}, timeRecords: function(projectId) {
 				console.log('[app.dataFactory] service.timeRecords(): call, projectId: '+projectId);
 
-				// Because this project may be undefined...
-				if (!angular.isObject(cache.timeRecords[projectId])) {
-					cache.timeRecords[projectId] = {};
-				}
+				var _cache = service._timeRecords(projectId);
 
-				if ((!cache.timeRecords[projectId]._loaded || cache.timeRecords[projectId]._force_fetch || refreshIntervalPassed(cache.timeRecords[projectId]._loaded, TIME_RECORDS_LIFE)) && !cache.timeRecords[projectId]._fetch_in_progress) {
+				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, TIME_RECORDS_LIFE)) && !_cache._fetch_in_progress) {
 					return service.fetchTimeRecords(projectId);
-				} else if (cache.timeRecords[projectId]._fetch_in_progress) {
-					return cache.timeRecords[projectId]._fetch_in_progress;
+				} else if (_cache._fetch_in_progress) {
+					return _cache._fetch_in_progress;
 				}
 				var _timeRecords = $q.defer();
-				_timeRecords.resolve(cache.timeRecords[projectId]);
+				_timeRecords.resolve(_cache);
 				return _timeRecords.promise;
 			}, fetchTimeRecords: function(projectId) {
 				console.log('[app.dataFactory] service.fetchTimeRecords(): call, projectId: '+projectId)
-				cache.timeRecords[projectId]._force_fetch = false;
-				cache.timeRecords[projectId]._fetch_in_progress = $http({
+				var _cache = service._timeRecords(projectId);
+				_cache._force_fetch = false;
+				_cache._fetch_in_progress = $http({
 					method: 'GET',
 					url: '/api/projects/time-records/list.json',
 					params: {
@@ -299,36 +417,19 @@
 					}
 				}).then(function(response) {
 					// HTTP 200-299 Status
-					delete cache.timeRecords[projectId]._fetch_in_progress;
+					delete _cache._fetch_in_progress;
 					if (angular.isObject(response.data)) {
 						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('time_records')) {
 							// Iterate through these projects, chang anything that must be changed...
 							console.log('[app.dataFactory] service.fetchTimeRecords(): data.response has `project` and `time_records`, is valid');
 
-							var _date = new Date();
+							// Cache this Project
+							cacheProjects([response.data.project], projectId);
 
-							// Project
-							response.data.project._loaded = _date;
-							response.data.project._updated = new Date(response.data.project.updated);
-							response.data.project._created = new Date(response.data.project.created);
-							var _project_keyed = {};
-							_project_keyed[response.data.project.id] = response.data.project;
-							mergeResponseData(cache.projects, _project_keyed);
+							// Cache these Time Records
+							cahceTimeRecords(response.data.time_records, projectId)
 
-							// Time Records
-							response.data.time_records._loaded = _date;
-							for (var i = response.data.time_records.length - 1; i >= 0; i--) {
-								response.data.time_records[i]._loaded = _date;
-								response.data.time_records[i]._created = new Date(response.data.time_records[i].created);
-								response.data.time_records[i]._start = new Date(response.data.time_records[i].start);
-								response.data.time_records[i]._end = new Date(response.data.time_records[i].end);
-								response.data.time_records[i]._updated = new Date(response.data.time_records[i].updated);
-								response.data.time_records[response.data.time_records[i].id] = response.data.time_records[i];
-								delete response.data.time_records[i];
-							}
-
-							mergeResponseData(cache.timeRecords[projectId], response.data.time_records);
-							return cache.timeRecords[projectId];
+							return _cache;
 						}
 					}
 					console.log('[app.dataFactory] service.fetchTimeRecords(): Error reading response.');
@@ -337,14 +438,14 @@
 					};
 				}, function(response) {
 					// Error
-					delete cache.timeRecords[projectId]._fetch_in_progress;
+					delete _cache._fetch_in_progress;
 					console.log('[app.dataFactory] service.fetchTimeRecords(): Request error: '+response.status);
 					return {
 						'error': true,
 						'status': response.status
 					};
 				});
-				return cache.timeRecords[projectId]._fetch_in_progress;
+				return _cache._fetch_in_progress;
 			}, createTimeRecord: function(projectId) {
 				return $http({
 					method: 'POST',
@@ -361,25 +462,11 @@
 							// Success!!!
 							console.log('[app.dataFactory] service.createTimeRecord(): data.response has `project` and `time_record`, is valid');
 
-							var _date = new Date();
-							
-							// Project
-							response.data.project._loaded = _date;
-							response.data.project._updated = new Date(response.data.project.updated);
-							response.data.project._created = new Date(response.data.project.created);
-							var _project_keyed = {};
-							_project_keyed[response.data.project.id] = response.data.project;
-							mergeResponseData(cache.projects, _project_keyed);
+							// Cache this Project
+							cacheProjects([response.data.project]);
 
-							// Time Record
-							response.data.time_record._loaded = _date;
-							response.data.time_record._created = new Date(response.data.time_record.created);
-							response.data.time_record._start = new Date(response.data.time_record.start);
-							response.data.time_record._end = new Date(response.data.time_record.end);
-							response.data.time_record._updated = new Date(response.data.time_record.updated);
-							var _time_record_keyed = {};
-							_time_record_keyed[response.data.time_record.id] = response.data.time_record;
-							mergeResponseData(cache.timeRecords[projectId], _time_record_keyed);
+							// Cache this Time Record
+							cahceTimeRecords([response.data.time_record], projectId);
 
 							return response.data.time_record;
 						}
@@ -421,25 +508,11 @@
 							// Success!!!
 							console.log('[app.dataFactory] service.completeTimeRecord(): data.response has `project` and `time_record`, is valid');
 
-							var _date = new Date();
-							
-							// Project
-							response.data.project._loaded = _date;
-							response.data.project._updated = new Date(response.data.project.updated);
-							response.data.project._created = new Date(response.data.project.created);
-							var _project_keyed = {};
-							_project_keyed[response.data.project.id] = response.data.project;
-							mergeResponseData(cache.projects, _project_keyed);
+							// Cache this Project
+							cacheProjects([response.data.project]);
 
-							// Time Record
-							response.data.time_record._loaded = _date;
-							response.data.time_record._created = new Date(response.data.time_record.created);
-							response.data.time_record._start = new Date(response.data.time_record.start);
-							response.data.time_record._end = new Date(response.data.time_record.end);
-							response.data.time_record._updated = new Date(response.data.time_record.updated);
-							var _time_record_keyed = {};
-							_time_record_keyed[response.data.time_record.id] = response.data.time_record;
-							mergeResponseData(cache.timeRecords[response.data.project.id], _time_record_keyed);
+							// Cache this Time Record
+							cahceTimeRecords([response.data.time_record], response.data.project.id);
 
 							return response.data.time_record;
 						}
@@ -482,25 +555,11 @@
 							// Success!!
 							console.log('[app.dataFactory] service.updateTimeRecord(): data.response has `project` and `time_record`, is valid');
 
-							var _date = new Date();
+							// Cache this Project
+							cacheProjects([response.data.project]);
 
-							// Project
-							response.data.project._loaded = _date;
-							response.data.project._updated = new Date(response.data.project.updated);
-							response.data.project._created = new Date(response.data.project.created);
-							var _project_keyed = {};
-							_project_keyed[response.data.project.id] = response.data.project;
-							mergeResponseData(cache.projects, _project_keyed);
-
-							// Time Record
-							response.data.time_record._loaded = _date;
-							response.data.time_record._created = new Date(response.data.time_record.created);
-							response.data.time_record._start = new Date(response.data.time_record.start);
-							response.data.time_record._end = new Date(response.data.time_record.end);
-							response.data.time_record._updated = new Date(response.data.time_record.updated);
-							var _time_record_keyed = {};
-							_time_record_keyed[response.data.time_record.id] = response.data.time_record;
-							mergeResponseData(cache.timeRecords[response.data.project.id], _time_record_keyed);
+							// Cache this Time Record
+							cahceTimeRecords([response.data.time_record], response.data.project.id);
 
 							return response.data.time_record;
 						}
@@ -519,6 +578,71 @@
 						'status': response.status
 					};
 				});
+			}, createComment: function(options) {
+
+				var data = {
+					'project_id': angular.copy(options.project_id),
+					'parent_id': angular.copy(options.parent_id),
+					'comment': angular.copy(options.comment)
+				};
+
+				return $http({
+					method: 'POST',
+					url: '/api/projects/comments/create.json',
+					params: {
+						't': new Date().getTime()
+					}, data: data
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					if (angular.isObject(response.data)) {
+						if (response.data.hasOwnProperty('comment')) {
+							// Success!!!
+							console.log('[app.dataFactory] service.createComment(): data.response has `comment`, is valid');
+
+							// Cache these Comments
+							cacheComments([response.data.comment], [data.project_id, data.parent_id]);
+							return response.data.comment;
+						}
+					}
+					console.log('[app.dataFactory] service.createComment(): Error reading response.');
+					return {
+						'error': true
+					};
+				}, function(response) {
+					// Error
+					console.log('[app.dataFactory] service.createComment(): Request error: '+response.status);
+					return {
+						'error': true,
+						'status': response.status
+					};
+				});
+			}, _comments: function(parentId) {
+				if (!angular.isDefined(cache.comments[parentId])) {
+					cache.comments[parentId] = {};
+				}
+				return cache.comments[parentId];
+			}, comments: function(parentId) {
+				console.log('[app.dataFactory] service.comments(): call, parentId: '+parentId);
+
+				var _cache = service._comments(parentId);
+
+				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, TIME_RECORDS_LIFE)) && !_cache._fetch_in_progress) {
+					return service.fetchComments(parentId);
+				} else if (_cache._fetch_in_progress) {
+					return _cache._fetch_in_progress;
+				}
+				var _timeRecords = $q.defer();
+				_timeRecords.resolve(_cache);
+				return _timeRecords.promise;
+			}, fetchComments: function(parentId) {
+				console.log('[app.dataFactory] service.fetchComments(): call, `parentId`: '+parentId)
+
+				// Temp function, just return a promise-wrapped version of `service._comments`
+				// Update once API is written to fetch Comments for a particular parent object
+
+				var _comments = $q.defer();
+				_comments.response(service._comments(parentId));
+				return _comments.promise;
 			}
 		};
 

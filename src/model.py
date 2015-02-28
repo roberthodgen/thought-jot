@@ -248,6 +248,46 @@ class Comment(ndb.Model):
       'user': self.user
     }
 
+
+class Milestone(ndb.Model):
+  """ Represents Milestones or todo-style items. """
+  # The name
+  name = ndb.TextProperty(required=True)
+  # The long description of this Project
+  description = ndb.TextProperty(default=None)
+  # Store the User's email address who (created) this Comment
+  user = ndb.StringProperty(required=True)
+  # Record WHEN this comment was truly created and last updated
+  created = ndb.DateTimeProperty(auto_now_add=True)
+  updated = ndb.DateTimeProperty(auto_now=True)
+
+  @classmethod
+  @ndb.transactional(xg=True)
+  def create_milestone(cls, name, project_key, user_email):
+    """ Create a new Milestone belonging to `project_key`. """
+    new_milestone = cls(
+      parent=project_key,
+      name=name,
+      user=user_email
+    )
+    project = project_key.get()
+    project.put() # Update the `updated` property of our Project
+    return new_milestone.put()
+
+  def json_object(self):
+    """ Return a dictionary representing this Milestone. Will be used for
+    sending information about this Milestone via JSON requests. """
+    return {
+      'id': self.key.urlsafe(),
+      'created': self.created.replace(tzinfo=UTC()).isoformat(),
+      'updated': self.updated.replace(tzinfo=UTC()).isoformat(),
+      'name': self.name,
+      'description': self.description,
+      'project_id': self.key.parent().urlsafe(),
+      'user': self.user
+    }
+
+
 class Account(ndb.Model):
 
   pass

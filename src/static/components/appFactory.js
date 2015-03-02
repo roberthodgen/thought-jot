@@ -9,11 +9,13 @@
 		}
 
 		var configFilters = {
-			pageTitle: function(pageTitle) {
-				if (angular.isString(pageTitle)) {
-					currentConfiguration.pageTitle = pageTitle + ' - ' + fixedConfig.pageTitleSuffix;
+			pageTitle: function(newPageTitle) {
+				console.log('[app.appFactory] configFilters.pageTitle(): Called with `newPageTitle`: '+newPageTitle);
+				if (angular.isString(newPageTitle)) {
+					currentConfiguration.pageTitle = newPageTitle;
+				} else {
+					currentConfiguration.pageTitle = fixedConfig.pageTitleSuffix;
 				}
-				currentConfiguration.pageTitle = fixedConfig.pageTitleSuffix;
 			}, sidebar: function(sidebar) {
 
 				// Loop through each property and copy if it's available
@@ -42,16 +44,16 @@
 
 
 		var currentConfiguration = {
-			'pageTitle': '',			// The current page title, if any
-			'sidebar': {
-				'show': false			// A Boolean indicating whether the Sidebar should be visible
-		//		'selection': ''			// A String used to compare which item is currently selected
+			pageTitle: '',			// The current page title, if any
+			sidebar: {
+				show: false			// A Boolean indicating whether the Sidebar should be visible
+		//		selection: ''			// A String used to compare which item is currently selected
 			},
-			'navbar': {
-				'title': ''				// The name that should appear in the navbar
-		//		'link': ''				// The href attribute of the main navbar link
+			navbar: {
+				title: ''				// The name that should appear in the navbar
+		//		link: ''				// The href attribute of the main navbar link
 			}
-		//	'project': {},				// A Project object representing the currently active/viewed project
+		//	project: {},				// A Project object representing the currently active/viewed project
 		};
 
 		var service = {

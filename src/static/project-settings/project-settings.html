@@ -1,4 +1,14 @@
 <div class="container">
+	<ul class="nav nav-links">
+		<li><a ng-href="/projects/{{ projectId }}/">Overview</a></li>
+		<li><a ng-href="/projects/{{ projectId }}/time-records">Time</a></li>
+		<li><a ng-href="/projects/{{ projectId }}/milestones">Milestones</a></li>
+		<li><a ng-href="/projects/{{ projectId }}/comments">Comments</a></li>
+		<li class="active"><a ng-href="/projects/{{ projectId }}/settings">Settings</a></li>
+	</ul>
+</div>
+
+<div class="container">
 
 	<form class="form-horizontal" name="projectSettingsForm" ng-submit="save()">
 

@@ -1,18 +1,16 @@
 <div class="click-watch" ng-click="backgroundClick();"></div>
 
 <div class="container">
-	<div class="row">
-		<div class="col-md-10">
-			<md ng-model="project.description"></md>
-			<h4 ng-if="!project.description" class="text-muted">No description</h4>
-		</div>
-		<div class="col-md-2 hidden-xs hidden-sm text-right">
-			<a ng-href="/projects/{{ projectId }}/settings" style="margin-top:10px; display:block;"><span class="glyphicon glyphicon-cog"></span> Project Settings</a>
-		</div>
-		<div class="col-md-2 hidden-md hidden-lg">
-			<a ng-href="/projects/{{ projectId }}/settings" style="margin-bottom:24px; display:block;"><span class="glyphicon glyphicon-cog"></span> Project Settings</a>
-		</div>
-	</div>
+	<ul class="nav nav-links">
+		<li class="active"><a ng-href="/projects/{{ projectId }}/">Overview</a></li>
+		<li><a ng-href="/projects/{{ projectId }}/time-records">Time</a></li>
+		<li><a ng-href="/projects/{{ projectId }}/milestones">Milestones</a></li>
+		<li><a ng-href="/projects/{{ projectId }}/comments">Comments</a></li>
+		<li><a ng-href="/projects/{{ projectId }}/settings">Settings</a></li>
+	</ul>
+</div>
+
+<div class="container">
 	<div class="row">
 		<div class="col-md-4">
 			<dl>
@@ -38,6 +36,18 @@
 				</dd>
 			</dl>
 		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-10">
+			<md ng-model="project.description"></md>
+			<h4 ng-if="!project.description" class="text-muted">No description</h4>
+		</div>
+<!-- 		<div class="col-md-2 hidden-xs hidden-sm text-right">
+			<a ng-href="/projects/{{ projectId }}/settings" style="margin-top:10px; display:block;"><span class="glyphicon glyphicon-cog"></span> Project Settings</a>
+		</div>
+		<div class="col-md-2 hidden-md hidden-lg">
+			<a ng-href="/projects/{{ projectId }}/settings" style="margin-bottom:24px; display:block;"><span class="glyphicon glyphicon-cog"></span> Project Settings</a>
+		</div> -->
 	</div>
 </div>
 

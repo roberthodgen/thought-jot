@@ -18,8 +18,9 @@
 		'app.homeCtrl',
 		'app.errorCtrl',
 		'app.loginCtrl',
+		'app.newProjectCtrl',
+		
 		'app.projectsHomeCtrl',
-		'app.projectsNewCtrl',
 		'app.projectDetailCtrl',
 		'app.projectSettingsCtrl',
 
@@ -53,9 +54,21 @@
 			templateUrl: '/projects/projects-home.html',
 			controller: 'app.projectsHomeCtrl'
 		}).when('/projects/new-project', {
-			templateUrl: '/projects/projects-new.html',
-			controller: 'app.projectsNewCtrl'
+			templateUrl: '/new-project/new-project.html',
+			controller: 'app.newProjectCtrl'
 		}).when('/projects/:projectId', {
+			templateUrl: '/project-overview/project-overview.html',
+			controller: 'app.projectDetailCtrl',
+			reloadOnSearch: false
+		}).when('/projects/:projectId/time-records', {
+			templateUrl: '/project-time-records/project-time-records.html',
+			controller: 'app.projectDetailCtrl',
+			reloadOnSearch: false
+		}).when('/projects/:projectId/milestones', {
+			templateUrl: '/projects/project-detail.html',
+			controller: 'app.projectDetailCtrl',
+			reloadOnSearch: false
+		}).when('/projects/:projectId/comments', {
 			templateUrl: '/projects/project-detail.html',
 			controller: 'app.projectDetailCtrl',
 			reloadOnSearch: false

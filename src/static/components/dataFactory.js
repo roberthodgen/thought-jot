@@ -153,6 +153,10 @@
 				newOrUpdatedMilestones[i]._updated = new Date(newOrUpdatedMilestones[i].updated);
 				newOrUpdatedMilestones[i]._created = new Date(newOrUpdatedMilestones[i].created);
 
+				// Copy this Time Record's Comments into the Comments Cache
+				cacheComments(newOrUpdatedMilestones[i].comments, [cacheKey, newOrUpdatedMilestones[i].id]);
+				delete newOrUpdatedMilestones[i].comments;
+
 				// Add this Milestone to `_keyed`
 				_keyed[newOrUpdatedMilestones[i].id] = newOrUpdatedMilestones[i];
 			}

@@ -22,6 +22,7 @@
 		'app.errorCtrl',
 		'app.loginCtrl',
 		'app.newProjectCtrl',
+		'app.projectMilestonesCtrl',
 		
 		'app.projectsHomeCtrl',
 		'app.projectDetailCtrl',
@@ -31,6 +32,7 @@
 		'app.projectListGroupItem',
 		'app.timeRecordListGroupItem',
 		'app.projectsSidebar',
+		'app.milestoneListGroupItem',
 
 
 		// Third-party
@@ -68,8 +70,8 @@
 			controller: 'app.projectDetailCtrl',
 			reloadOnSearch: false
 		}).when('/projects/:projectId/milestones', {
-			templateUrl: '/projects/project-detail.html',
-			controller: 'app.projectDetailCtrl',
+			templateUrl: '/project-milestones/project-milestones.html',
+			controller: 'app.projectMilestonesCtrl',
 			reloadOnSearch: false
 		}).when('/projects/:projectId/comments', {
 			templateUrl: '/projects/project-detail.html',

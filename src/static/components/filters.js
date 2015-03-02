@@ -171,10 +171,12 @@
 			// Return an array of Objects that are valid (have an `id` property)
 			var _filter = [];
 
-			var _keys = Object.keys(objects);
-			for (var i = _keys.length - 1; i >= 0; i--) {
-				if (objects[_keys[i]].hasOwnProperty('id')) {
-					_filter.push(objects[_keys[i]]);
+			if (angular.isArray(objects) || angular.isObject(objects)) {
+				var _keys = Object.keys(objects);
+				for (var i = _keys.length - 1; i >= 0; i--) {
+					if (objects[_keys[i]].hasOwnProperty('id')) {
+						_filter.push(objects[_keys[i]]);
+					}
 				}
 			}
 			return _filter;

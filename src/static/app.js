@@ -12,6 +12,9 @@
 		'ndb_users.userFactory',
 		'app.dataFactory',
 
+		// Directives
+		'app.projectsNav',
+
 		'app.appCtrl',
 
 		// Controllers

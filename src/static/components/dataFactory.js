@@ -124,6 +124,43 @@
 			}
 		};
 
+		cache.milestones = {
+			/*
+			*	Stores all Milestones keyed to the Project ID.
+			*/
+		};
+
+		/*
+		*	Merges Milestones into the Cache
+		*	@param {Array} newOrUpdatedMilestones	- The new or updated Milestone objects
+		*	@param {String} cacheKey 				- The Key in which new or updated Milestone objects will be added in the global `cache.milestones` object
+		*/
+		var cacheMilestones = function(newOrUpdatedMilestones, cacheKey) {
+
+			// Get the current time these Milestones are being processed...
+			var _date = new Date();
+
+			// Get an Object we'll later pass to `mergeResponseData()`
+			var _keyed = {
+				'_loaded': _date
+			};
+
+			// Loop through all `newOrUpdatedMilestones` and perform any necessary tasks...
+			for (var i = newOrUpdatedMilestones.length - 1; i >= 0; i--) {
+				
+				// Perform necessary tasks, like Date objects...
+				newOrUpdatedMilestones[i]._loaded = _date;
+				newOrUpdatedMilestones[i]._updated = new Date(newOrUpdatedMilestones[i].updated);
+				newOrUpdatedMilestones[i]._created = new Date(newOrUpdatedMilestones[i].created);
+
+				// Add this Milestone to `_keyed`
+				_keyed[newOrUpdatedMilestones[i].id] = newOrUpdatedMilestones[i];
+			}
+
+			// Merge our Milestones into the cache
+			mergeResponseData(service._milestones(cacheKey), _keyed);
+		};
+
 		/*
 		*	Determines if `key` is an Internal key (not from the API)
 		*	@param {String} key
@@ -643,6 +680,68 @@
 				var _comments = $q.defer();
 				_comments.resolve(service._comments(parentId));
 				return _comments.promise;
+			}, _milestones: function(projectId) {
+				if (!angular.isDefined(cache.milestones[projectId])) {
+					cache.milestones[projectId] = {};
+				}
+				return cache.milestones[projectId];
+			}, milestones: function(projectId) {
+				console.log('[app.dataFactory] service.milestones(): call, `projectId`: '+projectId);
+
+				var _cache = service._milestones(projectId);
+
+				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, TIME_RECORDS_LIFE)) && !_cache._fetch_in_progress) {
+					return service.fetchComments(projectId);
+				} else if (_cache._fetch_in_progress) {
+					return _cache._fetch_in_progress;
+				}
+				var _milestones = $q.defer();
+				_milestones.resolve(_cache);
+				return _milestones.promise;
+			}, fetchMilestones: function(projectId) {
+				console.log('[app.dataFactory] service.fetchMilestones(): call, projectId: '+projectId)
+				var _cache = service._milestones(projectId);
+				_cache._force_fetch = false;
+				_cache._fetch_in_progress = $http({
+					method: 'GET',
+					url: '/api/projects/milestones/list.json',
+					params: {
+						't': new Date().getTime(),
+						'project_id': projectId
+					}
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					delete _cache._fetch_in_progress;
+					if (angular.isObject(response.data)) {
+						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('milestones')) {
+							// Iterate through these projects, chang anything that must be changed...
+							console.log('[app.dataFactory] service.fetchMilestones(): data.response has `project` and `milestones`, is valid');
+
+							// Cache this Project
+							cacheProjects([response.data.project], projectId);
+
+							// Cache these Milestones
+							cacheMilestones(response.data.milestones, projectId)
+
+							return _cache;
+						}
+					}
+					console.log('[app.dataFactory] service.fetchMilestones(): Error reading response.');
+					return {
+						'error': true
+					};
+				}, function(response) {
+					// Error
+					delete _cache._fetch_in_progress;
+					console.log('[app.dataFactory] service.fetchMilestones(): Request error: '+response.status);
+					return {
+						'error': true,
+						'status': response.status
+					};
+				});
+				return _cache._fetch_in_progress;
+			}, createMilestone: function(options) {
+
 			}
 		};
 

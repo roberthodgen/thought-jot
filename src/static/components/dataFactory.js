@@ -691,7 +691,7 @@
 				var _cache = service._milestones(projectId);
 
 				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, TIME_RECORDS_LIFE)) && !_cache._fetch_in_progress) {
-					return service.fetchComments(projectId);
+					return service.fetchMilestones(projectId);
 				} else if (_cache._fetch_in_progress) {
 					return _cache._fetch_in_progress;
 				}

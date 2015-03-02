@@ -1,12 +1,12 @@
 (function() {
 
-	var app = angular.module('app.projectsNewCtrl', []);
+	var app = angular.module('app.newProjectCtrl', []);
 
-	app.controller('app.projectsNewCtrl', ['$scope', '$location', 'app.appFactory', 'ndb_users.userFactory', 'app.dataFactory', function($scope, $location, appFactory, userFactory, dataFactory) {
+	app.controller('app.newProjectCtrl', ['$scope', '$location', 'app.appFactory', 'ndb_users.userFactory', 'app.dataFactory', function($scope, $location, appFactory, userFactory, dataFactory) {
 
 		// Perform setup and reset $scope variables...
 		$scope.init = function() {
-			console.log('[app.projectsNewCtrl] $scope.init(): call');
+			console.log('[app.newProjectCtrl] $scope.init(): call');
 			appFactory.config({
 				'pageTitle': 'New Project',
 				'navbar': {
@@ -45,7 +45,7 @@
 		};
 
 		$scope.create = function() {
-			console.log('[app.projectsNewCtrl] $scope.create(): called');
+			console.log('[app.newProjectCtrl] $scope.create(): called');
 			$scope.projectLoaded = false;
 			dataFactory.createProject($scope.project).then(function(response) {
 				$scope.projectLoaded = true;

@@ -255,6 +255,8 @@ class Milestone(ndb.Model):
   name = ndb.TextProperty(required=True)
   # The long description of this Project
   description = ndb.TextProperty(default=None)
+  # Open status
+  open = ndb.BooleanProperty(default=True)
   # Store the User's email address who (created) this Comment
   user = ndb.StringProperty(required=True)
   # Record WHEN this comment was truly created and last updated
@@ -277,15 +279,22 @@ class Milestone(ndb.Model):
   def json_object(self):
     """ Return a dictionary representing this Milestone. Will be used for
     sending information about this Milestone via JSON requests. """
-    return {
+    response_object = {
       'id': self.key.urlsafe(),
       'created': self.created.replace(tzinfo=UTC()).isoformat(),
       'updated': self.updated.replace(tzinfo=UTC()).isoformat(),
       'name': self.name,
       'description': self.description,
+      'open': self.open,
       'project_id': self.key.parent().urlsafe(),
       'user': self.user
     }
+    # Query all Comments that have this Time Record as their parent
+    comments = Comment.query(ancestor=self.key)
+    response_object['comments'] = []
+    for comment in comments:
+      response_object['comments'].append(comment.json_object())
+    return response_object;
 
 
 class Account(ndb.Model):

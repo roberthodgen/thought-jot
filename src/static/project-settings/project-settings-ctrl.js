@@ -8,12 +8,14 @@
 		$scope.init = function() {
 			console.log('[app.projectSettingsCtrl] $scope.init(): call');
 			appFactory.config({
-				'pageTitle': 'Project',
-				'navbar': {
-					'title': 'Loading...',
-					'link': '/projects/' + $routeParams.projectId
-				}, 'sidebar': {
-					'selection': $routeParams.projectId
+				pageTitle: 'Project',
+				navbar: {
+					title: 'Loading...',
+					link: '/projects/' + $routeParams.projectId
+				}, sidebar: {
+					selection: $routeParams.projectId
+				}, projectsNav: {
+					selection: 'settings'
 				}
 			});
 
@@ -48,11 +50,11 @@
 							$scope.project._description = angular.copy(response.description);
 
 							appFactory.config({
-								'pageTitle': 'Edit ' + response.name,
-								'navbar': {
-									'title': response.name
-								}, 'sidebar': {
-									'selection': response.id
+								pageTitle: 'Settings: ' + response.name,
+								navbar: {
+									title: response.name
+								}, sidebar: {
+									selection: response.id
 								}
 							});
 						} else {

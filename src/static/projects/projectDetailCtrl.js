@@ -8,12 +8,14 @@
 		$scope.init = function() {
 			console.log('[app.projectDetailCtrl] $scope.init(): call');
 			appFactory.config({
-				'pageTitle': 'Loading...',
-				'navbar': {
-					'title': 'Loading...',
-					'link': $location.path()
-				}, 'sidebar': {
-					'selection': $routeParams.projectId
+				pageTitle: 'Loading...',
+				navbar: {
+					title: 'Loading...',
+					link: $location.path()
+				}, sidebar: {
+					selection: $routeParams.projectId
+				}, projectsNav: {
+					selection: 'overview'
 				}
 			});
 
@@ -85,11 +87,11 @@
 							$scope.project = response;
 
 							appFactory.config({
-								'pageTitle': response.name,
-								'navbar': {
-									'title': response.name
-								}, 'sidebar': {
-									'selection': response.id
+								pageTitle: response.name,
+								navbar: {
+									title: response.name
+								}, sidebar: {
+									selection: response.id
 								}
 							});
 						} else {

@@ -21,6 +21,10 @@ body {
 	color: #999;
 }
 
+hr {
+	border-top: 1px solid #ddd;
+}
+
 
 /*
 *   Header Styles

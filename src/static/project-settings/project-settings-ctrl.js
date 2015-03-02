@@ -8,7 +8,7 @@
 		$scope.init = function() {
 			console.log('[app.projectSettingsCtrl] $scope.init(): call');
 			appFactory.config({
-				pageTitle: 'Project',
+				pageTitle: 'Loading...',
 				navbar: {
 					title: 'Loading...',
 					link: '/projects/' + $routeParams.projectId

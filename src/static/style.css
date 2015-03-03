@@ -21,6 +21,10 @@ body {
 	color: #999;
 }
 
+hr {
+	border-top: 1px solid #ddd;
+}
+
 
 /*
 *   Header Styles
@@ -374,7 +378,7 @@ a.list-group-item:focus {
 	background-color: white;
 	position: fixed;
 	padding-top: 56px;
-	box-shadow: 0 0 4px rgba(0,0,0,.14), 2px 4px 8px rgba(0,0,0,.28);
+	box-shadow: 5px 0px 12px rgba(0, 0, 0, .25);
 	z-index: 980;
 }
 
@@ -494,4 +498,35 @@ textarea.form-control.with-btn-preview {
 	height: 200px;
 	max-height: 200px;
 	overflow-y: auto;
+}
+
+/*
+*	.nav .nav-links
+*/
+
+.nav-links > li {
+	float: left;
+
+}
+.nav-links > li > a {
+	border-radius: 0;
+	color: #967adc;
+}
+.nav-links > li + li {
+	margin-left: 2px;
+}
+
+.nav-links > li > a:hover,
+.nav-links > li > a:focus {
+	text-decoration: none;
+	border-bottom: 2px solid #967adc;
+	background-color: transparent;
+}
+
+.nav-links > li.active > a,
+.nav-links > li.active > a:hover,
+.nav-links > li.active > a:focus {
+	color: #967adc;
+	font-weight: 700;
+	border-bottom: 2px solid #967adc;
 }

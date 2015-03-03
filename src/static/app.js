@@ -12,14 +12,20 @@
 		'ndb_users.userFactory',
 		'app.dataFactory',
 
+		// Directives
+		'app.projectsNav',
+
 		'app.appCtrl',
 
 		// Controllers
 		'app.homeCtrl',
 		'app.errorCtrl',
 		'app.loginCtrl',
+		'app.newProjectCtrl',
+		'app.projectMilestonesCtrl',
+		'app.newMilestoneCtrl',
+		
 		'app.projectsHomeCtrl',
-		'app.projectsNewCtrl',
 		'app.projectDetailCtrl',
 		'app.projectSettingsCtrl',
 
@@ -27,6 +33,7 @@
 		'app.projectListGroupItem',
 		'app.timeRecordListGroupItem',
 		'app.projectsSidebar',
+		'app.milestoneListGroupItem',
 
 
 		// Third-party
@@ -53,9 +60,24 @@
 			templateUrl: '/projects/projects-home.html',
 			controller: 'app.projectsHomeCtrl'
 		}).when('/projects/new-project', {
-			templateUrl: '/projects/projects-new.html',
-			controller: 'app.projectsNewCtrl'
+			templateUrl: '/new-project/new-project.html',
+			controller: 'app.newProjectCtrl'
 		}).when('/projects/:projectId', {
+			templateUrl: '/project-overview/project-overview.html',
+			controller: 'app.projectDetailCtrl',
+			reloadOnSearch: false
+		}).when('/projects/:projectId/time-records', {
+			templateUrl: '/project-time-records/project-time-records.html',
+			controller: 'app.projectDetailCtrl',
+			reloadOnSearch: false
+		}).when('/projects/:projectId/milestones', {
+			templateUrl: '/project-milestones/project-milestones.html',
+			controller: 'app.projectMilestonesCtrl',
+			reloadOnSearch: false
+		}).when('/projects/:projectId/milestones/new-milestone', {
+			templateUrl: '/new-milestone/new-milestone.html',
+			controller: 'app.newMilestoneCtrl'
+		}).when('/projects/:projectId/comments', {
 			templateUrl: '/projects/project-detail.html',
 			controller: 'app.projectDetailCtrl',
 			reloadOnSearch: false

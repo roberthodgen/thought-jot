@@ -1,17 +1,17 @@
 (function() {
 
-	var app = angular.module('app.timeRecordListGroupItem', []);
+	var app = angular.module('app.milestoneListGroupItem', []);
 
-	app.directive('timeRecordListGroupItem', ['$compile', function($compile) {
+	app.directive('milestoneListGroupItem', ['$compile', function($compile) {
 
 		// Directive definition object
 		return {
 			restrict: 'A',	// Only match attribute name
 			scope: {	// Isolate the directive's scope...
-				timeRecord: '=timeRecord'	// We need the Time Record as `timeRecord`
+				milestone: '=milestone'	// We need the Time Record as `milestone`
 			}, controller: ['$scope', '$routeParams', 'app.dataFactory', function($scope, $routeParams, dataFactory) {
 				/*
-					Controller for timeRecordListGroupItem directive
+					Controller for milestoneListGroupItem directive
 				*/
 
 				$scope.init = function() {
@@ -20,7 +20,7 @@
 					$scope.commentsLoaded = false;
 					$scope.commentsError = false;
 
-					dataFactory.comments($scope.timeRecord.id).then(function(response) {
+					dataFactory.comments($scope.milestone.id).then(function(response) {
 						$scope.commentsLoaded = true;
 						if (!response.error) {
 							$scope.comments = response;
@@ -31,17 +31,19 @@
 				};
 
 				$scope.complete = function() {
-					dataFactory.completeTimeRecord($scope.timeRecord).then(function(response) {
+					dataFactory.completeMilestone($scope.milestone).then(function(response) {
 						if (response.error) {
 							alert('Error completing Time Record: '+response.message);
 						}
 					});
 				};
 
+
+
 				$scope.update = function() {
-					dataFactory.updateTimeRecord($scope.timeRecord).then(function(response) {
+					dataFactory.updateMilestone($scope.milestone).then(function(response) {
 						if (!response.error) {
-							$scope.timeRecord._name = response.name;
+							$scope.milestone._name = response.name;
 							$scope.editForm.$setPristine();
 						} else {
 							alert('Error updating Time Record: '+response.message);
@@ -49,15 +51,15 @@
 					});
 				};
 
-				$scope.addComment = function(timeRecord) {
+				$scope.addComment = function(milestone) {
 					var options = {
 						'project_id': $routeParams.projectId,
-						'parent_id': timeRecord.id,
-						'comment': timeRecord._new_comment
+						'parent_id': milestone.id,
+						'comment': milestone._new_comment
 					};
 					dataFactory.createComment(options).then(function(response) {
 						if (!response.error) {
-							$scope.timeRecord._new_comment = '';
+							$scope.milestone._new_comment = '';
 						} else {
 							alert('Error adding Comment: '+response.message);
 						}
@@ -68,7 +70,7 @@
 				// Init
 				$scope.init();
 			}],
-			templateUrl: '/time-records/time-record-list-group-item.html'
+			templateUrl: '/project-milestones/milestone-list-group-item.html'
 		};
 	}]);
 

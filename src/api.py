@@ -19,6 +19,8 @@ from datetime import datetime, timedelta
 
 import model
 
+import re
+
 
 class ProjectList(webapp2.RequestHandler):
   def get(self):
@@ -575,6 +577,99 @@ class MilestonesCreate(webapp2.RequestHandler):
     self.response.out.write(json.dumps(response_object))
 
 
+class LabelsList(webapp2.RequestHandler):
+  def get(self):
+    """ List the Labels associated with this Project. """
+    response_object= {}
+    user = users.get_current_user()
+    if not user:
+      self.abort(401)
+    project_key_id = self.request.GET.get('project_id')
+    if project_key_id:
+      project_key = ndb.Key(urlsafe=project_key_id)
+      project = project_key.get()
+      if project:
+        if user.email not in project.users:
+            self.abort(401)
+        response_object['project'] = project.json_object()
+        # Query for Projects this User owns, contributes to, or may observe
+        labels = model.Label.query(ancestor=project_key)
+        response_object['labels'] = []
+        for label in labels:
+          response_object['labels'].append(label.json_object())
+      else:
+        self.response.set_status(404)
+        response_object['not_found'] = {
+          'project': not bool(project)
+        }
+    else:
+      self.response.set_status(400)
+      response_object['missing'] = {
+        'get': {
+          'project_id': not bool(project_key_id)
+        }
+      }
+    # Send response
+    self.response.content_type = 'application/json'
+    self.response.out.write(json.dumps(response_object))
+
+
+class LabelsCreate(webapp2.RequestHandler):
+  def post(self):
+    """ Creates a Label associated with this Project. """
+    response_object = {}
+    user = users.get_current_user()
+    if not user:
+      self.abort(401)
+     # Get JSON request body
+    if self.request.body:
+      request_object = json.loads(self.request.body)
+      project_key_id = request_object.get('project_id')
+      name = request_object.get('name')
+      color = request_object.get('color')
+      if project_key_id and name and color:
+        color_pattern = r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
+        if re.match(color_pattern, color):
+          project_key = ndb.Key(urlsafe=project_key_id)
+          project = project_key.get()
+          if project:
+            if ((user.email not in project.contributors)
+              and (user.email != project.owner)):
+              self.abort(401)
+            new_label = model.Label.create_label(name, color, project_key)
+            new_label = new_label.get()
+            response_object['label'] = new_label.json_object()
+            response_object['project'] = project_key.get().json_object()
+          else:
+            self.response.set_status(404)
+            response_object['not_found'] = {
+              'project': not bool(project)
+            }
+        else:
+          self.response.set_status(400)
+          response_object['error'] = {
+            'post_body_json': {
+              'color': 'Invalid value.'
+            }
+          }
+      else:
+        self.response.set_status(400)
+        response_object['missing'] = {
+          'post_body_json': {
+            'project_id': not bool(project_key_id),
+            'name': not bool(name),
+            'color': not bool(color)
+        }}
+    else:
+      self.response.set_status(400)
+      response_object['missing'] =  {
+        'post_body_json': True
+      }
+    # Send response
+    self.response.content_type = 'application/json'
+    self.response.out.write(json.dumps(response_object))
+
+
 app = webapp2.WSGIApplication([
   webapp2.Route(
     '/api/projects/list.json',
@@ -615,6 +710,12 @@ app = webapp2.WSGIApplication([
   ), webapp2.Route(
     '/api/projects/milestones/create.json',
     handler=MilestonesCreate
+  ), webapp2.Route(
+    '/api/projects/labels/list.json',
+    handler=LabelsList
+  ), webapp2.Route(
+    '/api/projects/labels/create.json',
+    handler=LabelsCreate
   )
 ])
 

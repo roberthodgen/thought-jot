@@ -306,6 +306,40 @@ class Milestone(ndb.Model):
     return response_object;
 
 
+class Label(ndb.Model):
+  """ Represents a Label to a Milestone. """
+  # The name
+  name = ndb.TextProperty(required=True)
+  # Color
+  color = ndb.TextProperty(indexed=False, required=True)
+  # Record WHEN this comment was truly created and last updated
+  created = ndb.DateTimeProperty(auto_now_add=True)
+  updated = ndb.DateTimeProperty(auto_now=True)
+
+  @classmethod
+  @ndb.transactional(xg=True)
+  def create_label(cls, name, color, project_key):
+    """ Create a new Label under the `project_key`. """
+    # Verify `color`
+    new_label = cls(
+      parent=project_key,
+      name=name,
+      color=color
+    )
+    return new_label.put()
+
+  def json_object(self):
+    """ Return a dictionary representing this Label. Will be used for sending
+    information about this Label via JSON requests. """
+    return {
+      'id': self.key.urlsafe(),
+      'created': self.created.replace(tzinfo=UTC()).isoformat(),
+      'updated': self.updated.replace(tzinfo=UTC()).isoformat(),
+      'name': self.name,
+      'color': self.color
+    }
+
+
 class Account(ndb.Model):
 
   pass

@@ -21,6 +21,10 @@
 
 			$scope.projectId = $routeParams.projectId;
 
+			$scope.search = {
+				name: ''
+			};
+
 			$scope.user = {};
 			$scope.userLoaded = false;
 

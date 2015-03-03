@@ -1,12 +1,12 @@
 (function() {
 
-	var app = angular.module('app.projectDetailCtrl', []);
+	var app = angular.module('app.projectTimeRecordsCtrl', []);
 
-	app.controller('app.projectDetailCtrl', ['$scope', '$location', '$routeParams', '$interval', '$filter', 'app.appFactory', 'ndb_users.userFactory', 'app.dataFactory', function($scope, $location, $routeParams, $interval, $filter, appFactory, userFactory, dataFactory) {
+	app.controller('app.projectTimeRecordsCtrl', ['$scope', '$location', '$routeParams', '$interval', '$filter', 'app.appFactory', 'ndb_users.userFactory', 'app.dataFactory', function($scope, $location, $routeParams, $interval, $filter, appFactory, userFactory, dataFactory) {
 
 		// Perform setup and reset $scope variables...
 		$scope.init = function() {
-			console.log('[app.projectDetailCtrl] $scope.init(): Called.');
+			console.log('[app.projectTimeRecordsCtrl] $scope.init(): Called.');
 			appFactory.config({
 				pageTitle: 'Loading...',
 				navbar: {
@@ -15,7 +15,7 @@
 				}, sidebar: {
 					selection: $routeParams.projectId
 				}, projectsNav: {
-					selection: 'overview'
+					selection: 'time-records'
 				}
 			});
 
@@ -110,7 +110,7 @@
 			return _search.edit;
 		}, function(newValue, oldValue) {
 			// Loop through and delete all not equal to this `newValue`
-			console.log('[app.projectDetailCtrl] $scope.$watch(): Detected new `edit` search value: '+newValue);
+			console.log('[app.projectTimeRecordsCtrl] $scope.$watch(): Detected new `edit` search value: '+newValue);
 			var _keys = Object.keys($scope.timeRecords);
 			if (angular.isString(newValue)) {
 				// Loop through and delete all but this key

@@ -22,6 +22,7 @@
 		'app.errorCtrl',
 		'app.loginCtrl',
 		'app.newProjectCtrl',
+		'app.projectTimeRecordsCtrl',
 		'app.projectMilestonesCtrl',
 		'app.newMilestoneCtrl',
 		
@@ -68,7 +69,7 @@
 			reloadOnSearch: false
 		}).when('/projects/:projectId/time-records', {
 			templateUrl: '/project-time-records/project-time-records.html',
-			controller: 'app.projectDetailCtrl',
+			controller: 'app.projectTimeRecordsCtrl',
 			reloadOnSearch: false
 		}).when('/projects/:projectId/milestones', {
 			templateUrl: '/project-milestones/project-milestones.html',

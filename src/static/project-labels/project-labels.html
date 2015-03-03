@@ -2,34 +2,38 @@
 
 <div class="container">
 
-	<form class="form-horizontal" name="projectLabelsForm" ng-submit="save()">
-
-		<div class="form-group">
-			<div class="col-md-8">
-				<h4>Labels</h4>
-			</div>
-			<div class="col-md-4">
-				<button class="btn btn-primary">New label</button>
+	<div class="row">
+		<div class="col-md-8">
+			<h4>Labels</h4>
+		</div>
+		<div class="col-md-4 text-right">
+			<button class="btn btn-primary" ng-click="showNewLabelForm = true">New label</button>
+		</div>
+	</div>
+	
+	<form class="form-horizontal" name="newLabelForm" ng-submit="save()" ng-show="showNewLabelForm">
+		<div class="well">
+			<div class="form-group">
+				<label class="control-label col-md-2">New Label</label>
+				<div class="col-md-5">
+					<input type="text" class="form-control" placeholder="Label name...">
+				</div>
+				<div class="col-md-5">
+					(Color selection)
+				</div>
 			</div>
 		</div>
+	</form>
 
-		<div class="form-group">
-			<label class="control-label col-md-2">New Label</label>
-			<div class="col-md-5">
-				<input type="text" class="form-control" placeholder="Label name...">
-			</div>
-			<div class="col-md-5">
-				(Color selection)
-			</div>
-		</div>
-
+	<form class="form-horizontal">
 		<div class="form-group">
 			<label class="control-label col-md-2">Labels</label>
 			<div class="col-md-10">
-				(List of current Labels)
+				<ul class="list-group">
+					<li class="list-group-item" ng-repeat="label in labels | filterDisplayObjects" label="label"></li>
+				</ul>
 			</div>
 		</div>
-
 	</form>
 
 </div> <!-- /.container -->

@@ -1,0 +1,39 @@
+<div class="container" projects-nav></div>
+
+<div class="container">
+
+	<form class="form-horizontal" name="createMilestoneForm" ng-submit="create()">
+
+		<div class="form-group">
+			<label class="control-label col-md-2">Milestone name</label>
+			<div class="col-md-10">
+				<input type="text" class="form-control" ng-model="milestone.name" placeholder="New milestone name..." ng-minlength="4" required>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="control-label col-md-2">Description <span class="text-muted">(optional)</span></label>
+			<div class="col-md-10">
+				<div ng-show="!milestoneDescriptionPreview">
+					<textarea class="form-control with-btn-preview" name="description" ng-model="milestone.description" style="height:200px;"></textarea>
+				</div>
+				<div class="well with-btn-preview" ng-show="milestoneDescriptionPreview">
+					<md ng-model="milestone.description"></md>
+				</div>
+				<div class="preview-link">
+					<span class="btn btn-primary btn-preview" ng-click="milestoneDescriptionPreview = !milestoneDescriptionPreview">{{ milestoneDescriptionPreview ? 'Edit' : 'Preview' }}</span>
+					<p class="help-block">Description parsed using <a href="https://help.github.com/articles/markdown-basics/">GitHub Flavored Markdown</a>.</p>
+				</div>
+			</div>
+		</div>
+		
+		<div class="form-group">
+			<div class="col-md-offset-2 col-md-10">
+				<button type="submit" class="btn btn-primary">Create milestone</button>
+				
+			</div>
+		</div>
+
+	</form>
+
+</div> <!-- /.container -->

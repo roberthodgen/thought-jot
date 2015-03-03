@@ -165,6 +165,43 @@
 			mergeResponseData(service._milestones(cacheKey), _keyed);
 		};
 
+		cache.labels = {
+			/*
+			*	Stores all LAbels keyed to the Project Id.
+			*/
+		};
+
+		/*
+		*
+		*
+		*
+		*/
+		var cacheLabels = function(newOrUpdatedLabels, cacheKey) {
+
+			// Get the current time these Labels are being processed...
+			var _date = new DatE();
+
+			// Get an Object we'll later pass to `mergeResponseData()`
+			var _keyed = {
+				'_loaded': _date
+			};
+
+			// Loop through all `newOrUpdatedLabels` and perform any necessary tasks...
+			for (var i = newOrUpdatedLabels.length - 1; i >= 0; i--) {
+				
+				// Perform necessary tasks, like Date objects...
+				newOrUpdatedLabels[i]._laded = _date;
+				newOrUpdatedLabels[i]._updated = new Date(newOrUpdatedLabels[i].updated);
+				newOrUpdatedLabels[i]._created = new Date(newOrUpdatedLabels[i].created);
+
+				// Add this Label to `_keyed`
+				_keyed[newOrUpdatedLabels[i].id] = newOrUpdatedLabels[i];
+			}
+
+			// Merge our Labels into the cache
+			mergeResponseData(service._labels(cacheKey), _keyed);
+		};
+
 		/*
 		*	Determines if `key` is an Internal key (not from the API)
 		*	@param {String} key
@@ -212,6 +249,7 @@
 		// Timeouts/Refresh intervals
 		var PROJECTS_LIFE = 30;
 		var TIME_RECORDS_LIFE = 30;
+		var LABELS_LIFE = 3600;
 		var refreshIntervalPassed = function(lastFetchDate, interval) {
 			/*
 				Return TRUE if `date` is outside of our max interval.
@@ -781,6 +819,108 @@
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.createMilestone(): Request error: '+response.status);
+					return {
+						'error': true,
+						'status': response.status
+					};
+				});
+			}, _labels: function(projectId) {
+				if (!angular.isDefined(cache.labels[projectId])) {
+					cache.labels[projectId] = {};
+				}
+				return cache.labels[projectId];
+			}, labels: function(projectId) {
+				console.log('[app.dataFactory] service.labels(): call, `projectId`: '+projectId);
+
+				var _cache = service._labels(projectId);
+
+				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, LABELS_LIFE)) && !_cache._fetch_in_progress) {
+					return service.fetchLabels(projectId);
+				} else if (_cache._fetch_in_progress) {
+					return _cache._fetch_in_progress;
+				}
+				var _labels = $q.defer();
+				_labels.resolve(_cache);
+				return _labels.promise;
+			}, fetchLabels: function(projecId) {
+				console.log('[app.dataFactory] service.fetchLabels(): call, projectId: '+projectId)
+				var _cache = service._labels(projectId);
+				_cache._force_fetch = false;
+				_cache._fetch_in_progress = $http({
+					method: 'GET',
+					url: '/api/projects/labels/list.json',
+					params: {
+						't': new Date().getTime(),
+						'project_id': projectId
+					}
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					delete _cache._fetch_in_progress;
+					if (angular.isObject(response.data)) {
+						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('labels')) {
+							// Iterate through these projects, chang anything that must be changed...
+							console.log('[app.dataFactory] service.fetchLabels(): data.response has `project` and `labels`, is valid');
+
+							// Cache this Project
+							cacheProjects([response.data.project], projectId);
+
+							// Cache these Labels
+							cacheLabels(response.data.labels, projectId)
+
+							return _cache;
+						}
+					}
+					console.log('[app.dataFactory] service.fetchLabels(): Error reading response.');
+					return {
+						'error': true
+					};
+				}, function(response) {
+					// Error
+					delete _cache._fetch_in_progress;
+					console.log('[app.dataFactory] service.fetchLabels(): Request error: '+response.status);
+					return {
+						'error': true,
+						'status': response.status
+					};
+				});
+				return _cache._fetch_in_progress;
+			}, createLabel: function(label, projectId) {
+
+				var data = {
+					'project_id': projectId,
+					'name': label.name,
+					'color': label.color
+				};
+
+				return $http({
+					method: 'POST',
+					url: '/api/projects/labels/create.json',
+					params: {
+						't': new Date().getTime()
+					}, data: data
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					if (angular.isObject(response.data)) {
+						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('milestone')) {
+							// Success!!!
+							console.log('[app.dataFactory] service.createLabel(): data.response has `project` and `label`, is valid');
+
+							// Cache this Project
+							cacheProjects([response.data.project]);
+
+							// Cache this Label
+							cacheLabels([response.data.label], projectId);
+
+							return response.data.label;
+						}
+					}
+					console.log('[app.dataFactory] service.createLabel(): Error reading response.');
+					return {
+						'error': true
+					};
+				}, function(response) {
+					// Error
+					console.log('[app.dataFactory] service.createLabel(): Request error: '+response.status);
 					return {
 						'error': true,
 						'status': response.status

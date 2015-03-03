@@ -26,6 +26,7 @@
 		'app.projectMilestonesCtrl',
 		'app.newMilestoneCtrl',
 		'app.projectLabelsCtrl',
+		'app.newLabelCtrl',
 		
 		'app.projectsHomeCtrl',
 		'app.projectDetailCtrl',
@@ -82,8 +83,10 @@
 			controller: 'app.newMilestoneCtrl'
 		}).when('/projects/:projectId/labels', {
 			templateUrl: '/project-labels/project-labels.html',
-			controller: 'app.projectLabelsCtrl',
-			reloadOnSearch: false
+			controller: 'app.projectLabelsCtrl'
+		}).when('/projects/:projectId/labels/new-label', {
+			templateUrl: '/project-labels/new-label.html',
+			controller: 'app.newLabelCtrl'
 		}).when('/projects/:projectId/comments', {
 			templateUrl: '/projects/project-detail.html',
 			controller: 'app.projectDetailCtrl',

@@ -48,7 +48,7 @@
 							$scope.project = response;
 
 							appFactory.config({
-								pageTitle: response.name,
+								pageTitle: 'New milestone: ' + response.name,
 								navbar: {
 									title: response.name
 								}, sidebar: {

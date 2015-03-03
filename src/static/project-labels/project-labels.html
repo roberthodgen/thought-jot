@@ -7,7 +7,7 @@
 			<h4>Labels</h4>
 		</div>
 		<div class="col-md-4 text-right">
-			<button class="btn btn-primary" ng-click="showNewLabelForm = true">New label</button>
+			<a ng-href="/projects/{{ projectId }}/labels/new-label" class="btn btn-primary">New label</a>
 		</div>
 	</div>
 	
@@ -16,24 +16,34 @@
 			<div class="form-group">
 				<label class="control-label col-md-2">New Label</label>
 				<div class="col-md-5">
-					<input type="text" class="form-control" placeholder="Label name...">
+					<input type="text" class="form-control" ng-model="label.name" placeholder="Label name...">
 				</div>
-				<div class="col-md-5">
-					(Color selection)
+			</div>
+			<div class="form-group">
+				<label class="control-label col-md-2">Color</label>
+				<div class="col-md-10">
+					<div class="btn-group">
+						<button type="button" class="btn" ng-repeat="color in colors" ng-click="label.color = color" ng-style="{ 'background-color': color, 'color': (color | textColorGivenBackgroundColor) }"><span class="glyphicon " ng-class="{ 'glyphicon-ok' : (color == label.color) }"></span>&nbsp;</button>
+						<button type="button" class="btn btn-default" ng-click="label._custom_color = true;">Customize</button>
+					</div>
+				</div>
+			</div>
+			<div class="form-group" ng-show="label._custom_color" ng-class="{ 'has-error': (!newLabelForm.customColor.$valid) }">
+				<div class="col-md-offset-2 col-md-5">
+					<input type="text" class="form-control" name="customColor" ng-model="label.color" placeholder="Enter custom HEX color..." ng-pattern="/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-md-2">Preview</label>
+				<div class="col-md-5" style="padding-top:7px;">
+					<span label="label"></span>
 				</div>
 			</div>
 		</div>
 	</form>
 
-	<form class="form-horizontal">
-		<div class="form-group">
-			<label class="control-label col-md-2">Labels</label>
-			<div class="col-md-10">
-				<ul class="list-group">
-					<li class="list-group-item" ng-repeat="label in labels | filterDisplayObjects" label="label"></li>
-				</ul>
-			</div>
-		</div>
-	</form>
+	<ul class="list-group">
+		<li class="list-group-item" ng-repeat="label in labels | filterDisplayObjects" label="label"></li>
+	</ul>
 
 </div> <!-- /.container -->

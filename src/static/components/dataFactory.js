@@ -944,7 +944,7 @@
 				}).then(function(response) {
 					// HTTP 200-299 Status
 					if (angular.isObject(response.data)) {
-						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('milestone')) {
+						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('label')) {
 							// Success!!!
 							console.log('[app.dataFactory] service.createLabel(): data.response has `project` and `label`, is valid');
 

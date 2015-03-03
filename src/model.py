@@ -300,11 +300,16 @@ class Milestone(ndb.Model):
       'project_id': self.key.parent().urlsafe(),
       'user': self.user
     }
-    # Query all Comments that have this Time Record as their parent
+    # Query all Comments that have this Milestone as their parent
     comments = Comment.query(ancestor=self.key)
     response_object['comments'] = []
     for comment in comments:
       response_object['comments'].append(comment.json_object())
+    # Query all Labels that have this Milestone assigned
+    response_object['labels'] = []
+    for label_key in self.labels:
+      label = label_key.get()
+      response_object['labels'].append(label.json_object())
     return response_object;
 
 

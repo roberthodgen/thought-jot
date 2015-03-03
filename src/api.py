@@ -552,6 +552,11 @@ class MilestonesCreate(webapp2.RequestHandler):
             description = request_object.get('description')
             if description:
               new_milestone.description = description
+            labels = request_object.get('labels')
+            if isinstance(labels, list):
+              for label_key_id in labels:
+                label_key = ndb.Key(urlsafe=label_key_id)
+                new_milestone.labels.append(label_key)
             new_milestone.put()
           response_object['milestone'] = new_milestone.json_object()
           response_object['project'] = project_key.get().json_object()

@@ -744,8 +744,48 @@
 					};
 				});
 				return _cache._fetch_in_progress;
-			}, createMilestone: function(options) {
+			}, createMilestone: function(milestone, projectId) {
 
+				var data = {
+					'project_id': projectId,
+					'name': milestone.name,
+					'description': milestone.description
+				};
+
+				return $http({
+					method: 'POST',
+					url: '/api/projects/milestones/create.json',
+					params: {
+						't': new Date().getTime()
+					}, data: data
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					if (angular.isObject(response.data)) {
+						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('milestone')) {
+							// Success!!!
+							console.log('[app.dataFactory] service.createMilestone(): data.response has `project` and `milestone`, is valid');
+
+							// Cache this Project
+							cacheProjects([response.data.project]);
+
+							// Cache this Milestone
+							cacheMilestones([response.data.milestone], projectId);
+
+							return response.data.milestone;
+						}
+					}
+					console.log('[app.dataFactory] service.createMilestone(): Error reading response.');
+					return {
+						'error': true
+					};
+				}, function(response) {
+					// Error
+					console.log('[app.dataFactory] service.createMilestone(): Request error: '+response.status);
+					return {
+						'error': true,
+						'status': response.status
+					};
+				});
 			}
 		};
 

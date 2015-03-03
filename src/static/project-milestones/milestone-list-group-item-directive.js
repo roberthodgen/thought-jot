@@ -23,9 +23,25 @@
 					dataFactory.comments($scope.milestone.id).then(function(response) {
 						$scope.commentsLoaded = true;
 						if (!response.error) {
+							// Success
 							$scope.comments = response;
 						} else {
+							// Error
 							$scope.commentsError = true;
+						}
+					});
+
+					$scope.labels = {};
+					$scope.labelsLoaded = false;
+					$scope.labelsError = false;
+					dataFactory.labelsForMilestone($scope.milestone.id).then(function(response) {
+						$scope.labelsLoaded = true;
+						if (!response.error) {
+							// Success
+							$scope.labels = response;
+						} else {
+							// Error
+							$scope.labelsError = true;
 						}
 					});
 				};

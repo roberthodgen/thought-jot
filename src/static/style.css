@@ -27,7 +27,7 @@ hr {
 
 
 /*
-*   Header Styles
+*	Header Styles
 */
 
 h1,
@@ -347,23 +347,23 @@ a.list-group-item:focus {
 *   In Progress
 */
 
-.list-group-item {
+.projects-list-group .list-group-item {
 	cursor: pointer;
 }
 
-.list-group-item.list-group-item-edit {
+.projects-list-group .list-group-item.list-group-item-edit {
 	cursor: auto;
 }
 
-.list-group-item-in-progress .in-progress-bold {
+.projects-list-group .list-group-item-in-progress .in-progress-bold {
 	font-weight: 700;
 }
 
-.list-group-item .time-record-hover-only {
+.projects-list-group .list-group-item .time-record-hover-only {
 	display: none;
 }
 
-.list-group-item:hover .time-record-hover-only {
+.projects-list-group .list-group-item:hover .time-record-hover-only {
 	display: inline-block;
 }
 
@@ -529,4 +529,27 @@ textarea.form-control.with-btn-preview {
 	color: #967adc;
 	font-weight: 700;
 	border-bottom: 2px solid #967adc;
+}
+
+/*
+*	.tj-label
+*/
+
+.tj-label {
+	display: inline-block;
+	min-width: 10px;
+	padding: 3px 7px;
+	margin: 0 5px 0 5px;
+	font-size: 12px;
+	font-weight: bold;
+	line-height: 1;
+	color: #fff;
+	text-align: center;
+	white-space: nowrap;
+	vertical-align: baseline;
+	background-color: #777;
+	border-radius: 10px;
+}
+.tj-label:empty {
+	display: none;
 }

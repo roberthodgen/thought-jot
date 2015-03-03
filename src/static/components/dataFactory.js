@@ -179,7 +179,7 @@
 		var cacheLabels = function(newOrUpdatedLabels, cacheKey) {
 
 			// Get the current time these Labels are being processed...
-			var _date = new DatE();
+			var _date = new Date();
 
 			// Get an Object we'll later pass to `mergeResponseData()`
 			var _keyed = {
@@ -842,7 +842,7 @@
 				var _labels = $q.defer();
 				_labels.resolve(_cache);
 				return _labels.promise;
-			}, fetchLabels: function(projecId) {
+			}, fetchLabels: function(projectId) {
 				console.log('[app.dataFactory] service.fetchLabels(): call, projectId: '+projectId)
 				var _cache = service._labels(projectId);
 				_cache._force_fetch = false;

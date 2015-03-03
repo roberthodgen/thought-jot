@@ -73,7 +73,7 @@
 				newOrUpdatedTimeRecords[i]._updated = new Date(newOrUpdatedTimeRecords[i].updated);
 
 				// Copy this Time Record's Comments into the Comments Cache
-				cacheComments(newOrUpdatedTimeRecords[i].comments, [cacheKey, newOrUpdatedTimeRecords[i].id]);
+				cacheComments(newOrUpdatedTimeRecords[i].comments, [cacheKey, newOrUpdatedTimeRecords[i].id], newOrUpdatedTimeRecords[i].id);
 				delete newOrUpdatedTimeRecords[i].comments;
 
 				// Add this Time Record to `_keyed`
@@ -94,33 +94,41 @@
 		*	Merges Comments into the Cache
 		*	@param {Array} newOrUpdatedComments		- The new or updated Comment objects
 		*	@param {Array} cacheKeys				- The Keys in which new or updated Comment objects will be added in the global `cache.comments` object
+		*	@param {String} fetchSourceKey			- The Key from which the information is complete (the Fetch source)
 		*/
-		var cacheComments = function(newOrUpdatedComments, cacheKeys) {
+		var cacheComments = function(newOrUpdatedcomments, cacheKeys, fetchSourceKey) {
 
-			// Get the current time these Comments are being processed...
+			// Get the current time these Labels are being processed...
 			var _date = new Date();
 
-			// Get an Object we'll later pass to `mergeResponseData()`
-			var _keyed = {
-				'_loaded': _date
-			};
+			// Loop through the cacheKeys and keep separate objects in `_keyed`
+			var _keyed = [];
+			for (var i_keyed = cacheKeys.length - 1; i_keyed >= 0; i_keyed--) {
+				cacheKeys[i_keyed]
 
-			// Loop through all `newOrUpdatedComments` and perform any necessary tasks...
-			for (var i = newOrUpdatedComments.length - 1; i >= 0; i--) {
-				
-				// Perform necessary tasks, like Date objects...
-				newOrUpdatedComments[i]._loaded = _date;
-				newOrUpdatedComments[i]._updated = new Date(newOrUpdatedComments[i].updated);
-				newOrUpdatedComments[i]._created = new Date(newOrUpdatedComments[i].created);
+				// Get an Object we'll later pass to `mergeResponseData()`
+				_keyed[i_keyed] = {};
 
-				// Add this Comment to `_keyed`
-				_keyed[newOrUpdatedComments[i].id] = newOrUpdatedComments[i];
-			}
-			
-			// Merge our Comments into the cache
-			for (var i = cacheKeys.length - 1; i >= 0; i--) {
+				// Set the `_loaded` property ONLY IF this cacheKey was our fetchSourceKey
+				if (cacheKeys[i_keyed] == fetchSourceKey) {
+					_keyed[i_keyed]._loaded = _date;
+				}
+
+				// Loop through all `newOrUpdatedcomments` and perform any necessary tasks...
+				for (var i = newOrUpdatedcomments.length - 1; i >= 0; i--) {
+
+					// Perform necessary tasks, like Date objects...
+					newOrUpdatedcomments[i]._laded = _date;
+					newOrUpdatedcomments[i]._updated = new Date(newOrUpdatedcomments[i].updated);
+					newOrUpdatedcomments[i]._created = new Date(newOrUpdatedcomments[i].created);
+
+					// Add this Label to `_keyed`
+					_keyed[i_keyed][newOrUpdatedcomments[i].id] = newOrUpdatedcomments[i];
+				}
+
+				// Merge our Labels into the cache
 				// console.log('[app.dataFactory] cacheComments(): calling `mergeResponseData()` with destination key: '+cacheKeys[i]);
-				mergeResponseData(service._comments(cacheKeys[i]), _keyed);	// Use `service._comments()` so we get the actual Array
+				mergeResponseData(service._comments(cacheKeys[i_keyed]), _keyed[i_keyed]);	// Use `service._comments()` so we get the actual Array
 			}
 		};
 
@@ -153,8 +161,12 @@
 				newOrUpdatedMilestones[i]._updated = new Date(newOrUpdatedMilestones[i].updated);
 				newOrUpdatedMilestones[i]._created = new Date(newOrUpdatedMilestones[i].created);
 
-				// Copy this Time Record's Comments into the Comments Cache
-				cacheComments(newOrUpdatedMilestones[i].comments, [cacheKey, newOrUpdatedMilestones[i].id]);
+				// Copy this Milestone's Comments into the Comments Cache
+				cacheComments(newOrUpdatedMilestones[i].comments, [cacheKey, newOrUpdatedMilestones[i].id], newOrUpdatedMilestones[i].id);
+				delete newOrUpdatedMilestones[i].comments;
+
+				// Copy this Milestone's Labels into the Labels Cache
+				cacheLabels(newOrUpdatedMilestones[i].labels, [cacheKey, newOrUpdatedMilestones[i].id], newOrUpdatedMilestones[i].id);
 				delete newOrUpdatedMilestones[i].comments;
 
 				// Add this Milestone to `_keyed`
@@ -172,34 +184,45 @@
 		};
 
 		/*
-		*
-		*
-		*
+		*	Merges Labels into the Cache
+		*	@param {Array} newOrUpdatedLabels	- The new or updated Label objects
+		*	@param {Array} cacheKeys			- The Key in which new or updated Label objects will be added in the global `cache.labels` object
+		*	@param {String} fetchSourceKey		- The Key from which the information is complete (the Fetch source)
 		*/
-		var cacheLabels = function(newOrUpdatedLabels, cacheKey) {
+		var cacheLabels = function(newOrUpdatedLabels, cacheKeys, fetchSourceKey) {
 
 			// Get the current time these Labels are being processed...
 			var _date = new Date();
 
-			// Get an Object we'll later pass to `mergeResponseData()`
-			var _keyed = {
-				'_loaded': _date
-			};
+			// Loop through the cacheKeys and keep separate objects in `_keyed`
+			var _keyed = [];
+			for (var i_keyed = cacheKeys.length - 1; i_keyed >= 0; i_keyed--) {
+				cacheKeys[i_keyed]
 
-			// Loop through all `newOrUpdatedLabels` and perform any necessary tasks...
-			for (var i = newOrUpdatedLabels.length - 1; i >= 0; i--) {
-				
-				// Perform necessary tasks, like Date objects...
-				newOrUpdatedLabels[i]._laded = _date;
-				newOrUpdatedLabels[i]._updated = new Date(newOrUpdatedLabels[i].updated);
-				newOrUpdatedLabels[i]._created = new Date(newOrUpdatedLabels[i].created);
+				// Get an Object we'll later pass to `mergeResponseData()`
+				_keyed[i_keyed] = {};
 
-				// Add this Label to `_keyed`
-				_keyed[newOrUpdatedLabels[i].id] = newOrUpdatedLabels[i];
+				// Set the `_loaded` property ONLY IF this cacheKey was our fetchSourceKey
+				if (cacheKeys[i_keyed] == fetchSourceKey) {
+					_keyed[i_keyed]._loaded = _date;
+				}
+
+				// Loop through all `newOrUpdatedLabels` and perform any necessary tasks...
+				for (var i = newOrUpdatedLabels.length - 1; i >= 0; i--) {
+
+					// Perform necessary tasks, like Date objects...
+					newOrUpdatedLabels[i]._laded = _date;
+					newOrUpdatedLabels[i]._updated = new Date(newOrUpdatedLabels[i].updated);
+					newOrUpdatedLabels[i]._created = new Date(newOrUpdatedLabels[i].created);
+
+					// Add this Label to `_keyed`
+					_keyed[i_keyed][newOrUpdatedLabels[i].id] = newOrUpdatedLabels[i];
+				}
+
+				// Merge our Labels into the cache
+				// console.log('[app.dataFactory] cacheLabels(): calling `mergeResponseData()` with destination key: '+cacheKeys[i]);
+				mergeResponseData(service._labels(cacheKeys[i_keyed]), _keyed[i_keyed]);	// Use `service._labels()` so we get the actual Array
 			}
-
-			// Merge our Labels into the cache
-			mergeResponseData(service._labels(cacheKey), _keyed);
 		};
 
 		/*
@@ -249,7 +272,7 @@
 		// Timeouts/Refresh intervals
 		var PROJECTS_LIFE = 30;
 		var TIME_RECORDS_LIFE = 30;
-		var LABELS_LIFE = 3600;
+		var LABELS_LIFE = 30;
 		var refreshIntervalPassed = function(lastFetchDate, interval) {
 			/*
 				Return TRUE if `date` is outside of our max interval.
@@ -679,7 +702,7 @@
 							console.log('[app.dataFactory] service.createComment(): data.response has `comment`, is valid');
 
 							// Cache these Comments
-							cacheComments([response.data.comment], [data.project_id, data.parent_id]);
+							cacheComments([response.data.comment], [data.project_id, data.parent_id], null);
 							return response.data.comment;
 						}
 					}
@@ -829,21 +852,21 @@
 					cache.labels[projectId] = {};
 				}
 				return cache.labels[projectId];
-			}, labels: function(projectId) {
-				console.log('[app.dataFactory] service.labels(): call, `projectId`: '+projectId);
+			}, labelsForProject: function(projectId) {
+				console.log('[app.dataFactory] service.labelsForProject(): call, `projectId`: '+projectId);
 
 				var _cache = service._labels(projectId);
 
 				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, LABELS_LIFE)) && !_cache._fetch_in_progress) {
-					return service.fetchLabels(projectId);
+					return service.fetchLabelsForProject(projectId);
 				} else if (_cache._fetch_in_progress) {
 					return _cache._fetch_in_progress;
 				}
 				var _labels = $q.defer();
 				_labels.resolve(_cache);
 				return _labels.promise;
-			}, fetchLabels: function(projectId) {
-				console.log('[app.dataFactory] service.fetchLabels(): call, projectId: '+projectId)
+			}, fetchLabelsForProject: function(projectId) {
+				console.log('[app.dataFactory] service.fetchLabelsForProject(): call, projectId: '+projectId)
 				var _cache = service._labels(projectId);
 				_cache._force_fetch = false;
 				_cache._fetch_in_progress = $http({
@@ -859,31 +882,51 @@
 					if (angular.isObject(response.data)) {
 						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('labels')) {
 							// Iterate through these projects, chang anything that must be changed...
-							console.log('[app.dataFactory] service.fetchLabels(): data.response has `project` and `labels`, is valid');
+							console.log('[app.dataFactory] service.fetchLabelsForProject(): data.response has `project` and `labels`, is valid');
 
 							// Cache this Project
 							cacheProjects([response.data.project], projectId);
 
 							// Cache these Labels
-							cacheLabels(response.data.labels, projectId)
+							cacheLabels(response.data.labels, [projectId], projectId);
 
 							return _cache;
 						}
 					}
-					console.log('[app.dataFactory] service.fetchLabels(): Error reading response.');
+					console.log('[app.dataFactory] service.fetchLabelsForProject(): Error reading response.');
 					return {
 						'error': true
 					};
 				}, function(response) {
 					// Error
 					delete _cache._fetch_in_progress;
-					console.log('[app.dataFactory] service.fetchLabels(): Request error: '+response.status);
+					console.log('[app.dataFactory] service.fetchLabelsForProject(): Request error: '+response.status);
 					return {
 						'error': true,
 						'status': response.status
 					};
 				});
 				return _cache._fetch_in_progress;
+			}, labelsForMilestone: function(milestoneId) {
+				console.log('[app.dataFactory] service.labelsForMilestone(): call, `milestoneId`: '+milestoneId);
+
+				var _cache = service._labels(milestoneId);
+
+				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, LABELS_LIFE)) && !_cache._fetch_in_progress) {
+					return service.fetchLabelsForMilestone(milestoneId);
+				} else if (_cache._fetch_in_progress) {
+					return _cache._fetch_in_progress;
+				}
+				var _labels = $q.defer();
+				_labels.resolve(_cache);
+				return _labels.promise;
+			}, fetchLabelsForMilestone: function(milestoneId) {
+				// Temp function, just return a promise-wrapped version of `service._labels`
+				// Update once API is written to fetch Labels for a particular Milestone
+
+				var _labels = $q.defer();
+				_labels.resolve(service._labels(milestoneId));
+				return _labels.promise;
 			}, createLabel: function(label, projectId) {
 
 				var data = {
@@ -909,7 +952,7 @@
 							cacheProjects([response.data.project]);
 
 							// Cache this Label
-							cacheLabels([response.data.label], projectId);
+							cacheLabels([response.data.label], [projectId], projectId);
 
 							return response.data.label;
 						}

@@ -577,6 +577,59 @@ class MilestonesCreate(webapp2.RequestHandler):
     self.response.out.write(json.dumps(response_object))
 
 
+class MilestonesUpdate(webapp2.RequestHandler):
+  def post(self):
+    """ Update a Milestone in the Project. """
+    response_object = {}
+    user = users.get_current_user()
+    if not user:
+      self.abort(401)
+    # GET JSON request body
+    if self.request.body:
+      request_object = json.loads(self.request.body)
+      milestone_key_id = request_object.get('milestone_id')
+      if milestone_key_id:
+        milestone_key = ndb.Key(urlsafe=milestone_key_id)
+        milestone = milestone_key.get()
+        if milestone:
+          project = milestone.key.parent().get()
+          if ((user.email not in project.contributors)
+            and (user.email != project.owner)):
+            self.abort(401)
+          if len(request_object.keys()) > 1:
+            # Process optional items...
+            name = request_object.get('name')
+            if name:
+              milestone.name = name
+            description = request_object.get('description')
+            if description:
+              milestone.description = description
+            milestone.put()
+            project.put()
+          response_object['milestone'] = milestone.json_object()
+          # project = milestone.key.parent().get()
+          response_object['project'] = project.json_object()
+        else:
+          self.response.set_status(404)
+          response_object['not_found'] = {
+            'milestone': not bool(milestone)
+          }
+      else:
+        self.response.set_status(400)
+        response_object['missing'] = {
+          'post_body_json': {
+            'time_record_id': True
+        }}
+    else:
+      self.response.set_status(400)
+      response_object['missing'] = {
+        'post_body_json': True
+      }
+    # Send response
+    self.response.content_type = 'application/json'
+    self.response.out.write(json.dumps(response_object))
+
+
 class LabelsList(webapp2.RequestHandler):
   def get(self):
     """ List the Labels associated with this Project. """
@@ -710,6 +763,9 @@ app = webapp2.WSGIApplication([
   ), webapp2.Route(
     '/api/projects/milestones/create.json',
     handler=MilestonesCreate
+  ), webapp2.Route(
+    '/api/projects/milestones/update.json',
+    handler=MilestonesUpdate
   ), webapp2.Route(
     '/api/projects/labels/list.json',
     handler=LabelsList

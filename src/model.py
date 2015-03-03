@@ -261,6 +261,8 @@ class Milestone(ndb.Model):
   open = ndb.BooleanProperty(default=True)
   # Milestone number
   number = ndb.IntegerProperty(required=True)
+  # Add any Labels
+  labels = ndb.KeyProperty(repeated=True)
   # Store the User's email address who (created) this Comment
   user = ndb.StringProperty(required=True)
   # Record WHEN this comment was truly created and last updated
@@ -310,7 +312,7 @@ class Label(ndb.Model):
   """ Represents a Label to a Milestone. """
   # The name
   name = ndb.TextProperty(required=True)
-  # Color
+  # Background color of the label, in HEX
   color = ndb.TextProperty(indexed=False, required=True)
   # Record WHEN this comment was truly created and last updated
   created = ndb.DateTimeProperty(auto_now_add=True)
@@ -324,7 +326,7 @@ class Label(ndb.Model):
     new_label = cls(
       parent=project_key,
       name=name,
-      color=color
+      color=color.lower()
     )
     return new_label.put()
 

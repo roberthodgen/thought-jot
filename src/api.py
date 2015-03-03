@@ -545,6 +545,12 @@ class MilestonesCreate(webapp2.RequestHandler):
           new_milestone_key = model.Milestone.create_milestone(
             name, project_key, user.email)
           new_milestone = new_milestone_key.get()
+          if len(request_object) > 2:
+            # Process optional items...
+            description = request_object.get('description')
+            if description:
+              new_milestone.description = description
+            new_milestone.put()
           response_object['milestone'] = new_milestone.json_object()
           response_object['project'] = project_key.get().json_object()
         else:

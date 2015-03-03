@@ -50,6 +50,8 @@ class Project(ndb.Model):
   completed = ndb.FloatProperty(default=0)
   # Whether this Project should appear in a User's Projects list (not archived)
   active = ndb.BooleanProperty(required=True, default=True)
+  # The current Milestone count (used for assigning new Milestone numbers)
+  milestone_count = ndb.IntegerProperty(default=0)
   # Record WHEN this record was truly created and last updated
   created = ndb.DateTimeProperty(auto_now_add=True)
   updated = ndb.DateTimeProperty(auto_now=True)
@@ -257,6 +259,8 @@ class Milestone(ndb.Model):
   description = ndb.TextProperty(default=None)
   # Open status
   open = ndb.BooleanProperty(default=True)
+  # Milestone number
+  number = ndb.IntegerProperty(required=True)
   # Store the User's email address who (created) this Comment
   user = ndb.StringProperty(required=True)
   # Record WHEN this comment was truly created and last updated
@@ -267,10 +271,14 @@ class Milestone(ndb.Model):
   @ndb.transactional(xg=True)
   def create_milestone(cls, name, project_key, user_email):
     """ Create a new Milestone belonging to `project_key`. """
+    # Fetch the Project...
+    project = project_key.get();
+    project.milestone_count += 1
     new_milestone = cls(
       parent=project_key,
       name=name,
-      user=user_email
+      user=user_email,
+      number = project.milestone_count
     )
     project = project_key.get()
     project.put() # Update the `updated` property of our Project
@@ -286,6 +294,7 @@ class Milestone(ndb.Model):
       'name': self.name,
       'description': self.description,
       'open': self.open,
+      'number': self.number,
       'project_id': self.key.parent().urlsafe(),
       'user': self.user
     }

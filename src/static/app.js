@@ -23,6 +23,7 @@
 		'app.loginCtrl',
 		'app.newProjectCtrl',
 		'app.projectMilestonesCtrl',
+		'app.newMilestoneCtrl',
 		
 		'app.projectsHomeCtrl',
 		'app.projectDetailCtrl',
@@ -73,6 +74,9 @@
 			templateUrl: '/project-milestones/project-milestones.html',
 			controller: 'app.projectMilestonesCtrl',
 			reloadOnSearch: false
+		}).when('/projects/:projectId/milestones/new-milestone', {
+			templateUrl: '/new-milestone/new-milestone.html',
+			controller: 'app.newMilestoneCtrl'
 		}).when('/projects/:projectId/comments', {
 			templateUrl: '/projects/project-detail.html',
 			controller: 'app.projectDetailCtrl',

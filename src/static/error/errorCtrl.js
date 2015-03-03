@@ -6,7 +6,7 @@
 
 		// Perform setup and reset $scope variables...
 		$scope.init = function() {
-			console.log('[app.errorCtrl] $scope.init(): call');
+			console.log('[app.errorCtrl] $scope.init(): Called.');
 
 			var errorMapping = {
 				'/error/not-found.html': 'Not found'

@@ -6,15 +6,15 @@
 
 		// Perform setup and reset $scope variables...
 		$scope.init = function() {
-			console.log('[app.newProjectCtrl] $scope.init(): call');
+			console.log('[app.newProjectCtrl] $scope.init(): Called.');
 			appFactory.config({
-				'pageTitle': 'New Project',
-				'navbar': {
-					'title': 'New Project',
-					'link': $location.path()
+				pageTitle: 'New Project',
+				navbar: {
+					title: 'New Project',
+					link: $location.path()
 				},
-				'sidebar': {
-					'selection': 'new-project'
+				sidebar: {
+					selection: 'new-project'
 				}
 			});
 

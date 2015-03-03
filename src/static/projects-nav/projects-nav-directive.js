@@ -5,10 +5,14 @@
 	app.directive('projectsNav', function() {
 		return {
 			restrict: 'A',
-			controller: ['$scope', 'app.appFactory', function($scope, appFactory) {
+			scope: {},
+			controller: ['$scope', '$routeParams', 'app.appFactory', function($scope, $routeParams, appFactory) {
 
 				$scope.init = function() {
+					
 					$scope.config = appFactory.config();
+
+					$scope.projectId = $routeParams.projectId;
 				}
 
 

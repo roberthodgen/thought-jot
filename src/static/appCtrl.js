@@ -6,7 +6,7 @@
 
 		// Perform setup and reset $scope variables...
 		$scope.init = function() {
-			console.log('[app.appCtrl] $scope.init(): call');
+			console.log('[app.appCtrl] $scope.init(): Called.');
 
 			$scope.config = appFactory.config();
 

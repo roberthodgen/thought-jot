@@ -183,6 +183,54 @@
 		};
 	});
 
+	// Return a light or dark color depending upon the background color
+	app.filter('textColorGivenBackgroundColor', function() {
+		/*
+		*	Takes a HEX color string (`backgroundColorString`) and return a foreground (text) HEX color string.
+		*	@param {String} backgroundColorString
+		*	@returns {String}
+		*/
+		return function(backgroundColorString) {
+
+			if (!angular.isString(backgroundColorString)) {
+				return '#fff';
+			}
+
+			var _r = -1;
+			var _b = -1;
+			var _g = -1;
+
+			var m;
+
+			// "#ccc" format
+			m = backgroundColorString.match(/^#([0-9a-f]{3})$/i);
+			if (angular.isArray(m) && angular.isDefined(m[1])) {
+				// in three-character format, each value is multiplied by 0x11 to give an
+				// even scale from 0x00 to 0xff
+				_r = parseInt(m[1].charAt(0),16)*0x11;
+				_b = parseInt(m[1].charAt(1),16)*0x11;
+				_g = parseInt(m[1].charAt(2),16)*0x11;
+			}
+
+			// "#cccccc" format
+			m = backgroundColorString.match(/^#([0-9a-f]{6})$/i);
+			if (angular.isArray(m) && angular.isDefined(m[1])) {
+				_r = parseInt(m[1].substr(0,2),16);
+				_g = parseInt(m[1].substr(2,2),16);
+				_b = parseInt(m[1].substr(4,2),16);
+			}
+
+			if (_r == -1 || _b == -1 || _g == -1) {
+				// Unable to determine, default to white
+				return '#fff';
+			}
+
+			// Color brightness algorithm: http://www.w3.org/TR/AERT#color-contrast
+			backgroundColorBrightness = ((_r * 299) + (_g * 587) + (_b * 114)) / 1000;
+			return (backgroundColorBrightness > 175) ? '#000' : '#fff';
+		};
+	});
+
 
 
 })();

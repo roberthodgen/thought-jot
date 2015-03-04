@@ -2,7 +2,7 @@
 
 	var app = angular.module('app.projectTimeRecordsCtrl', []);
 
-	app.controller('app.projectTimeRecordsCtrl', ['$scope', '$location', '$routeParams', '$timeout', '$filter', 'app.appFactory', 'ndb_users.userFactory', 'app.dataFactory', function($scope, $location, $routeParams, $timeout, $filter, appFactory, userFactory, dataFactory) {
+	app.controller('app.projectTimeRecordsCtrl', ['$scope', '$location', '$routeParams', '$filter', 'app.appFactory', 'ndb_users.userFactory', 'app.dataFactory', function($scope, $location, $routeParams, $filter, appFactory, userFactory, dataFactory) {
 
 		// Perform setup and reset $scope variables...
 		$scope.init = function() {
@@ -37,8 +37,6 @@
 			$scope.inProgressResults = [];
 
 			$scope.activeResults = [];
-
-			$scope.uncompletedSecondsInterval = null;
 
 			userFactory.user().then(function(response) {
 				$scope.userLoaded = true;

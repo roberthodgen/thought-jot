@@ -2,7 +2,7 @@
 
 	var app = angular.module('app.dataFactory', []);
 
-	app.factory('app.dataFactory', ['$http', '$q', function($http, $q) {
+	app.factory('app.dataFactory', ['$http', '$q', '$interval', function($http, $q, $interval) {
 
 		var cache = {};
 		cache.projects = {
@@ -271,7 +271,7 @@
 
 		// Timeouts/Refresh intervals
 		var PROJECTS_LIFE = 30;
-		var TIME_RECORDS_LIFE = 30;
+		var TIME_RECORDS_LIFE = 15;
 		var LABELS_LIFE = 30;
 		var refreshIntervalPassed = function(lastFetchDate, interval) {
 			/*
@@ -291,9 +291,88 @@
 		};
 
 
-		// Service object
+		/*
+		*	Uncompleted Seconds Watch
+		*/
+
+		var uncompletedWatchProjectIds = [
+			/*
+			*	Stores an Array of Project IDs as Strings.
+			*/
+		];
+		var uncompletedWatchProjectsInterval = $interval(function() {
+			// Simply call `uncompletedSecondsUpdate()`, let it do it's magic!
+			uncompletedSecondsUpdate();
+		}, 333);
+
+		/*
+		*	Runs on a loop throughout the duration the SPA is open.
+		*	Will loop through all Project IDs stored in `uncompletedWatchProjectIds` Array.
+		*	Will update the `_uncompleted` value of both Projects and Time Records.
+		*/
+		var uncompletedSecondsUpdate = function() {
+			if (uncompletedWatchProjectIds.length > 0) {
+
+				var nowSeconds = (Date.now() / 1000);
+
+				// Loop though all Projects in `uncompletdWatchProjects`...
+				for (var i = uncompletedWatchProjectIds.length - 1; i >= 0; i--) {
+					// console.log('[app.dataFactory] uncompletedSecondsUpdate(): Inspecting Project for `has_uncompleted_time_records` where `id`: '+uncompletedWatchProjectIds[i]);
+
+					var project = service._project(uncompletedWatchProjectIds[i]);
+
+					// If this Project has uncompleted Time Records...
+					if (project.has_uncompleted_time_records) {
+						// console.log('[app.dataFactory] uncompletedSecondsUpdate(): Project with `id`: '+uncompletedWatchProjectIds[i]+' `has_uncompleted_time_records`: true')
+
+						// Get this Project's Time Records
+						var time_records = service._timeRecords(project.id);
+
+						// Loop through this Project's Time Records...
+						var _keys = Object.keys(time_records);
+						for (var i = _keys.length - 1; i >= 0; i--) {
+
+							// If we find one that is incomplete...
+							if (time_records[_keys[i]].end == null && time_records[_keys[i]]._start instanceof Date) {
+
+								// Update this Time Record's uncompleted seconds
+								var uncompletedSeconds = nowSeconds - (time_records[_keys[i]]._start.getTime() / 1000);
+								time_records[_keys[i]]._uncompleted = uncompletedSeconds;
+
+								// Add this Time Record's uncompleted seconds to our Project's
+								project._uncompleted += uncompletedSeconds;
+							}
+						}
+
+						// Refresh timeRecords
+						service.timeRecords(project.id);
+					} else {
+						service.project(project.id);
+					}
+				}
+			}
+		};
+
+
+		/*
+		*	Service Object
+		*/
+
 		var service =  {
-			_projects: function() {
+			uncompletedSecondsWatchAddProjectId: function(projectId) {
+			if (uncompletedWatchProjectIds.indexOf(projectId) === -1) {
+				console.log('[app.dataFactory] service.uncompletedSecondsWatchAddProjectId(): Adding Project with `id`: '+projectId);
+				uncompletedWatchProjectIds.push(projectId);
+			}
+			return projectId;
+		}, uncompletedSecondsWatchRemoveProjectId: function(projectId) {
+			var _index = uncompletedWatchProjectIds.indexOf(projectId);
+			if (_index !== -1) {
+				console.log('[app.dataFactory] service.uncompletedSecondsWatchRemoveProjectId(): Removing Project with `id`: '+projectId);
+				return uncompletedWatchProjectIds.splice(_index, 1);
+			}
+			return null;
+		}, _projects: function() {
 				return cache.projects;
 			}, projects: function() {
 				console.log('[app.dataFactory] service.projects(): call');
@@ -486,8 +565,14 @@
 
 					// Refresh timeRecords
 					service.timeRecords(projectId);
+
+					// Reschedule this check
+					// return $timeout(function() {
+					// 	console.log('[app.dataFactory] projectUncompletedUpdate(): Reschedule for `projectId`: '+projectId);
+					// 	service.projectUncompletedUpdate(projectId);
+					// }, 333);
 				}
-				
+				return null;
 			}, _timeRecords: function(projectId) {
 				if (!angular.isDefined(cache.timeRecords[projectId])) {
 					cache.timeRecords[projectId] = {};

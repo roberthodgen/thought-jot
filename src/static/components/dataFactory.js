@@ -468,26 +468,26 @@
 				// The number of seconds since the UNIX Epoch
 				var nowSeconds = (Date.now() / 1000);
 
-				service.project(projectId).then(function(project) {
+				var project = service._project(projectId);
 
-					if (project.has_uncompleted_time_records) {
-						service.timeRecords(projectId).then(function(timeRecords) {
+				if (project.has_uncompleted_time_records) {
 
-							// Loop through all our uncompleted Time Records, calculate their uncompleted seconds and pass this along...
-							project._uncompleted = angular.copy(project.completed);
+					var time_records = service._timeRecords(projectId);
 
-							var _keys = Object.keys(timeRecords);
-							for (var i = _keys.length - 1; i >= 0; i--) {
-								if (timeRecords[_keys[i]].end == null && timeRecords[_keys[i]]._start instanceof Date) {
+					var _keys = Object.keys(time_records);
+					for (var i = _keys.length - 1; i >= 0; i--) {
+						if (time_records[_keys[i]].end == null && time_records[_keys[i]]._start instanceof Date) {
 
-									var uncompletedSeconds = nowSeconds - (timeRecords[_keys[i]]._start.getTime() / 1000);
-									timeRecords[_keys[i]]._uncompleted = uncompletedSeconds;
-									project._uncompleted += uncompletedSeconds;
-								}
-							}
-						});
-					}
-				});
+							var uncompletedSeconds = nowSeconds - (time_records[_keys[i]]._start.getTime() / 1000);
+							time_records[_keys[i]]._uncompleted = uncompletedSeconds;
+							project._uncompleted += uncompletedSeconds;
+						}
+					};
+
+					// Refresh timeRecords
+					service.timeRecords(projectId);
+				}
+				
 			}, _timeRecords: function(projectId) {
 				if (!angular.isDefined(cache.timeRecords[projectId])) {
 					cache.timeRecords[projectId] = {};

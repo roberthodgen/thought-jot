@@ -334,6 +334,16 @@ class Label(ndb.Model):
       color=color.lower()
     )
     return new_label.put()
+      
+  @ndb.transactional(xg=True)
+  def delete_label(self):
+    """ Delete this Label and remove it from any Milestone's `labels`. """
+    milestones = Milestone.query(ancestor=self.key.parent())
+    for milestone in milestones:
+      if self.key in milestone.labels:
+        milestone.labels.remove(self.key)
+        milestone.put()
+    return self.key.delete()
 
   def json_object(self):
     """ Return a dictionary representing this Label. Will be used for sending

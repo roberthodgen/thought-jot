@@ -21,6 +21,8 @@ import model
 
 import re
 
+import utilities
+
 
 class ProjectList(webapp2.RequestHandler):
   def get(self):
@@ -728,6 +730,100 @@ class LabelsCreate(webapp2.RequestHandler):
     self.response.out.write(json.dumps(response_object))
 
 
+class Labels(webapp2.RequestHandler):
+  def post(self, project_id):
+    """ creates a Label associated with this Project. """
+    response_object = {}
+    user = users.get_current_user()
+    if not user:
+      self.abort(401)
+    # Try getting the associated Project
+    project_key = utilities.key_for_urlsafe_id(project_id)
+    project = project_key.get()
+    if not project:
+      self.abort(404)
+    # Get JSON request body
+    if self.request.body:
+      request_object = json.loads(self.request.body)
+      name = request_object.get('name')
+      color = request_object.get('color')
+      if name and color:
+        color_pattern = r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
+        if re.match(color_pattern, color):
+          if ((user.email not in project.contributors)
+            and (user.email != project.owner)):
+            self.abort(401)
+          new_label = model.Label.create_label(name, color, project.key)
+          new_label = new_label.get()
+          response_object = new_label.json_object()
+        else:
+          self.response.set_status(400)
+          response_object['error'] = {
+            'post_body_json': {
+              'color': 'Invalid value.'
+            }
+          }
+      else:
+        self.response.set_status(400)
+        response_object['missing'] = {
+          'post_body_json': {
+            'name': not bool(name),
+            'color': not bool(color)
+        }}
+    else:
+      self.response.set_status(400)
+      response_object['missing'] =  {
+        'post_body_json': True
+      }
+    # Send response
+    self.response.content_type = 'application/json'
+    self.response.out.write(json.dumps(response_object))
+
+  def get(self, project_id):
+    """ List the Labels associated with this Project. """
+    response_array = []
+    user = users.get_current_user()
+    if not user:
+      self.abort(401)
+    # Try getting the associated Project
+    project_key = utilities.key_for_urlsafe_id(project_id)
+    project = project_key.get()
+    if not project:
+      self.abort(404)
+    if user.email not in project.users:
+        self.abort(401)
+    # Query for Projects this User owns, contributes to, or may observe
+    labels = model.Label.query(ancestor=project.key)
+    for label in labels:
+      response_array.append(label.json_object())
+    # Send response
+    self.response.content_type = 'application/json'
+    self.response.out.write(json.dumps(response_array))
+
+  def delete(self, project_id, label_id):
+    """ Deletes a Label associated with this Project. """
+    response_object = {}
+    user = users.get_current_user()
+    if not user:
+      self.abort(401)
+    # Try getting the associated Label...
+    label_key = utilities.key_for_urlsafe_id(label_id)
+    label = label_key.get()
+    if not label:
+      self.abort(404)
+    project_key = label_key.parent()
+    project = project_key.get()
+    if not project:
+      self.abort(404)
+    if ((user.email not in project.contributors)
+      and (user.email != project.owner)):
+      self.abort(401)
+    label.delete_label()
+    # Send response
+    self.response.content_type = 'application/json'
+    self.response.out.write(json.dumps(response_object))
+
+
 app = webapp2.WSGIApplication([
   webapp2.Route(
     '/api/projects/list.json',
@@ -777,6 +873,16 @@ app = webapp2.WSGIApplication([
   ), webapp2.Route(
     '/api/projects/labels/create.json',
     handler=LabelsCreate
+
+    ## Alternate API points
+  ), webapp2.Route(
+    '/api/projects/<project_id:([a-zA-Z0-9-_]+)>/labels',
+    handler=Labels,
+    methods=['GET', 'POST']
+  ), webapp2.Route(
+    '/api/projects/<project_id:([a-zA-Z0-9-_]+)>/labels/<label_id:([a-zA-Z0-9-_]+)>',
+    handler=Labels,
+    methods=['DELETE']
   )
 ])
 

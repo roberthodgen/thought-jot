@@ -104,7 +104,6 @@
 			// Loop through the cacheKeys and keep separate objects in `_keyed`
 			var _keyed = [];
 			for (var i_keyed = cacheKeys.length - 1; i_keyed >= 0; i_keyed--) {
-				cacheKeys[i_keyed]
 
 				// Get an Object we'll later pass to `mergeResponseData()`
 				_keyed[i_keyed] = {};
@@ -197,7 +196,6 @@
 			// Loop through the cacheKeys and keep separate objects in `_keyed`
 			var _keyed = [];
 			for (var i_keyed = cacheKeys.length - 1; i_keyed >= 0; i_keyed--) {
-				cacheKeys[i_keyed]
 
 				// Get an Object we'll later pass to `mergeResponseData()`
 				_keyed[i_keyed] = {};
@@ -1005,6 +1003,40 @@
 				var _labels = $q.defer();
 				_labels.resolve(_cache);
 				return _labels.promise;
+			}, deleteLabel: function(projectId, labelId) {
+				console.log('[app.dataFactory] service.deleteLabel(): Called, `projectId`: '+projectId+', `labelId`: '+labelId);
+				return $http({
+					method: 'DELETE',
+					url: '/api/projects/'+projectId+'/labels/'+labelId,
+					params: {
+						t: new Date().getTime()
+					}
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					if (angular.isObject(response.data) && response.status == 200) {
+
+						// Loop through the Label cache and delete any that reference this value
+						var _keys = Object.keys(cache.labels)
+						for (var i = _keys.length - 1; i >= 0; i--) {
+							if (angular.isObject(cache.labels[_keys[i]])) {
+								delete cache.labels[_keys[i]][labelId];	// Delete this Label's ID, if it exists
+							}
+						}
+
+						return true;
+					}
+					console.log('[app.dataFactory] service.deleteLabel(): Error reading response.');
+					return {
+						error: true
+					};
+				}, function(response) {
+					// Error
+					console.log('[app.dataFactory] service.deleteLabel(): Request error: '+response.status);
+					return {
+						error: true,
+						status: response.status
+					};
+				});
 			}, fetchLabelsForMilestone: function(milestoneId) {
 				// Temp function, just return a promise-wrapped version of `service._labels`
 				// Update once API is written to fetch Labels for a particular Milestone

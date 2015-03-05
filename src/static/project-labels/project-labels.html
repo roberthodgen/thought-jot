@@ -43,7 +43,13 @@
 	</form>
 
 	<ul class="list-group">
-		<li class="list-group-item" ng-repeat="label in labels | filterDisplayObjects" label="label"></li>
+		<li class="list-group-item" ng-repeat="label in labels | filterDisplayObjects">
+			<span label="label"></span>
+			<ul class="list-inline pull-right">
+				<li><a href="#" class="text-muted"><span class="glyphicon glyphicon-pencil"></span> Edit</a></li>
+				<li><a href="#" class="text-muted" ng-click="deleteLabel(label);"><span class="glyphicon glyphicon-remove"></span> Delete</a></li>
+			</ul>
+		</li>
 	</ul>
 
 </div> <!-- /.container -->

@@ -86,6 +86,17 @@
 			});
 		};
 
+		$scope.deleteLabel = function(label) {
+			console.log('[app.projectLabelsCtrl] $scope.deleteLabel(): Called.');
+			if (confirm('Delete label: '+label.name)) {
+				dataFactory.deleteLabel($scope.projectId, label.id).then(function(response) {
+					if (response.error) {
+						alert('Error deleting label: '+response.status);
+					}
+				});
+			}
+		};
+
 
 		// Init
 		$scope.init();

@@ -141,16 +141,20 @@
 		*	Merges Milestones into the Cache
 		*	@param {Array} newOrUpdatedMilestones	- The new or updated Milestone objects
 		*	@param {String} cacheKey 				- The Key in which new or updated Milestone objects will be added in the global `cache.milestones` object
+		*	@param {String|Boolean} fetchSourceKey	- The Key from which the information is complete (the Fetch source)
 		*/
-		var cacheMilestones = function(newOrUpdatedMilestones, cacheKey) {
+		var cacheMilestones = function(newOrUpdatedMilestones, cacheKey, fetchSourceKey) {
 
 			// Get the current time these Milestones are being processed...
 			var _date = new Date();
 
 			// Get an Object we'll later pass to `mergeResponseData()`
-			var _keyed = {
-				'_loaded': _date
-			};
+			var _keyed = {};
+
+			// Set the `_loaded` property ONLY IF `fetchSourceKey` matches `cacheKey`
+			if (cacheKey == fetchSourceKey) {
+				_keyed._loaded = _date;
+			}
 
 			// Loop through all `newOrUpdatedMilestones` and perform any necessary tasks...
 			for (var i = newOrUpdatedMilestones.length - 1; i >= 0; i--) {
@@ -869,7 +873,7 @@
 							cacheProjects([response.data.project], projectId);
 
 							// Cache these Milestones
-							cacheMilestones(response.data.milestones, projectId)
+							cacheMilestones(response.data.milestones, projectId, projectId)
 
 							return _cache;
 						}
@@ -890,18 +894,14 @@
 				return _cache._fetch_in_progress;
 			}, createMilestone: function(milestone, projectId) {
 
-				var data = {
-					'project_id': projectId,
-					'name': milestone.name,
-					'description': milestone.description
-				};
+				milestone['project_id'] = projectId;
 
 				return $http({
 					method: 'POST',
 					url: '/api/projects/milestones/create.json',
 					params: {
 						't': new Date().getTime()
-					}, data: data
+					}, data: milestone
 				}).then(function(response) {
 					// HTTP 200-299 Status
 					if (angular.isObject(response.data)) {
@@ -913,7 +913,7 @@
 							cacheProjects([response.data.project]);
 
 							// Cache this Milestone
-							cacheMilestones([response.data.milestone], projectId);
+							cacheMilestones([response.data.milestone], projectId, false);
 
 							return response.data.milestone;
 						}

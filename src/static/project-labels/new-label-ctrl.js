@@ -39,6 +39,9 @@
 			$scope.user = {};
 			$scope.userLoaded = false;
 
+			$scope.labels = {};
+			$scope.labelsLoaded = false;
+
 			$scope.label = {
 				'name': '',
 				'color': $scope.colors[Math.floor(Math.random() * ($scope.colors.length - 0))]
@@ -73,6 +76,7 @@
 							// Error
 						}
 					});
+
 				} else {
 					alert('Error loading User.');
 				}

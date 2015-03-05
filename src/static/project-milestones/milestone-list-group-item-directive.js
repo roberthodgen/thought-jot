@@ -31,17 +31,17 @@
 						}
 					});
 
-					$scope.labels = {};
-					$scope.labelsLoaded = false;
-					$scope.labelsError = false;
+					$scope.milestoneLabels = {};
+					$scope.milestoneLabelsLoaded = false;
+					$scope.milestoneLabelsError = false;
 					dataFactory.labelsForMilestone($scope.milestone.id).then(function(response) {
-						$scope.labelsLoaded = true;
+						$scope.milestoneLabelsLoaded = true;
 						if (!response.error) {
 							// Success
-							$scope.labels = response;
+							$scope.milestoneLabels = response;
 						} else {
 							// Error
-							$scope.labelsError = true;
+							$scope.milestoneLabelsError = true;
 						}
 					});
 				};
@@ -53,8 +53,6 @@
 						}
 					});
 				};
-
-
 
 				$scope.update = function() {
 					dataFactory.updateMilestone($scope.milestone).then(function(response) {

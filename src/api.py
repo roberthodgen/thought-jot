@@ -611,6 +611,11 @@ class MilestonesUpdate(webapp2.RequestHandler):
             description = request_object.get('description')
             if description:
               milestone.description = description
+            labels = request_object.get('labels')
+            if isinstance(labels, list):
+              for label_key_id in labels:
+                label_key = ndb.Key(urlsafe=label_key_id)
+                new_milestone.labels.append(label_key)
             milestone.put()
             project.put()
           response_object['milestone'] = milestone.json_object()

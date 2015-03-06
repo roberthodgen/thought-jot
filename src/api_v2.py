@@ -588,7 +588,6 @@ class Milestones(webapp2.RequestHandler):
       self.abort(404)
     if user.email not in project.users:
       self.abort(401)
-    # TODO: Delete
     # Get all Comments associated with this Milestone
     comments = model.Comment.query(ancestor=milestone_key)
     for comment in comments:
@@ -599,170 +598,8 @@ class Milestones(webapp2.RequestHandler):
     self.response.out.write(json.dumps(response_object))
 
 
-class LabelsMilestones(webapp2.RequestHandler):
-  def get(self):
-    pass
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class LabelsList(webapp2.RequestHandler):
-  def get(self):
-    """ List the Labels associated with this Project. """
-    response_object= {}
-    user = users.get_current_user()
-    if not user:
-      self.abort(401)
-    project_key_id = self.request.GET.get('project_id')
-    if project_key_id:
-      project_key = ndb.Key(urlsafe=project_key_id)
-      project = project_key.get()
-      if project:
-        if user.email not in project.users:
-            self.abort(401)
-        response_object['project'] = project.json_object()
-        # Query for Projects this User owns, contributes to, or may observe
-        labels = model.Label.query(ancestor=project_key)
-        response_object['labels'] = []
-        for label in labels:
-          response_object['labels'].append(label.json_object())
-      else:
-        self.response.set_status(404)
-        response_object['not_found'] = {
-          'project': not bool(project)
-        }
-    else:
-      self.response.set_status(400)
-      response_object['missing'] = {
-        'get': {
-          'project_id': not bool(project_key_id)
-        }
-      }
-    # Send response
-    self.response.content_type = 'application/json'
-    self.response.out.write(json.dumps(response_object))
-
-
-class LabelsCreate(webapp2.RequestHandler):
-  def post(self):
-    """ Creates a Label associated with this Project. """
-    response_object = {}
-    user = users.get_current_user()
-    if not user:
-      self.abort(401)
-     # Get JSON request body
-    if self.request.body:
-      request_object = json.loads(self.request.body)
-      project_key_id = request_object.get('project_id')
-      name = request_object.get('name')
-      color = request_object.get('color')
-      if project_key_id and name and color:
-        color_pattern = r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
-        if re.match(color_pattern, color):
-          project_key = ndb.Key(urlsafe=project_key_id)
-          project = project_key.get()
-          if project:
-            if ((user.email not in project.contributors)
-              and (user.email != project.owner)):
-              self.abort(401)
-            new_label = model.Label.create_label(name, color, project_key)
-            new_label = new_label.get()
-            response_object['label'] = new_label.json_object()
-            response_object['project'] = project_key.get().json_object()
-          else:
-            self.response.set_status(404)
-            response_object['not_found'] = {
-              'project': not bool(project)
-            }
-        else:
-          self.response.set_status(400)
-          response_object['error'] = {
-            'post_body_json': {
-              'color': 'Invalid value.'
-            }
-          }
-      else:
-        self.response.set_status(400)
-        response_object['missing'] = {
-          'post_body_json': {
-            'project_id': not bool(project_key_id),
-            'name': not bool(name),
-            'color': not bool(color)
-        }}
-    else:
-      self.response.set_status(400)
-      response_object['missing'] =  {
-        'post_body_json': True
-      }
-    # Send response
-    self.response.content_type = 'application/json'
-    self.response.out.write(json.dumps(response_object))
-
-
 class Labels(webapp2.RequestHandler):
-  def post(self, project_id):
-    """ creates a Label associated with this Project. """
-    response_object = {}
-    user = users.get_current_user()
-    if not user:
-      self.abort(401)
-    # Try getting the associated Project
-    project_key = utilities.key_for_urlsafe_id(project_id)
-    project = project_key.get()
-    if not project:
-      self.abort(404)
-    # Get JSON request body
-    if self.request.body:
-      request_object = json.loads(self.request.body)
-      name = request_object.get('name')
-      color = request_object.get('color')
-      if name and color:
-        color_pattern = r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
-        if re.match(color_pattern, color):
-          if ((user.email not in project.contributors)
-            and (user.email != project.owner)):
-            self.abort(401)
-          new_label = model.Label.create_label(name, color, project.key)
-          new_label = new_label.get()
-          response_object = new_label.json_object()
-        else:
-          self.response.set_status(400)
-          response_object['error'] = {
-            'post_body_json': {
-              'color': 'Invalid value.'
-            }
-          }
-      else:
-        self.response.set_status(400)
-        response_object['missing'] = {
-          'post_body_json': {
-            'name': not bool(name),
-            'color': not bool(color)
-        }}
-    else:
-      self.response.set_status(400)
-      response_object['missing'] =  {
-        'post_body_json': True
-      }
-    # Send response
-    self.response.content_type = 'application/json'
-    self.response.out.write(json.dumps(response_object))
-
-  def get(self, project_id):
+  def get(self, project_id, milestone_id=None):
     """ List the Labels associated with this Project. """
     response_array = []
     user = users.get_current_user()
@@ -775,33 +612,111 @@ class Labels(webapp2.RequestHandler):
       self.abort(404)
     if user.email not in project.users:
         self.abort(401)
-    # Query for Projects this User owns, contributes to, or may observe
-    labels = model.Label.query(ancestor=project.key)
-    for label in labels:
-      response_array.append(label.json_object())
+    if milestone_id:
+      # Return all Labels assigned to this Milestone
+      milestone_key = utilities.key_for_urlsafe_id(milestone_id)
+      if not milestone_key:
+        self.abort(400)
+      milestone = milestone_key.get()
+      if not milestone or not isinstance(milestone, model.Milestone):
+        self.abort(404)
+      label_keys = milestone.labels
+      for label_key in label_keys:
+        label = label_key.get()
+        if label:
+          response_array.append(label.json_object())
+    else:
+      # Query for Projects this User owns, contributes to, or may observe
+      labels = model.Label.query(ancestor=project.key)
+      for label in labels:
+        response_array.append(label.json_object())
     # Send response
     self.response.content_type = 'application/json'
     self.response.out.write(json.dumps(response_array))
 
-  def delete(self, project_id, label_id):
+  def post(self, project_id, milestone_id=None):
+    """ creates a Label associated with this Project. """
+    response_object = {}
+    user = users.get_current_user()
+    if not user:
+      self.abort(401)
+    # Try getting the associated Project
+    project_key = utilities.key_for_urlsafe_id(project_id)
+    project = project_key.get()
+    if not project or not self.request.body:
+      self.abort(400)
+    request_object = json.loads(self.request.body)
+    label_id = request_object.get('label_id')
+    if milestone_id and label_id:
+      # Add an existing Label to a Milestone
+      milestone_key = utilities.key_for_urlsafe_id(milestone_id)
+      label_key = utilities.key_for_urlsafe_id(label_id)
+      if not milestone_key or not label_key:
+        self.abort(400)
+      milestone = milestone_key.get()
+      label = label_key.get()
+      if not milestone or not label:
+        self.abort(404)
+      milestone.labels.append(label.key)
+      milestone.put()
+      response_object = label.json_object()
+    else:
+      # Create a new Label
+      
+      name = request_object.get('name')
+      color = request_object.get('color')
+      if not name or not color:
+        self.abort(400)
+      color_pattern = r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
+      if not re.match(color_pattern, color):
+        self.abort(400)
+      if ((user.email not in project.contributors)
+        and (user.email != project.owner)):
+        self.abort(401)
+      new_label = model.Label.create_label(name, color, project.key)
+      new_label = new_label.get()
+      response_object = new_label.json_object()
+    # Send response
+    self.response.content_type = 'application/json'
+    self.response.out.write(json.dumps(response_object))
+
+  def delete(self, project_id, label_id, milestone_id=None,):
     """ Deletes a Label associated with this Project. """
     response_object = {}
     user = users.get_current_user()
     if not user:
       self.abort(401)
     # Try getting the associated Label...
+    if not project_id or not label_id:
+      self.abort(400)
+    project_key = utilities.key_for_urlsafe_id(project_id)
     label_key = utilities.key_for_urlsafe_id(label_id)
-    label = label_key.get()
-    if not label:
-      self.abort(404)
-    project_key = label_key.parent()
+    if not project_key or not label_key:
+      self.abort(400)
     project = project_key.get()
-    if not project:
+    label = label_key.get()
+    if (not (project and isinstance(project, model.Project))
+      or not (label and isinstance(label, model.Project))
+      or (project.key != label.key.parent())):
       self.abort(404)
     if ((user.email not in project.contributors)
       and (user.email != project.owner)):
       self.abort(401)
-    label.delete_label()
+    if milestone_id:
+      # Delete a label only from a Milestone's `labels` array
+      milestone_key = utilities.key_for_urlsafe_id(milestone_id)
+      if not milestone_key:
+        self.abort(400)
+      milestone = milestone_key.get()
+      if (not (milestone and isinstance(milestone, model.Milestone))
+        or (project.key != label.key.parent())):
+        self.abort(404)
+      if label_key in milestone.labels:
+        milestone.labels.remove(label_key)
+        milestone.put()
+    else:
+      # Delete an entire label
+      label.delete_label()
     # Send response
     self.response.content_type = 'application/json'
     self.response.out.write(json.dumps(response_object))
@@ -848,14 +763,22 @@ app = webapp2.WSGIApplication([
     '/api/v2/projects/<project_id:([a-zA-Z0-9-_]+)>/milestones/<milestone_id:([a-zA-Z0-9-_]+)>',
     handler=Milestones,
     methods=['GET', 'PUT', 'DELETE']
-  ), webapp2.Route( ###
-    '/api/v2/projects/<project_id:([a-zA-Z0-9-_]+)>/milestones/<milestone_id:([a-zA-Z0-9-_]+)>/labels',
-    handler=LabelsMilestones,
-    methods=['GET', 'POST', 'PUT', 'DELETE']
+  ), webapp2.Route(
+    '/api/v2/projects/<project_id:([a-zA-Z0-9-_]+)>/labels',
+    handler=Labels,
+    methods=['GET', 'POST']
   ), webapp2.Route(
     '/api/v2/projects/<project_id:([a-zA-Z0-9-_]+)>/labels/<label_id:([a-zA-Z0-9-_]+)>',
     handler=Labels,
-    methods=['GET', 'POST', 'PUT', 'DELETE']
+    methods=['PUT', 'DELETE']
+  ), webapp2.Route(
+    '/api/v2/projects/<project_id:([a-zA-Z0-9-_]+)>/milestones/<milestone_id:([a-zA-Z0-9-_]+)>/labels',
+    handler=Labels,
+    methods=['GET', 'POST']
+  ), webapp2.Route(
+    '/api/v2/projects/<project_id:([a-zA-Z0-9-_]+)>/milestones/<milestone_id:([a-zA-Z0-9-_]+)>/labels/<label_id:([a-zA-Z0-9-_]+)>',
+    handler=Labels,
+    methods=['DELETE']
   )
 ])
 

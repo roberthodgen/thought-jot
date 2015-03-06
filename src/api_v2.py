@@ -323,7 +323,6 @@ class Comments(webapp2.RequestHandler):
     self.response.content_type = 'application/json'
     self.response.out.write(json.dumps(response_object))
 
-
   def post(self, project_id, parent_id=None):
     """ Create a new Comment in the specified Project, bound to another parent
     object. """
@@ -684,7 +683,7 @@ class Labels(webapp2.RequestHandler):
     label = label_key.get()
     if (not (project and isinstance(project, model.Project))
       or not (label and isinstance(label, model.Project))
-      or (project.key != label.key.parent())):
+      or (project.key not in label.key.parent())):
       self.abort(404)
     if ((user.email not in project.contributors)
       and not project.is_owner(user.email)):
@@ -696,7 +695,7 @@ class Labels(webapp2.RequestHandler):
         self.abort(400)
       milestone = milestone_key.get()
       if (not (milestone and isinstance(milestone, model.Milestone))
-        or (project.key != label.key.parent())):
+        or (project.key not in label.key.parent())):
         self.abort(404)
       if label_key in milestone.labels:
         milestone.labels.remove(label_key)

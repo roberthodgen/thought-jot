@@ -110,7 +110,7 @@ class Project(ndb.Model):
     return self.put()
 
   def is_owner(self, email):
-    """ """
+    """ Returns whether `email` is the Project's owner. """
     return email == self.owner
 
   def has_contributor(self, contributor):
@@ -309,7 +309,8 @@ class Milestone(ndb.Model):
     response_object['labels'] = []
     for label_key in self.labels:
       label = label_key.get()
-      response_object['labels'].append(label.json_object())
+      if label:
+        response_object['labels'].append(label.json_object())
     return response_object;
 
 

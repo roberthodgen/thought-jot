@@ -930,6 +930,43 @@
 						'status': response.status
 					};
 				});
+			}, milestoneLabelRemove: function(labelId, milestoneId, projectId) {
+				console.log('[app.dataFactory] service.milestoneLabelRemove(): Called: `labelId`: '+labelId+', `milestoneId`: '+milestoneId+', `projectId`: '+projectId);
+
+				return $http({
+					method: 'DELETE',
+					url: '/api/v2/projects/'+projectId+'/milestones/'+milestoneId+'/labels/'+labelId
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					if (angular.isObject(response.data) && response.status == 200) {
+
+						// Remove the key
+						var _cache = service._labels();
+						var _cache_keys = Object.keys(_cache);
+						for (var i = _cache_keys.length - 1; i >= 0; i--) {
+							
+							var _keys = Object.keys(_cache_keys[i]);
+							for (var i = _keys.length - 1; i >= 0; i--) {
+								if (_keys[i].id == labelId) {
+									delete _cache[_cache_keys[i]][_keys[i]];
+								}
+							}
+						}
+
+						return response.data;
+					}
+					console.log('[app.dataFactory] service.milestoneLabelRemove(): Error reading response.');
+					return {
+						error: true,
+					};
+				}, function(response) {
+					// Error
+					console.log('[app.dataFactory] service.fetchLabelsForProject(): Request error: '+response.status);
+					return {
+						'error': true,
+						'status': response.status
+					};
+				});
 			}, _labels: function(projectId) {
 				if (!angular.isDefined(cache.labels[projectId])) {
 					cache.labels[projectId] = {};

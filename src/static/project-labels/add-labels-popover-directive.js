@@ -17,6 +17,8 @@
 				$scope.init = function() {
 					console.log('[app.addLabelsPopover] $scope.init(): Called.');
 
+					$scope.projectId = $routeParams.projectId;
+
 					$scope.milestoneLabels = {};
 					$scope.milestoneLabelsLoaded = false;
 					$scope.milestoneLabelsError = false;
@@ -52,9 +54,15 @@
 
 				$scope.toggleLabel = function(label) {
 					if ($scope.milestoneLabels.hasOwnProperty(label.id)) {
-						delete $scope.milestoneLabels[label.id];
+						dataFactory.milestoneLabelRemove(label.id, $scope.milestone.id, $scope.projectId).then(function(response) {
+							if (response.error) {
+								alert('Error removing label.');
+							}
+						});
+						// delete $scope.milestoneLabels[label.id];
 					} else {
-						$scope.milestoneLabels[label.id] = label;
+						
+						// $scope.milestoneLabels[label.id] = label;
 					}
 				};
 

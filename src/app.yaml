@@ -17,6 +17,11 @@ handlers:
   script: ndb_users.mail.app
   login: admin
 
+# API v2 requests
+- url: /api/v2/.*
+  script: api_v2.app
+  secure: always
+
 # API requests
 - url: /api/.*
   script: api.app

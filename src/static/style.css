@@ -569,6 +569,16 @@ textarea.form-control.with-btn-preview {
 	display: none;
 }
 
+
+/*
+*	Edit Labels
+*/
+
+.label-edit .form-group:last-child {
+	margin-bottom: 0px;
+}
+
+
 /*
 *	.add-labels-popover
 */

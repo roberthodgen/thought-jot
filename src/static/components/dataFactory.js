@@ -182,15 +182,15 @@
 
 		cache.labels = {
 			/*
-			*	Stores all LAbels keyed to the Project Id.
+			*	Stores all Labels keyed to a Project ID or Milestone ID.
 			*/
 		};
 
 		/*
 		*	Merges Labels into the Cache
-		*	@param {Array} newOrUpdatedLabels	- The new or updated Label objects
-		*	@param {Array} cacheKeys			- The Key in which new or updated Label objects will be added in the global `cache.labels` object
-		*	@param {String} fetchSourceKey		- The Key from which the information is complete (the Fetch source)
+		*	@param {Array} newOrUpdatedLabels		- The new or updated Label objects
+		*	@param {Array} cacheKeys				- The Key in which new or updated Label objects will be added in the global `cache.labels` object
+		*	@param {String|Boolean} fetchSourceKey	- The Key from which the information is complete (the Fetch source)
 		*/
 		var cacheLabels = function(newOrUpdatedLabels, cacheKeys, fetchSourceKey) {
 
@@ -224,6 +224,9 @@
 				// Merge our Labels into the cache
 				// console.log('[app.dataFactory] cacheLabels(): calling `mergeResponseData()` with destination key: '+cacheKeys[i]);
 				mergeResponseData(service._labels(cacheKeys[i_keyed]), _keyed[i_keyed]);	// Use `service._labels()` so we get the actual Array
+				// Replace all instances where `newOrUpdatedLabels` (as `_keyed[i_keyed]` now) appear in `cache.labels`;
+				// this searches beyond the scope of `cacheKeys`
+				searchandReplaceResponseData(cache.labels, _keyed[i_keyed]);
 			}
 		};
 
@@ -267,6 +270,42 @@
 				if (_response_keys.indexOf(_destination_keys[i]) === -1 && !internalKey(_destination_keys[i])) {
 					console.log('deleting key: '+_destination_keys[i]);
 					delete destination[_destination_keys[i]];
+				}
+			}
+		};
+
+		/*
+		*	Searches `destination` for all objects found in `response`;
+		*	replaces any such vales by referencing those in `response`.
+		*	@param {Object} destination
+		*	@param {Object} response
+		*/
+		var searchandReplaceResponseData = function(destination, response) {
+			// Cycle through a root (like Labels) and replace any references if the object.id matches
+
+			// Ensure the `destination` is an Object...
+			if (angular.isObject(destination)) {
+
+				// Get all keys found in our `destination`; this *should* be Project IDs, Milestone IDs, and Time Records
+				var _destination_keys = Object.keys(destination);
+				for (var i_dest = _destination_keys.length - 1; i_dest >= 0; i_dest--) {
+
+					// Now get all child IDs (think Label IDs or Comment IDs) from this Project, Milestone, or Time Record
+					var _destination_label_keys = Object.keys(destination[_destination_keys[i_dest]]);
+					for (var i_dest_label = _destination_label_keys.length - 1; i_dest_label >= 0; i_dest_label--) {
+
+						// Now loop through the destination's keys...
+						var _response_keys = Object.keys(response);
+						for (var i_resp = _response_keys.length - 1; i_resp >= 0; i_resp--) {
+
+							// ... and see if any children match a response key (Label or Comment)
+							if (_destination_label_keys[i_dest_label] == _response_keys[i_resp]) {
+
+								// One of our `response` keys were found in the `destination`... Assign!
+								destination[_destination_keys[i_dest]][_destination_label_keys[i_dest_label]] = response[_response_keys[i_resp]]
+							}
+						}
+					}
 				}
 			}
 		};
@@ -1094,7 +1133,7 @@
 				console.log('[app.dataFactory] service.deleteLabel(): Called, `projectId`: '+projectId+', `labelId`: '+labelId);
 				return $http({
 					method: 'DELETE',
-					url: '/api/projects/'+projectId+'/labels/'+labelId,
+					url: '/api/v2/projects/'+projectId+'/labels/'+labelId,
 					params: {
 						t: new Date().getTime()
 					}
@@ -1164,6 +1203,40 @@
 					return {
 						'error': true,
 						'status': response.status
+					};
+				});
+			}, updateLabel: function(label, projectId) {
+
+				var data = {
+					name: label.name,
+					color: label.color
+				};
+
+				return $http({
+					method: 'PUT',
+					url: '/api/v2/projects/'+projectId+'/labels/'+label.id,
+					data: data
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					if (angular.isObject(response.data) && response.status == 200) {
+						console.log('[app.dataFactory] service.updateLabel(): `response.data`: is Object, `response.status`: 200');
+
+						// Cache this Label
+						cacheLabels([response.data], [projectId], false);
+
+						return response.data;
+					} else {
+						console.log('[app.dataFactory] service.updateLabel(): Error reading response.');
+						return {
+							error: true
+						};
+					}
+				}, function(response) {
+					// Error
+					console.log('[app.dataFactory] service.updateLabel(): Request error: '+response.status);
+					return {
+						error: true,
+						status: response.status
 					};
 				});
 			}

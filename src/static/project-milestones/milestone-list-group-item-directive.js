@@ -44,6 +44,12 @@
 							$scope.milestoneLabelsError = true;
 						}
 					});
+
+					$scope.commentsPluralizeWhen = {
+						'0': 'No comments',
+						'1': '1 comment',
+						'other': '{} comments'
+					};
 				};
 
 				$scope.complete = function() {

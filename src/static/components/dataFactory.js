@@ -940,16 +940,12 @@
 					// HTTP 200-299 Status
 					if (angular.isObject(response.data) && response.status == 200) {
 
-						// Remove the key
-						var _cache = service._labels();
-						var _cache_keys = Object.keys(_cache);
-						for (var i = _cache_keys.length - 1; i >= 0; i--) {
-							
-							var _keys = Object.keys(_cache_keys[i]);
-							for (var i = _keys.length - 1; i >= 0; i--) {
-								if (_keys[i].id == labelId) {
-									delete _cache[_cache_keys[i]][_keys[i]];
-								}
+						// Delete the Label from this Milestone's Labels cache (only)
+						var milestoneLabels = service._labels(milestoneId);
+						var _keys = Object.keys(milestoneLabels)
+						for (var i = _keys.length - 1; i >= 0; i--) {
+							if (milestoneLabels[_keys[i]].id == labelId) {
+								delete milestoneLabels[_keys[i]];
 							}
 						}
 

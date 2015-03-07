@@ -38,7 +38,7 @@
 			}
 
 			// Merge our Projects into the cache
-			mergeResponseData(service._projects(), _keyed);
+			mergeResponseData(service.cachedOrPlaceholderProjects(), _keyed);
 		};
 
 		cache.timeRecords = {
@@ -81,7 +81,7 @@
 			}
 
 			// Merge our Time Records into the cache
-			mergeResponseData(service._timeRecords(cacheKey), _keyed);
+			mergeResponseData(service.cachedOrPlaceholderTimeRecords(cacheKey), _keyed);
 		};
 
 		cache.comments = {
@@ -177,7 +177,7 @@
 			}
 
 			// Merge our Milestones into the cache
-			mergeResponseData(service._milestones(cacheKey), _keyed);
+			mergeResponseData(service.cachedOrPlaceholderMilestones(cacheKey), _keyed);
 		};
 
 		cache.labels = {
@@ -321,14 +321,14 @@
 				for (var i = uncompletedWatchProjectIds.length - 1; i >= 0; i--) {
 					// console.log('[app.dataFactory] uncompletedSecondsUpdate(): Inspecting Project for `has_uncompleted_time_records` where `id`: '+uncompletedWatchProjectIds[i]);
 
-					var project = service._project(uncompletedWatchProjectIds[i]);
+					var project = service.cachedOrPlaceholderProject(uncompletedWatchProjectIds[i]);
 
 					// If this Project has uncompleted Time Records...
 					if (project.has_uncompleted_time_records) {
 						// console.log('[app.dataFactory] uncompletedSecondsUpdate(): Project with `id`: '+uncompletedWatchProjectIds[i]+' `has_uncompleted_time_records`: true')
 
 						// Get this Project's Time Records
-						var time_records = service._timeRecords(project.id);
+						var time_records = service.cachedOrPlaceholderTimeRecords(project.id);
 
 						// Loop through this Project's Time Records...
 						var _keys = Object.keys(time_records);
@@ -362,24 +362,24 @@
 
 		var service =  {
 			uncompletedSecondsWatchAddProjectId: function(projectId) {
-			if (uncompletedWatchProjectIds.indexOf(projectId) === -1) {
-				console.log('[app.dataFactory] service.uncompletedSecondsWatchAddProjectId(): Adding Project with `id`: '+projectId);
-				uncompletedWatchProjectIds.push(projectId);
-			}
-			return projectId;
-		}, uncompletedSecondsWatchRemoveProjectId: function(projectId) {
-			var _index = uncompletedWatchProjectIds.indexOf(projectId);
-			if (_index !== -1) {
-				console.log('[app.dataFactory] service.uncompletedSecondsWatchRemoveProjectId(): Removing Project with `id`: '+projectId);
-				return uncompletedWatchProjectIds.splice(_index, 1);
-			}
-			return null;
-		}, _projects: function() {
+				if (uncompletedWatchProjectIds.indexOf(projectId) === -1) {
+					console.log('[app.dataFactory] service.uncompletedSecondsWatchAddProjectId(): Adding Project with `id`: '+projectId);
+					uncompletedWatchProjectIds.push(projectId);
+				}
+				return projectId;
+			}, uncompletedSecondsWatchRemoveProjectId: function(projectId) {
+				var _index = uncompletedWatchProjectIds.indexOf(projectId);
+				if (_index !== -1) {
+					console.log('[app.dataFactory] service.uncompletedSecondsWatchRemoveProjectId(): Removing Project with `id`: '+projectId);
+					return uncompletedWatchProjectIds.splice(_index, 1);
+				}
+				return null;
+			}, cachedOrPlaceholderProjects: function() {
 				return cache.projects;
 			}, projects: function() {
 				console.log('[app.dataFactory] service.projects(): call');
 
-				var _cache = service._projects();
+				var _cache = service.cachedOrPlaceholderProjects();
 
 				if ((!_cache || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, PROJECTS_LIFE)) && !_cache._fetch_in_progress && !_cache._last_fetch_error) {
 					return service.fetchProjects();
@@ -392,7 +392,7 @@
 			}, fetchProjects: function() {
 				console.log('[app.dataFactory] service.fetchProjects(): call')
 
-				var _cache = service._projects();
+				var _cache = service.cachedOrPlaceholderProjects();
 
 				_cache._force_fetch = false;
 				_cache._fetch_in_progress = $http({
@@ -470,7 +470,7 @@
 						'status': response.status
 					};
 				});
-			}, _project: function(projectId) {
+			}, cachedOrPlaceholderProject: function(projectId) {
 				if (!angular.isDefined(cache.projects[projectId])) {
 					cache.projects[projectId] = {};
 				}
@@ -478,8 +478,8 @@
 			}, project: function(projectId) {
 				console.log('[app.dataFactory] service.project(): call, projectId: '+projectId);
 
-				var _cache = service._project(projectId);
-				var _projects_cache = service._projects();
+				var _cache = service.cachedOrPlaceholderProject(projectId);
+				var _projects_cache = service.cachedOrPlaceholderProjects();
 				var _projects_fetch_promise;
 
 				if ((!_cache || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, PROJECTS_LIFE)) && !_projects_cache._fetch_in_progress && !_projects_cache._last_fetch_error) {
@@ -553,11 +553,11 @@
 				// The number of seconds since the UNIX Epoch
 				var nowSeconds = (Date.now() / 1000);
 
-				var project = service._project(projectId);
+				var project = service.cachedOrPlaceholderProject(projectId);
 
 				if (project.has_uncompleted_time_records) {
 
-					var time_records = service._timeRecords(projectId);
+					var time_records = service.cachedOrPlaceholderTimeRecords(projectId);
 
 					var _keys = Object.keys(time_records);
 					for (var i = _keys.length - 1; i >= 0; i--) {
@@ -579,7 +579,7 @@
 					// }, 333);
 				}
 				return null;
-			}, _timeRecords: function(projectId) {
+			}, cachedOrPlaceholderTimeRecords: function(projectId) {
 				if (!angular.isDefined(cache.timeRecords[projectId])) {
 					cache.timeRecords[projectId] = {};
 				}
@@ -587,7 +587,7 @@
 			}, timeRecords: function(projectId) {
 				console.log('[app.dataFactory] service.timeRecords(): call, projectId: '+projectId);
 
-				var _cache = service._timeRecords(projectId);
+				var _cache = service.cachedOrPlaceholderTimeRecords(projectId);
 
 				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, TIME_RECORDS_LIFE)) && !_cache._fetch_in_progress && !_cache._last_fetch_error) {
 					return service.fetchTimeRecords(projectId);
@@ -599,7 +599,7 @@
 				return _timeRecords.promise;
 			}, fetchTimeRecords: function(projectId) {
 				console.log('[app.dataFactory] service.fetchTimeRecords(): call, projectId: '+projectId)
-				var _cache = service._timeRecords(projectId);
+				var _cache = service.cachedOrPlaceholderTimeRecords(projectId);
 				_cache._force_fetch = false;
 				_cache._fetch_in_progress = $http({
 					method: 'GET',
@@ -840,7 +840,7 @@
 				var _comments = $q.defer();
 				_comments.resolve(service._comments(parentId));
 				return _comments.promise;
-			}, _milestones: function(projectId) {
+			}, cachedOrPlaceholderMilestones: function(projectId) {
 				if (!angular.isDefined(cache.milestones[projectId])) {
 					cache.milestones[projectId] = {};
 				}
@@ -848,7 +848,7 @@
 			}, milestones: function(projectId) {
 				console.log('[app.dataFactory] service.milestones(): call, `projectId`: '+projectId);
 
-				var _cache = service._milestones(projectId);
+				var _cache = service.cachedOrPlaceholderMilestones(projectId);
 
 				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, TIME_RECORDS_LIFE)) && !_cache._fetch_in_progress && !_cache._last_fetch_error) {
 					return service.fetchMilestones(projectId);
@@ -860,7 +860,7 @@
 				return _milestones.promise;
 			}, fetchMilestones: function(projectId) {
 				console.log('[app.dataFactory] service.fetchMilestones(): call, projectId: '+projectId)
-				var _cache = service._milestones(projectId);
+				var _cache = service.cachedOrPlaceholderMilestones(projectId);
 				_cache._force_fetch = false;
 				_cache._fetch_in_progress = $http({
 					method: 'GET',

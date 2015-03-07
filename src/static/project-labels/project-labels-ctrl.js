@@ -21,7 +21,20 @@
 				}
 			});
 
-
+			$scope.colors = [
+				'#da4453',
+				'#e9573f',
+				'#ffce54',
+				'#8cc152',
+				'#37bc9b',
+				'#3bafda',
+				'#4a89dc',
+				'#967acd',
+				'#d770ad',
+				'#e6e9ed',
+				'#aab2bd',
+				'#434a54'
+			];
 
 			$scope.user = {};
 			$scope.userLoaded = false;
@@ -73,19 +86,6 @@
 			});
 		};
 
-		$scope.create = function() {
-			console.log('[app.projectLabelsCtrl] $scope.create(): Called.');
-			$scope.labelLoaded = false;
-			dataFactory.createLabel($scope.label, $scope.projectId).then(function(response) {
-				$scope.labelLoaded = true;
-				if (!response.error) {
-					// Success
-				} else {
-					alert('Error creating Label.');
-				}
-			});
-		};
-
 		$scope.deleteLabel = function(label) {
 			console.log('[app.projectLabelsCtrl] $scope.deleteLabel(): Called.');
 			if (confirm('Delete label: '+label.name)) {
@@ -95,6 +95,40 @@
 					}
 				});
 			}
+		};
+
+		$scope.editLabel = function(label) {
+			console.log(['app.projectLabelsCtrl] $scope.editLabel(): Called.']);
+			if (!label._edit) {
+				label._edit = true;
+				label._name = angular.copy(label.name);
+				label._color = angular.copy(label.color);
+			} else {
+				delete label._edit;
+				delete label._name;
+				delete label._color;
+				delete label._custom_color;
+			}
+		};
+
+		$scope.saveLabel = function(label) {
+
+			var _label = {
+				id: angular.copy(label.id),
+				name: angular.copy(label._name),
+				color: angular.copy(label._color)
+			};
+
+			dataFactory.updateLabel(_label, $scope.projectId).then(function(response) {
+				if (!response.error) {
+					delete label._edit;
+					delete label._name;
+					delete label._color;
+					delete label._custom_color;
+				} else {
+					alert('Error saving label.');
+				}
+			});
 		};
 
 

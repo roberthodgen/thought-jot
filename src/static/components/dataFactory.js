@@ -188,9 +188,9 @@
 
 		/*
 		*	Merges Labels into the Cache
-		*	@param {Array} newOrUpdatedLabels	- The new or updated Label objects
-		*	@param {Array} cacheKeys			- The Key in which new or updated Label objects will be added in the global `cache.labels` object
-		*	@param {String} fetchSourceKey		- The Key from which the information is complete (the Fetch source)
+		*	@param {Array} newOrUpdatedLabels		- The new or updated Label objects
+		*	@param {Array} cacheKeys				- The Key in which new or updated Label objects will be added in the global `cache.labels` object
+		*	@param {String|Boolean} fetchSourceKey	- The Key from which the information is complete (the Fetch source)
 		*/
 		var cacheLabels = function(newOrUpdatedLabels, cacheKeys, fetchSourceKey) {
 
@@ -1094,7 +1094,7 @@
 				console.log('[app.dataFactory] service.deleteLabel(): Called, `projectId`: '+projectId+', `labelId`: '+labelId);
 				return $http({
 					method: 'DELETE',
-					url: '/api/projects/'+projectId+'/labels/'+labelId,
+					url: '/api/v2/projects/'+projectId+'/labels/'+labelId,
 					params: {
 						t: new Date().getTime()
 					}
@@ -1164,6 +1164,40 @@
 					return {
 						'error': true,
 						'status': response.status
+					};
+				});
+			}, updateLabel: function(label, projectId) {
+
+				var data = {
+					name: label.name,
+					color: label.color
+				};
+
+				return $http({
+					method: 'PUT',
+					url: '/api/v2/projects/'+projectId+'/labels/'+label.id,
+					data: data
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					if (angular.isObject(response.data) && response.status == 200) {
+						console.log('[app.dataFactory] service.updateLabel(): `response.data`: is Object, `response.status`: 200');
+
+						// Cache this Label
+						cacheLabels([response.data], [projectId], false);
+
+						return response.data;
+					} else {
+						console.log('[app.dataFactory] service.updateLabel(): Error reading response.');
+						return {
+							error: true
+						};
+					}
+				}, function(response) {
+					// Error
+					console.log('[app.dataFactory] service.updateLabel(): Request error: '+response.status);
+					return {
+						error: true,
+						status: response.status
 					};
 				});
 			}

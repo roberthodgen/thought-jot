@@ -642,7 +642,7 @@ class Labels(webapp2.RequestHandler):
       if (not (milestone and isinstance(milestone, model.Milestone))
         or not (label and isinstance(label, model.Label))):
         self.abort(404)
-      milestone.labels.append(label.key)
+      milestone.labels.append(label_key)
       milestone.put()
       response_object = label.json_object()
     else:

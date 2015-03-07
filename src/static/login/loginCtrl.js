@@ -6,7 +6,7 @@
 
 		// Perform setup and reset $scope variables...
 		$scope.init = function() {
-			console.log('[app.loginCtrl] $scope.init(): call');
+			console.log('[app.loginCtrl] $scope.init(): Called.');
 			appFactory.config({
 				'pageTitle': 'Log in'
 			});

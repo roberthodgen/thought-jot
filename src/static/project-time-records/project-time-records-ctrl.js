@@ -1,12 +1,12 @@
 (function() {
 
-	var app = angular.module('app.projectDetailCtrl', []);
+	var app = angular.module('app.projectTimeRecordsCtrl', []);
 
-	app.controller('app.projectDetailCtrl', ['$scope', '$location', '$routeParams', '$interval', '$filter', 'app.appFactory', 'ndb_users.userFactory', 'app.dataFactory', function($scope, $location, $routeParams, $interval, $filter, appFactory, userFactory, dataFactory) {
+	app.controller('app.projectTimeRecordsCtrl', ['$scope', '$location', '$routeParams', '$filter', 'app.appFactory', 'ndb_users.userFactory', 'app.dataFactory', function($scope, $location, $routeParams, $filter, appFactory, userFactory, dataFactory) {
 
 		// Perform setup and reset $scope variables...
 		$scope.init = function() {
-			console.log('[app.projectDetailCtrl] $scope.init(): Called.');
+			console.log('[app.projectTimeRecordsCtrl] $scope.init(): Called.');
 			appFactory.config({
 				pageTitle: 'Loading...',
 				navbar: {
@@ -15,7 +15,7 @@
 				}, sidebar: {
 					selection: $routeParams.projectId
 				}, projectsNav: {
-					selection: 'overview'
+					selection: 'time-records'
 				}
 			});
 
@@ -37,8 +37,6 @@
 			$scope.inProgressResults = [];
 
 			$scope.activeResults = [];
-
-			$scope.uncompletedSecondsInterval = null;
 
 			userFactory.user().then(function(response) {
 				$scope.userLoaded = true;
@@ -70,10 +68,7 @@
 									delete response[_keys[i]]._edit;
 								}
 
-								// Go ahead and start the click IF there's not `end` property								
-								if (response[_keys[i]].end == null && response[_keys[i]].start) {
-									$scope.startUncompletedSecondsCount();
-								}
+								
 							}
 						} else {
 							alert('Error loading Time Records.');
@@ -85,6 +80,9 @@
 						if (!response.error) {
 							// Success
 							$scope.project = response;
+
+							// Add this Project to the uncompleted seconds watcher...
+							dataFactory.uncompletedSecondsWatchAddProjectId(response.id);
 
 							appFactory.config({
 								pageTitle: response.name,
@@ -110,7 +108,7 @@
 			return _search.edit;
 		}, function(newValue, oldValue) {
 			// Loop through and delete all not equal to this `newValue`
-			console.log('[app.projectDetailCtrl] $scope.$watch(): Detected new `edit` search value: '+newValue);
+			console.log('[app.projectTimeRecordsCtrl] $scope.$watch(): Detected new `edit` search value: '+newValue);
 			var _keys = Object.keys($scope.timeRecords);
 			if (angular.isString(newValue)) {
 				// Loop through and delete all but this key
@@ -132,37 +130,9 @@
 			}
 		});
 
-		$scope.startUncompletedSecondsCount = function() {
-			/*
-
-				Uncompleted Second counts are stored as a `_uncompleted` property on the Project and each Time Record.
-
-				The `_uncompleted` property is updated as necessary by this internval and its function.
-
-			*/
-
-			if ($scope.uncompletedSecondsInterval == null) {
-
-				console.log('Uncompleted Seconds Interval: Start')
-				$scope.uncompletedSecondsInterval = $interval(function() {
-					
-					dataFactory.projectUncompletedUpdate($scope.project.id);
-				}, 333);
-			}
-		};
-
-		$scope.stopUncompletedSecondsCount = function() {
-			console.log('Uncompleted Seconds Interval: Stop');
-			$interval.cancel($scope.uncompletedSecondsInterval);
-			$scope.uncompletedSecondsInterval = null;
-		};
-
 		$scope.createTimeRecord = function() {
 			dataFactory.createTimeRecord($scope.projectId).then(function(response) {
-				if (!response.error) {
-					// $scope.timeRecords[response.id] = response;
-					$scope.startUncompletedSecondsCount();
-				} else {
+				if (response.error) {
 					alert('Error creating Time Record: '+response.message);
 				}
 			});
@@ -184,8 +154,8 @@
 
 		// Destroy
 		$scope.$on('$destroy',  function() {
-			// Stop the uncompleted seconds interval, if it's running
-			$scope.stopUncompletedSecondsCount();
+			// Remove this Project from the uncompleted seconds watcher...
+			dataFactory.uncompletedSecondsWatchRemoveProjectId($scope.project.id);
 		});
 	}]);
 

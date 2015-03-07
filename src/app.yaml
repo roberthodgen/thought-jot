@@ -1,5 +1,5 @@
 application: thought-jot
-version: 0-0-8
+version: 0-0-9
 runtime: python27
 api_version: 1
 threadsafe: true
@@ -16,6 +16,11 @@ handlers:
 - url: /_ah/bounce
   script: ndb_users.mail.app
   login: admin
+
+# API v2 requests
+- url: /api/v2/.*
+  script: api_v2.app
+  secure: always
 
 # API requests
 - url: /api/.*

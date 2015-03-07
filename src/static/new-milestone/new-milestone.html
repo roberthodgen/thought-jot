@@ -1,0 +1,58 @@
+<div class="container" projects-nav></div>
+
+<div class="container">
+
+	<form class="form-horizontal" name="createMilestoneForm" ng-submit="create()">
+
+		<div class="form-group">
+			<label class="control-label col-md-2">Milestone name</label>
+			<div class="col-md-10">
+				<input type="text" class="form-control" ng-model="milestone.name" placeholder="New milestone name..." ng-minlength="4" required>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="control-label col-md-2">Description <span class="text-muted">(optional)</span></label>
+			<div class="col-md-10">
+				<div ng-show="!milestoneDescriptionPreview">
+					<textarea class="form-control with-btn-preview" name="description" ng-model="milestone.description" style="height:200px;"></textarea>
+				</div>
+				<div class="well with-btn-preview" ng-show="milestoneDescriptionPreview">
+					<md ng-model="milestone.description"></md>
+				</div>
+				<div class="preview-link">
+					<span class="btn btn-primary btn-preview" ng-click="milestoneDescriptionPreview = !milestoneDescriptionPreview">{{ milestoneDescriptionPreview ? 'Edit' : 'Preview' }}</span>
+					<p class="help-block">Description parsed using <a href="https://help.github.com/articles/markdown-basics/" target="_blank">GitHub Flavored Markdown</a>.</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<label class="control-label col-md-2">Labels</label>
+			<div class="col-md-10">
+				<div class="list-group">
+					<a href="#" class="list-group-item" ng-repeat="label in labels | filterDisplayObjects" ng-click="toggleLabel(label);" ng-style="{ 'color': (labelSelected(label) ? (label.color | textColorGivenBackgroundColor) : 'inherit' ), 'background-color': (labelSelected(label) ? label.color : 'white') }">
+						<span ng-style="{ 'background-color': (label.color) }" style="display:inline-block; height:20px; width:20px; border-radius:4px; margin-right:10px;">
+							<span class="glyphicon glyphicon-ok" style="position:absolute; margin-top:16px; margin-left:4px;" ng-show="labelSelected(label);"></span>
+							&nbsp;
+						</span>
+						
+						<strong>{{ label.name }}</strong>
+					</a>
+				</div>
+				<p class="text-muted" ng-show="!labelsLoaded">Loading labels...</p>
+			</div>
+		</div>
+
+		<hr>
+		
+		<div class="form-group">
+			<div class="col-md-offset-2 col-md-10">
+				<button type="submit" class="btn btn-primary">Create milestone</button>
+				
+			</div>
+		</div>
+
+	</form>
+
+</div> <!-- /.container -->

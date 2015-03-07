@@ -38,16 +38,6 @@
 					});
 				};
 
-				$scope.showEditControls = function(show) {
-					if (show) {
-						$scope.timeRecord._edit = true;
-						$scope.timeRecord._name = angular.copy($scope.timeRecord.name);
-					} else {
-						$scope.timeRecord._edit = false;
-						$scope.timeRecord._name = '';
-					}
-				};
-
 				$scope.update = function() {
 					dataFactory.updateTimeRecord($scope.timeRecord).then(function(response) {
 						if (!response.error) {

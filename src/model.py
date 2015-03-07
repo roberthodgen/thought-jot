@@ -50,6 +50,8 @@ class Project(ndb.Model):
   completed = ndb.FloatProperty(default=0)
   # Whether this Project should appear in a User's Projects list (not archived)
   active = ndb.BooleanProperty(required=True, default=True)
+  # The current Milestone count (used for assigning new Milestone numbers)
+  milestone_count = ndb.IntegerProperty(default=0)
   # Record WHEN this record was truly created and last updated
   created = ndb.DateTimeProperty(auto_now_add=True)
   updated = ndb.DateTimeProperty(auto_now=True)
@@ -108,7 +110,7 @@ class Project(ndb.Model):
     return self.put()
 
   def is_owner(self, email):
-    """ """
+    """ Returns whether `email` is the Project's owner. """
     return email == self.owner
 
   def has_contributor(self, contributor):
@@ -247,6 +249,114 @@ class Comment(ndb.Model):
       'parent_id': self.key.parent().urlsafe(),
       'user': self.user
     }
+
+
+class Milestone(ndb.Model):
+  """ Represents Milestones or todo-style items. """
+  # The name
+  name = ndb.TextProperty(required=True)
+  # The long description of this Project
+  description = ndb.TextProperty(default=None)
+  # Open status
+  open = ndb.BooleanProperty(default=True)
+  # Milestone number
+  number = ndb.IntegerProperty(required=True)
+  # Add any Labels
+  labels = ndb.KeyProperty(repeated=True)
+  # Store the User's email address who (created) this Comment
+  user = ndb.StringProperty(required=True)
+  # Record WHEN this comment was truly created and last updated
+  created = ndb.DateTimeProperty(auto_now_add=True)
+  updated = ndb.DateTimeProperty(auto_now=True)
+
+  @classmethod
+  @ndb.transactional(xg=True)
+  def create_milestone(cls, name, project_key, user_email):
+    """ Create a new Milestone belonging to `project_key`. """
+    # Fetch the Project...
+    project = project_key.get();
+    project.milestone_count += 1
+    new_milestone = cls(
+      parent=project_key,
+      name=name,
+      user=user_email,
+      number = project.milestone_count
+    )
+    project = project_key.get()
+    project.put() # Update the `updated` property of our Project
+    return new_milestone.put()
+
+  def json_object(self):
+    """ Return a dictionary representing this Milestone. Will be used for
+    sending information about this Milestone via JSON requests. """
+    response_object = {
+      'id': self.key.urlsafe(),
+      'created': self.created.replace(tzinfo=UTC()).isoformat(),
+      'updated': self.updated.replace(tzinfo=UTC()).isoformat(),
+      'name': self.name,
+      'description': self.description,
+      'open': self.open,
+      'number': self.number,
+      'project_id': self.key.parent().urlsafe(),
+      'user': self.user
+    }
+    # Query all Comments that have this Milestone as their parent
+    comments = Comment.query(ancestor=self.key)
+    response_object['comments'] = []
+    for comment in comments:
+      response_object['comments'].append(comment.json_object())
+    # Query all Labels that have this Milestone assigned
+    response_object['labels'] = []
+    for label_key in self.labels:
+      label = label_key.get()
+      if label:
+        response_object['labels'].append(label.json_object())
+    return response_object;
+
+
+class Label(ndb.Model):
+  """ Represents a Label to a Milestone. """
+  # The name
+  name = ndb.TextProperty(required=True)
+  # Background color of the label, in HEX
+  color = ndb.TextProperty(indexed=False, required=True)
+  # Record WHEN this comment was truly created and last updated
+  created = ndb.DateTimeProperty(auto_now_add=True)
+  updated = ndb.DateTimeProperty(auto_now=True)
+
+  @classmethod
+  @ndb.transactional(xg=True)
+  def create_label(cls, name, color, project_key):
+    """ Create a new Label under the `project_key`. """
+    # Verify `color`
+    new_label = cls(
+      parent=project_key,
+      name=name,
+      color=color.lower()
+    )
+    return new_label.put()
+      
+  @ndb.transactional(xg=True)
+  def delete_label(self):
+    """ Delete this Label and remove it from any Milestone's `labels`. """
+    milestones = Milestone.query(ancestor=self.key.parent())
+    for milestone in milestones:
+      if self.key in milestone.labels:
+        milestone.labels.remove(self.key)
+        milestone.put()
+    return self.key.delete()
+
+  def json_object(self):
+    """ Return a dictionary representing this Label. Will be used for sending
+    information about this Label via JSON requests. """
+    return {
+      'id': self.key.urlsafe(),
+      'created': self.created.replace(tzinfo=UTC()).isoformat(),
+      'updated': self.updated.replace(tzinfo=UTC()).isoformat(),
+      'name': self.name,
+      'color': self.color
+    }
+
 
 class Account(ndb.Model):
 

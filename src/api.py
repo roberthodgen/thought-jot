@@ -19,10 +19,14 @@ from datetime import datetime, timedelta
 
 import model
 
+import re
+
+import utilities
+
 
 class ProjectList(webapp2.RequestHandler):
   def get(self):
-    """ Return Projects this User has access to... """
+    """ Return Projects this User has access to. """
     response_object = {};
     user = users.get_current_user()
     if not user:
@@ -37,6 +41,7 @@ class ProjectList(webapp2.RequestHandler):
     # Send response
     self.response.content_type = 'application/json'
     self.response.out.write(json.dumps(response_object))
+
 
 class ProjectCreate(webapp2.RequestHandler):
   def post(self):
@@ -70,6 +75,7 @@ class ProjectCreate(webapp2.RequestHandler):
     # Send response
     self.response.content_type = 'application/json'
     self.response.out.write(json.dumps(response_object))
+
 
 class ProjectUpdate(webapp2.RequestHandler):
   def post(self):
@@ -119,6 +125,7 @@ class ProjectUpdate(webapp2.RequestHandler):
     self.response.content_type = 'application/json'
     self.response.out.write(json.dumps(response_object))
 
+
 class ProjectDelete(webapp2.RequestHandler):
   def post(self):
     """ Delete this user's Project. """
@@ -157,6 +164,7 @@ class ProjectDelete(webapp2.RequestHandler):
     # Send response
     self.response.content_type = 'application/json'
     self.response.out.write(json.dumps(response_object))
+
 
 class ProjectContributorsAdd(webapp2.RequestHandler):
   def post(self):
@@ -200,6 +208,7 @@ class ProjectContributorsAdd(webapp2.RequestHandler):
     self.response.content_type = 'application/json'
     self.response.out.write(json.dumps(response_object))
 
+
 class ProjectContributorsRemove(webapp2.RequestHandler):
   def post(self):
     """ Remove Contributors from this Project. """
@@ -242,6 +251,7 @@ class ProjectContributorsRemove(webapp2.RequestHandler):
     self.response.content_type = 'application/json'
     self.response.out.write(json.dumps(response_object))
 
+
 class TimeRecordsList(webapp2.RequestHandler):
   def get(self):
     """ List the Time Records associated with a Project. """
@@ -277,6 +287,7 @@ class TimeRecordsList(webapp2.RequestHandler):
     # Send response
     self.response.content_type = 'application/json'
     self.response.out.write(json.dumps(response_object))
+
 
 class TimeRecordCreate(webapp2.RequestHandler):
   def post(self):
@@ -328,9 +339,10 @@ class TimeRecordCreate(webapp2.RequestHandler):
     self.response.content_type = 'application/json'
     self.response.out.write(json.dumps(response_object))
 
+
 class TimeRecordComplete(webapp2.RequestHandler):
   def post(self):
-    """ complete the Time Record. """
+    """ Complete the Time Record. """
     response_object = {}
     user = users.get_current_user()
     if not user:
@@ -376,6 +388,7 @@ class TimeRecordComplete(webapp2.RequestHandler):
     # Send response
     self.response.content_type = 'application/json'
     self.response.out.write(json.dumps(response_object))
+
 
 class TimeRecordUpdate(webapp2.RequestHandler):
   def post(self):
@@ -429,8 +442,8 @@ class TimeRecordUpdate(webapp2.RequestHandler):
 
 class CommentCreate(webapp2.RequestHandler):
   def post(self):
-    """ Create a new Comment in the specified Project, optionally bound to a
-    Time Record, Project, or other parent object. """
+    """ Create a new Comment in the specified Project, bound to another parent
+    object. """
     response_object = {};
     user = users.get_current_user()
     if not user:
@@ -477,6 +490,345 @@ class CommentCreate(webapp2.RequestHandler):
     self.response.out.write(json.dumps(response_object))
 
 
+class MilestonesList(webapp2.RequestHandler):
+  def get(self):
+    """ List the Milestones associated with a Project. """
+    response_object= {}
+    user = users.get_current_user()
+    if not user:
+      self.abort(401)
+    project_key_id = self.request.GET.get('project_id')
+    if project_key_id:
+      project_key = ndb.Key(urlsafe=project_key_id)
+      project = project_key.get()
+      if project:
+        if user.email not in project.users:
+            self.abort(401)
+        response_object['project'] = project.json_object()
+        # Query for Projects this User owns, contributes to, or may observe
+        milestones = model.Milestone.query(ancestor=project_key)
+        response_object['milestones'] = []
+        for milestone in milestones:
+          response_object['milestones'].append(milestone.json_object())
+      else:
+        self.response.set_status(404)
+        response_object['not_found'] = {
+          'project': not bool(project)
+        }
+    else:
+      self.response.set_status(400)
+      response_object['missing'] = {
+        'get': {
+          'project_id': not bool(project_key_id)
+        }
+      }
+    # Send response
+    self.response.content_type = 'application/json'
+    self.response.out.write(json.dumps(response_object))
+
+
+class MilestonesCreate(webapp2.RequestHandler):
+  def post(self):
+    """ Create a new Milestone associated with this Project. """
+    response_object = {}
+    user = users.get_current_user()
+    if not user:
+      self.abort(401)
+     # Get JSON request body
+    if self.request.body:
+      request_object = json.loads(self.request.body)
+      project_key_id = request_object.get('project_id')
+      name = request_object.get('name')
+      if project_key_id and name:
+        project_key = ndb.Key(urlsafe=project_key_id)
+        project = project_key.get()
+        if project:
+          if ((user.email not in project.contributors)
+            and (user.email != project.owner)):
+            self.abort(401)
+          new_milestone_key = model.Milestone.create_milestone(
+            name, project_key, user.email)
+          new_milestone = new_milestone_key.get()
+          if len(request_object) > 2:
+            # Process optional items...
+            description = request_object.get('description')
+            if description:
+              new_milestone.description = description
+            labels = request_object.get('labels')
+            if isinstance(labels, list):
+              for label_key_id in labels:
+                label_key = ndb.Key(urlsafe=label_key_id)
+                new_milestone.labels.append(label_key)
+            new_milestone.put()
+          response_object['milestone'] = new_milestone.json_object()
+          response_object['project'] = project_key.get().json_object()
+        else:
+          self.response.set_status(404)
+          response_object['not_found'] = {
+            'project': not bool(project)
+          }
+      else:
+        self.response.set_status(400)
+        response_object['missing'] = {
+          'post_body_json': {
+            'project_id': not bool(project_key_id),
+            'name': not bool(name)
+        }}
+    else:
+      self.response.set_status(400)
+      response_object['missing'] =  {
+        'post_body_json': True
+      }
+    # Send response
+    self.response.content_type = 'application/json'
+    self.response.out.write(json.dumps(response_object))
+
+
+class MilestonesUpdate(webapp2.RequestHandler):
+  def post(self):
+    """ Update a Milestone in the Project. """
+    response_object = {}
+    user = users.get_current_user()
+    if not user:
+      self.abort(401)
+    # GET JSON request body
+    if self.request.body:
+      request_object = json.loads(self.request.body)
+      milestone_key_id = request_object.get('milestone_id')
+      if milestone_key_id:
+        milestone_key = ndb.Key(urlsafe=milestone_key_id)
+        milestone = milestone_key.get()
+        if milestone:
+          project = milestone.key.parent().get()
+          if ((user.email not in project.contributors)
+            and (user.email != project.owner)):
+            self.abort(401)
+          if len(request_object.keys()) > 1:
+            # Process optional items...
+            name = request_object.get('name')
+            if name:
+              milestone.name = name
+            description = request_object.get('description')
+            if description:
+              milestone.description = description
+            labels = request_object.get('labels')
+            if isinstance(labels, list):
+              for label_key_id in labels:
+                label_key = ndb.Key(urlsafe=label_key_id)
+                new_milestone.labels.append(label_key)
+            milestone.put()
+            project.put()
+          response_object['milestone'] = milestone.json_object()
+          # project = milestone.key.parent().get()
+          response_object['project'] = project.json_object()
+        else:
+          self.response.set_status(404)
+          response_object['not_found'] = {
+            'milestone': not bool(milestone)
+          }
+      else:
+        self.response.set_status(400)
+        response_object['missing'] = {
+          'post_body_json': {
+            'time_record_id': True
+        }}
+    else:
+      self.response.set_status(400)
+      response_object['missing'] = {
+        'post_body_json': True
+      }
+    # Send response
+    self.response.content_type = 'application/json'
+    self.response.out.write(json.dumps(response_object))
+
+
+class LabelsList(webapp2.RequestHandler):
+  def get(self):
+    """ List the Labels associated with this Project. """
+    response_object= {}
+    user = users.get_current_user()
+    if not user:
+      self.abort(401)
+    project_key_id = self.request.GET.get('project_id')
+    if project_key_id:
+      project_key = ndb.Key(urlsafe=project_key_id)
+      project = project_key.get()
+      if project:
+        if user.email not in project.users:
+            self.abort(401)
+        response_object['project'] = project.json_object()
+        # Query for Projects this User owns, contributes to, or may observe
+        labels = model.Label.query(ancestor=project_key)
+        response_object['labels'] = []
+        for label in labels:
+          response_object['labels'].append(label.json_object())
+      else:
+        self.response.set_status(404)
+        response_object['not_found'] = {
+          'project': not bool(project)
+        }
+    else:
+      self.response.set_status(400)
+      response_object['missing'] = {
+        'get': {
+          'project_id': not bool(project_key_id)
+        }
+      }
+    # Send response
+    self.response.content_type = 'application/json'
+    self.response.out.write(json.dumps(response_object))
+
+
+class LabelsCreate(webapp2.RequestHandler):
+  def post(self):
+    """ Creates a Label associated with this Project. """
+    response_object = {}
+    user = users.get_current_user()
+    if not user:
+      self.abort(401)
+     # Get JSON request body
+    if self.request.body:
+      request_object = json.loads(self.request.body)
+      project_key_id = request_object.get('project_id')
+      name = request_object.get('name')
+      color = request_object.get('color')
+      if project_key_id and name and color:
+        color_pattern = r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
+        if re.match(color_pattern, color):
+          project_key = ndb.Key(urlsafe=project_key_id)
+          project = project_key.get()
+          if project:
+            if ((user.email not in project.contributors)
+              and (user.email != project.owner)):
+              self.abort(401)
+            new_label = model.Label.create_label(name, color, project_key)
+            new_label = new_label.get()
+            response_object['label'] = new_label.json_object()
+            response_object['project'] = project_key.get().json_object()
+          else:
+            self.response.set_status(404)
+            response_object['not_found'] = {
+              'project': not bool(project)
+            }
+        else:
+          self.response.set_status(400)
+          response_object['error'] = {
+            'post_body_json': {
+              'color': 'Invalid value.'
+            }
+          }
+      else:
+        self.response.set_status(400)
+        response_object['missing'] = {
+          'post_body_json': {
+            'project_id': not bool(project_key_id),
+            'name': not bool(name),
+            'color': not bool(color)
+        }}
+    else:
+      self.response.set_status(400)
+      response_object['missing'] =  {
+        'post_body_json': True
+      }
+    # Send response
+    self.response.content_type = 'application/json'
+    self.response.out.write(json.dumps(response_object))
+
+
+class Labels(webapp2.RequestHandler):
+  def post(self, project_id):
+    """ creates a Label associated with this Project. """
+    response_object = {}
+    user = users.get_current_user()
+    if not user:
+      self.abort(401)
+    # Try getting the associated Project
+    project_key = utilities.key_for_urlsafe_id(project_id)
+    project = project_key.get()
+    if not project:
+      self.abort(404)
+    # Get JSON request body
+    if self.request.body:
+      request_object = json.loads(self.request.body)
+      name = request_object.get('name')
+      color = request_object.get('color')
+      if name and color:
+        color_pattern = r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
+        if re.match(color_pattern, color):
+          if ((user.email not in project.contributors)
+            and (user.email != project.owner)):
+            self.abort(401)
+          new_label = model.Label.create_label(name, color, project.key)
+          new_label = new_label.get()
+          response_object = new_label.json_object()
+        else:
+          self.response.set_status(400)
+          response_object['error'] = {
+            'post_body_json': {
+              'color': 'Invalid value.'
+            }
+          }
+      else:
+        self.response.set_status(400)
+        response_object['missing'] = {
+          'post_body_json': {
+            'name': not bool(name),
+            'color': not bool(color)
+        }}
+    else:
+      self.response.set_status(400)
+      response_object['missing'] =  {
+        'post_body_json': True
+      }
+    # Send response
+    self.response.content_type = 'application/json'
+    self.response.out.write(json.dumps(response_object))
+
+  def get(self, project_id):
+    """ List the Labels associated with this Project. """
+    response_array = []
+    user = users.get_current_user()
+    if not user:
+      self.abort(401)
+    # Try getting the associated Project
+    project_key = utilities.key_for_urlsafe_id(project_id)
+    project = project_key.get()
+    if not project:
+      self.abort(404)
+    if user.email not in project.users:
+        self.abort(401)
+    # Query for Projects this User owns, contributes to, or may observe
+    labels = model.Label.query(ancestor=project.key)
+    for label in labels:
+      response_array.append(label.json_object())
+    # Send response
+    self.response.content_type = 'application/json'
+    self.response.out.write(json.dumps(response_array))
+
+  def delete(self, project_id, label_id):
+    """ Deletes a Label associated with this Project. """
+    response_object = {}
+    user = users.get_current_user()
+    if not user:
+      self.abort(401)
+    # Try getting the associated Label...
+    label_key = utilities.key_for_urlsafe_id(label_id)
+    label = label_key.get()
+    if not label:
+      self.abort(404)
+    project_key = label_key.parent()
+    project = project_key.get()
+    if not project:
+      self.abort(404)
+    if ((user.email not in project.contributors)
+      and (user.email != project.owner)):
+      self.abort(401)
+    label.delete_label()
+    # Send response
+    self.response.content_type = 'application/json'
+    self.response.out.write(json.dumps(response_object))
+
+
 app = webapp2.WSGIApplication([
   webapp2.Route(
     '/api/projects/list.json',
@@ -511,6 +863,31 @@ app = webapp2.WSGIApplication([
   ), webapp2.Route(
     '/api/projects/comments/create.json',
     handler=CommentCreate
+  ), webapp2.Route(
+    '/api/projects/milestones/list.json',
+    handler=MilestonesList
+  ), webapp2.Route(
+    '/api/projects/milestones/create.json',
+    handler=MilestonesCreate
+  ), webapp2.Route(
+    '/api/projects/milestones/update.json',
+    handler=MilestonesUpdate
+  ), webapp2.Route(
+    '/api/projects/labels/list.json',
+    handler=LabelsList
+  ), webapp2.Route(
+    '/api/projects/labels/create.json',
+    handler=LabelsCreate
+
+    ## Alternate API points
+  ), webapp2.Route(
+    '/api/projects/<project_id:([a-zA-Z0-9-_]+)>/labels',
+    handler=Labels,
+    methods=['GET', 'POST']
+  ), webapp2.Route(
+    '/api/projects/<project_id:([a-zA-Z0-9-_]+)>/labels/<label_id:([a-zA-Z0-9-_]+)>',
+    handler=Labels,
+    methods=['DELETE']
   )
 ])
 

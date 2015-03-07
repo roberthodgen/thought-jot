@@ -6,7 +6,7 @@
 
 		// Perform setup and reset $scope variables...
 		$scope.init = function() {
-			console.log('[app.projectsHomeCtrl] $scope.init(): call');
+			console.log('[app.projectsHomeCtrl] $scope.init(): Called.');
 			appFactory.config({
 				'pageTitle': 'Projects'
 			});

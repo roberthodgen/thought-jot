@@ -682,8 +682,8 @@ class Labels(webapp2.RequestHandler):
     project = project_key.get()
     label = label_key.get()
     if (not (project and isinstance(project, model.Project))
-      or not (label and isinstance(label, model.Project))
-      or (project.key not in label.key.parent())):
+      or not (label and isinstance(label, model.Label))
+      or (project.key != label.key.parent())):
       self.abort(404)
     if ((user.email not in project.contributors)
       and not project.is_owner(user.email)):
@@ -695,7 +695,7 @@ class Labels(webapp2.RequestHandler):
         self.abort(400)
       milestone = milestone_key.get()
       if (not (milestone and isinstance(milestone, model.Milestone))
-        or (project.key not in label.key.parent())):
+        or (project.key != label.key.parent())):
         self.abort(404)
       if label_key in milestone.labels:
         milestone.labels.remove(label_key)

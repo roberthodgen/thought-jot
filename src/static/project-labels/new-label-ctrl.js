@@ -17,7 +17,7 @@
 				sidebar: {
 					selection: $scope.projectId
 				}, projectsNav: {
-					selection: 'settings'
+					selection: 'labels'
 				}
 			});
 

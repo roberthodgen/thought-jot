@@ -38,7 +38,7 @@
 			}
 
 			// Merge our Projects into the cache
-			mergeResponseData(service._projects(), _keyed);
+			mergeResponseData(service.cachedOrPlaceholderProjects(), _keyed);
 		};
 
 		cache.timeRecords = {
@@ -81,7 +81,7 @@
 			}
 
 			// Merge our Time Records into the cache
-			mergeResponseData(service._timeRecords(cacheKey), _keyed);
+			mergeResponseData(service.cachedOrPlaceholderTimeRecords(cacheKey), _keyed);
 		};
 
 		cache.comments = {
@@ -177,7 +177,7 @@
 			}
 
 			// Merge our Milestones into the cache
-			mergeResponseData(service._milestones(cacheKey), _keyed);
+			mergeResponseData(service.cachedOrPlaceholderMilestones(cacheKey), _keyed);
 		};
 
 		cache.labels = {
@@ -321,14 +321,14 @@
 				for (var i = uncompletedWatchProjectIds.length - 1; i >= 0; i--) {
 					// console.log('[app.dataFactory] uncompletedSecondsUpdate(): Inspecting Project for `has_uncompleted_time_records` where `id`: '+uncompletedWatchProjectIds[i]);
 
-					var project = service._project(uncompletedWatchProjectIds[i]);
+					var project = service.cachedOrPlaceholderProject(uncompletedWatchProjectIds[i]);
 
 					// If this Project has uncompleted Time Records...
 					if (project.has_uncompleted_time_records) {
 						// console.log('[app.dataFactory] uncompletedSecondsUpdate(): Project with `id`: '+uncompletedWatchProjectIds[i]+' `has_uncompleted_time_records`: true')
 
 						// Get this Project's Time Records
-						var time_records = service._timeRecords(project.id);
+						var time_records = service.cachedOrPlaceholderTimeRecords(project.id);
 
 						// Loop through this Project's Time Records...
 						var _keys = Object.keys(time_records);
@@ -362,26 +362,26 @@
 
 		var service =  {
 			uncompletedSecondsWatchAddProjectId: function(projectId) {
-			if (uncompletedWatchProjectIds.indexOf(projectId) === -1) {
-				console.log('[app.dataFactory] service.uncompletedSecondsWatchAddProjectId(): Adding Project with `id`: '+projectId);
-				uncompletedWatchProjectIds.push(projectId);
-			}
-			return projectId;
-		}, uncompletedSecondsWatchRemoveProjectId: function(projectId) {
-			var _index = uncompletedWatchProjectIds.indexOf(projectId);
-			if (_index !== -1) {
-				console.log('[app.dataFactory] service.uncompletedSecondsWatchRemoveProjectId(): Removing Project with `id`: '+projectId);
-				return uncompletedWatchProjectIds.splice(_index, 1);
-			}
-			return null;
-		}, _projects: function() {
+				if (uncompletedWatchProjectIds.indexOf(projectId) === -1) {
+					console.log('[app.dataFactory] service.uncompletedSecondsWatchAddProjectId(): Adding Project with `id`: '+projectId);
+					uncompletedWatchProjectIds.push(projectId);
+				}
+				return projectId;
+			}, uncompletedSecondsWatchRemoveProjectId: function(projectId) {
+				var _index = uncompletedWatchProjectIds.indexOf(projectId);
+				if (_index !== -1) {
+					console.log('[app.dataFactory] service.uncompletedSecondsWatchRemoveProjectId(): Removing Project with `id`: '+projectId);
+					return uncompletedWatchProjectIds.splice(_index, 1);
+				}
+				return null;
+			}, cachedOrPlaceholderProjects: function() {
 				return cache.projects;
 			}, projects: function() {
 				console.log('[app.dataFactory] service.projects(): call');
 
-				var _cache = service._projects();
+				var _cache = service.cachedOrPlaceholderProjects();
 
-				if ((!_cache || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, PROJECTS_LIFE)) && !_cache._fetch_in_progress) {
+				if ((!_cache || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, PROJECTS_LIFE)) && !_cache._fetch_in_progress && !_cache._last_fetch_error) {
 					return service.fetchProjects();
 				} else if (_cache._fetch_in_progress) {
 					return _cache._fetch_in_progress;	// return the $http promise
@@ -392,7 +392,7 @@
 			}, fetchProjects: function() {
 				console.log('[app.dataFactory] service.fetchProjects(): call')
 
-				var _cache = service._projects();
+				var _cache = service.cachedOrPlaceholderProjects();
 
 				_cache._force_fetch = false;
 				_cache._fetch_in_progress = $http({
@@ -404,7 +404,8 @@
 				}).then(function(response) {
 					// HTTP 200-299 Status
 					delete _cache._fetch_in_progress;
-					if (angular.isObject(response.data)) {
+					delete _cache._last_fetch_error;
+					if (angular.isObject(response.data) && response.status == 200) {
 						if (response.data.hasOwnProperty('projects')) {
 							// Iterate through these projects, chang anything that must be changed...
 							console.log('[app.dataFactory] service.fetchProjects(): data.response has `projects`, is valid');
@@ -413,14 +414,17 @@
 							cacheProjects(response.data.projects);
 							return _cache;
 						}
+					} else {
+						_cache._last_fetch_error = true;
+						console.log('[app.dataFactory] service.fetchProjects(): Error reading response.');
+						return {
+							'error': true
+						};
 					}
-					console.log('[app.dataFactory] service.fetchProjects(): Error reading response.');
-					return {
-						'error': true
-					};
 				}, function(response) {
 					// Error
 					delete _cache._fetch_in_progress;
+					_cache._last_fetch_error = response.status;
 					console.log('[app.dataFactory] service.fetchProjects(): Request error: '+response.status);
 					return {
 						'error': true,
@@ -466,7 +470,7 @@
 						'status': response.status
 					};
 				});
-			}, _project: function(projectId) {
+			}, cachedOrPlaceholderProject: function(projectId) {
 				if (!angular.isDefined(cache.projects[projectId])) {
 					cache.projects[projectId] = {};
 				}
@@ -474,11 +478,11 @@
 			}, project: function(projectId) {
 				console.log('[app.dataFactory] service.project(): call, projectId: '+projectId);
 
-				var _cache = service._project(projectId);
-				var _projects_cache = service._projects();
+				var _cache = service.cachedOrPlaceholderProject(projectId);
+				var _projects_cache = service.cachedOrPlaceholderProjects();
 				var _projects_fetch_promise;
 
-				if ((!_cache || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, PROJECTS_LIFE)) && !_projects_cache._fetch_in_progress) {
+				if ((!_cache || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, PROJECTS_LIFE)) && !_projects_cache._fetch_in_progress && !_projects_cache._last_fetch_error) {
 					_projects_fetch_promise = service.fetchProjects();
 				} else if (_projects_cache._fetch_in_progress) {
 					_projects_fetch_promise = _projects_cache._fetch_in_progress;
@@ -549,11 +553,11 @@
 				// The number of seconds since the UNIX Epoch
 				var nowSeconds = (Date.now() / 1000);
 
-				var project = service._project(projectId);
+				var project = service.cachedOrPlaceholderProject(projectId);
 
 				if (project.has_uncompleted_time_records) {
 
-					var time_records = service._timeRecords(projectId);
+					var time_records = service.cachedOrPlaceholderTimeRecords(projectId);
 
 					var _keys = Object.keys(time_records);
 					for (var i = _keys.length - 1; i >= 0; i--) {
@@ -575,7 +579,7 @@
 					// }, 333);
 				}
 				return null;
-			}, _timeRecords: function(projectId) {
+			}, cachedOrPlaceholderTimeRecords: function(projectId) {
 				if (!angular.isDefined(cache.timeRecords[projectId])) {
 					cache.timeRecords[projectId] = {};
 				}
@@ -583,9 +587,9 @@
 			}, timeRecords: function(projectId) {
 				console.log('[app.dataFactory] service.timeRecords(): call, projectId: '+projectId);
 
-				var _cache = service._timeRecords(projectId);
+				var _cache = service.cachedOrPlaceholderTimeRecords(projectId);
 
-				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, TIME_RECORDS_LIFE)) && !_cache._fetch_in_progress) {
+				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, TIME_RECORDS_LIFE)) && !_cache._fetch_in_progress && !_cache._last_fetch_error) {
 					return service.fetchTimeRecords(projectId);
 				} else if (_cache._fetch_in_progress) {
 					return _cache._fetch_in_progress;
@@ -595,7 +599,7 @@
 				return _timeRecords.promise;
 			}, fetchTimeRecords: function(projectId) {
 				console.log('[app.dataFactory] service.fetchTimeRecords(): call, projectId: '+projectId)
-				var _cache = service._timeRecords(projectId);
+				var _cache = service.cachedOrPlaceholderTimeRecords(projectId);
 				_cache._force_fetch = false;
 				_cache._fetch_in_progress = $http({
 					method: 'GET',
@@ -607,7 +611,8 @@
 				}).then(function(response) {
 					// HTTP 200-299 Status
 					delete _cache._fetch_in_progress;
-					if (angular.isObject(response.data)) {
+					delete _cache._last_fetch_error;
+					if (angular.isObject(response.data) && response.status == 200) {
 						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('time_records')) {
 							// Iterate through these projects, chang anything that must be changed...
 							console.log('[app.dataFactory] service.fetchTimeRecords(): data.response has `project` and `time_records`, is valid');
@@ -620,14 +625,17 @@
 
 							return _cache;
 						}
+					} else {
+						_cache._last_fetch_error = true;
+						console.log('[app.dataFactory] service.fetchTimeRecords(): Error reading response.');
+						return {
+							'error': true
+						};
 					}
-					console.log('[app.dataFactory] service.fetchTimeRecords(): Error reading response.');
-					return {
-						'error': true
-					};
 				}, function(response) {
 					// Error
 					delete _cache._fetch_in_progress;
+					_cache._last_fetch_error = response.status;
 					console.log('[app.dataFactory] service.fetchTimeRecords(): Request error: '+response.status);
 					return {
 						'error': true,
@@ -815,7 +823,7 @@
 
 				var _cache = service._comments(parentId);
 
-				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, TIME_RECORDS_LIFE)) && !_cache._fetch_in_progress) {
+				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, TIME_RECORDS_LIFE)) && !_cache._fetch_in_progress && !_cache._last_fetch_error) {
 					return service.fetchComments(parentId);
 				} else if (_cache._fetch_in_progress) {
 					return _cache._fetch_in_progress;
@@ -832,7 +840,7 @@
 				var _comments = $q.defer();
 				_comments.resolve(service._comments(parentId));
 				return _comments.promise;
-			}, _milestones: function(projectId) {
+			}, cachedOrPlaceholderMilestones: function(projectId) {
 				if (!angular.isDefined(cache.milestones[projectId])) {
 					cache.milestones[projectId] = {};
 				}
@@ -840,9 +848,9 @@
 			}, milestones: function(projectId) {
 				console.log('[app.dataFactory] service.milestones(): call, `projectId`: '+projectId);
 
-				var _cache = service._milestones(projectId);
+				var _cache = service.cachedOrPlaceholderMilestones(projectId);
 
-				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, TIME_RECORDS_LIFE)) && !_cache._fetch_in_progress) {
+				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, TIME_RECORDS_LIFE)) && !_cache._fetch_in_progress && !_cache._last_fetch_error) {
 					return service.fetchMilestones(projectId);
 				} else if (_cache._fetch_in_progress) {
 					return _cache._fetch_in_progress;
@@ -852,7 +860,7 @@
 				return _milestones.promise;
 			}, fetchMilestones: function(projectId) {
 				console.log('[app.dataFactory] service.fetchMilestones(): call, projectId: '+projectId)
-				var _cache = service._milestones(projectId);
+				var _cache = service.cachedOrPlaceholderMilestones(projectId);
 				_cache._force_fetch = false;
 				_cache._fetch_in_progress = $http({
 					method: 'GET',
@@ -864,7 +872,8 @@
 				}).then(function(response) {
 					// HTTP 200-299 Status
 					delete _cache._fetch_in_progress;
-					if (angular.isObject(response.data)) {
+					delete _cache._last_fetch_error;
+					if (angular.isObject(response.data) && response.status == 200) {
 						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('milestones')) {
 							// Iterate through these projects, chang anything that must be changed...
 							console.log('[app.dataFactory] service.fetchMilestones(): data.response has `project` and `milestones`, is valid');
@@ -877,14 +886,17 @@
 
 							return _cache;
 						}
+					} else {
+						_cache._last_fetch_error = true;
+						console.log('[app.dataFactory] service.fetchMilestones(): Error reading response.');
+						return {
+							'error': true
+						};
 					}
-					console.log('[app.dataFactory] service.fetchMilestones(): Error reading response.');
-					return {
-						'error': true
-					};
 				}, function(response) {
 					// Error
 					delete _cache._fetch_in_progress;
+					_cache._last_fetch_error = response.status;
 					console.log('[app.dataFactory] service.fetchMilestones(): Request error: '+response.status);
 					return {
 						'error': true,
@@ -1004,7 +1016,7 @@
 
 				var _cache = service._labels(projectId);
 
-				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, LABELS_LIFE)) && !_cache._fetch_in_progress) {
+				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, LABELS_LIFE)) && !_cache._fetch_in_progress && !_cache._last_fetch_error) {
 					return service.fetchLabelsForProject(projectId);
 				} else if (_cache._fetch_in_progress) {
 					return _cache._fetch_in_progress;
@@ -1026,7 +1038,8 @@
 				}).then(function(response) {
 					// HTTP 200-299 Status
 					delete _cache._fetch_in_progress;
-					if (angular.isObject(response.data)) {
+					delete _cache._last_fetch_error;
+					if (angular.isObject(response.data) && response.status == 200) {
 						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('labels')) {
 							// Iterate through these projects, chang anything that must be changed...
 							console.log('[app.dataFactory] service.fetchLabelsForProject(): data.response has `project` and `labels`, is valid');
@@ -1039,14 +1052,17 @@
 
 							return _cache;
 						}
+					} else {
+						_cache._last_fetch_error = true;
+						console.log('[app.dataFactory] service.fetchLabelsForProject(): Error reading response.');
+						return {
+							'error': true
+						};
 					}
-					console.log('[app.dataFactory] service.fetchLabelsForProject(): Error reading response.');
-					return {
-						'error': true
-					};
 				}, function(response) {
 					// Error
 					delete _cache._fetch_in_progress;
+					_cache._last_fetch_error = response.status;
 					console.log('[app.dataFactory] service.fetchLabelsForProject(): Request error: '+response.status);
 					return {
 						'error': true,
@@ -1059,13 +1075,20 @@
 
 				var _cache = service._labels(milestoneId);
 
-				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, LABELS_LIFE)) && !_cache._fetch_in_progress) {
+				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, LABELS_LIFE)) && !_cache._fetch_in_progress && !_cache._last_fetch_error) {
 					return service.fetchLabelsForMilestone(milestoneId);
 				} else if (_cache._fetch_in_progress) {
 					return _cache._fetch_in_progress;
 				}
 				var _labels = $q.defer();
 				_labels.resolve(_cache);
+				return _labels.promise;
+			}, fetchLabelsForMilestone: function(milestoneId) {
+				// Temp function, just return a promise-wrapped version of `service._labels`
+				// Update once API is written to fetch Labels for a particular Milestone
+
+				var _labels = $q.defer();
+				_labels.resolve(service._labels(milestoneId));
 				return _labels.promise;
 			}, deleteLabel: function(projectId, labelId) {
 				console.log('[app.dataFactory] service.deleteLabel(): Called, `projectId`: '+projectId+', `labelId`: '+labelId);
@@ -1101,13 +1124,6 @@
 						status: response.status
 					};
 				});
-			}, fetchLabelsForMilestone: function(milestoneId) {
-				// Temp function, just return a promise-wrapped version of `service._labels`
-				// Update once API is written to fetch Labels for a particular Milestone
-
-				var _labels = $q.defer();
-				_labels.resolve(service._labels(milestoneId));
-				return _labels.promise;
 			}, createLabel: function(label, projectId) {
 
 				var data = {

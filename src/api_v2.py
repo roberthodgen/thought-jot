@@ -664,6 +664,42 @@ class Labels(webapp2.RequestHandler):
     self.response.content_type = 'application/json'
     self.response.out.write(json.dumps(response_object))
 
+  def put(self, project_id, label_id):
+    """ Update a Label associated with this Project. """
+    response_object = {}
+    user = users.get_current_user()
+    if not user:
+      self.abort(401)
+    if not project_id or not label_id or not self.request.body:
+      self.abort(400)
+    project_key = utilities.key_for_urlsafe_id(project_id)
+    label_key = utilities.key_for_urlsafe_id(label_id)
+    request_object = json.loads(self.request.body)
+    if (not project_key
+      or not label_key
+      or (project_key != label_key.parent())):
+      self.abort(400)
+    project = project_key.get()
+    label = label_key.get()
+    if (not (project and isinstance(project, model.Project))
+      or not (label and isinstance(label, model.Label))):
+      self.abort(404)
+    if user.email not in project.users:
+      self.abort(401)
+    # Process optional items...
+    if len(request_object) > 0:
+      name = request_object.get('name')
+      if name:
+        label.name = name
+      color = request_object.get('color')
+      if color:
+        label.color = color
+      label.put()
+    response_object = label.json_object()
+    # Send response
+    self.response.content_type = 'application/json'
+    self.response.out.write(json.dumps(response_object))
+
   def delete(self, project_id, label_id, milestone_id=None,):
     """ Deletes a Label associated with this Project. """
     response_object = {}

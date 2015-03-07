@@ -61,7 +61,11 @@
 						});
 						// delete $scope.milestoneLabels[label.id];
 					} else {
-						
+						dataFactory.milestoneLabelAdd(label.id, $scope.milestone.id, $scope.projectId).then(function(response) {
+							if (response.error) {
+								alert('Error adding label.');
+							}
+						});
 						// $scope.milestoneLabels[label.id] = label;
 					}
 				};

@@ -930,6 +930,37 @@
 						'status': response.status
 					};
 				});
+			}, milestoneLabelAdd: function(labelId, milestoneId, projectId) {
+
+				var data = {
+					'label_id': labelId
+				};
+
+				return $http({
+					method: 'POST',
+					url: '/api/v2/projects/'+projectId+'/milestones/'+milestoneId+'/labels',
+					data: data
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					if (angular.isObject(response.data) && response.status == 200) {
+
+						// Cache this Label
+						cacheLabels([response.data], [projectId, milestoneId], '');
+
+						return response.data;
+					}
+					console.log('[app.dataFactory] service.milestoneLabelAdd(): Error reading response;')
+					return {
+						error: true
+					};
+				}, function(response) {
+					// Error
+					console.log('[app.dataFactory] service.milestoneLabelAdd(): Request error: '+response.status);
+					return {
+						error: true,
+						status: response.status
+					};
+				});
 			}, milestoneLabelRemove: function(labelId, milestoneId, projectId) {
 				console.log('[app.dataFactory] service.milestoneLabelRemove(): Called: `labelId`: '+labelId+', `milestoneId`: '+milestoneId+', `projectId`: '+projectId);
 
@@ -953,7 +984,7 @@
 					}
 					console.log('[app.dataFactory] service.milestoneLabelRemove(): Error reading response.');
 					return {
-						error: true,
+						error: true
 					};
 				}, function(response) {
 					// Error

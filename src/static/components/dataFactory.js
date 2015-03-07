@@ -182,7 +182,7 @@
 
 		cache.labels = {
 			/*
-			*	Stores all LAbels keyed to the Project Id.
+			*	Stores all Labels keyed to a Project ID or Milestone ID.
 			*/
 		};
 
@@ -224,6 +224,9 @@
 				// Merge our Labels into the cache
 				// console.log('[app.dataFactory] cacheLabels(): calling `mergeResponseData()` with destination key: '+cacheKeys[i]);
 				mergeResponseData(service._labels(cacheKeys[i_keyed]), _keyed[i_keyed]);	// Use `service._labels()` so we get the actual Array
+				// Replace all instances where `newOrUpdatedLabels` (as `_keyed[i_keyed]` now) appear in `cache.labels`;
+				// this searches beyond the scope of `cacheKeys`
+				searchandReplaceResponseData(cache.labels, _keyed[i_keyed]);
 			}
 		};
 
@@ -267,6 +270,42 @@
 				if (_response_keys.indexOf(_destination_keys[i]) === -1 && !internalKey(_destination_keys[i])) {
 					console.log('deleting key: '+_destination_keys[i]);
 					delete destination[_destination_keys[i]];
+				}
+			}
+		};
+
+		/*
+		*	Searches `destination` for all objects found in `response`;
+		*	replaces any such vales by referencing those in `response`.
+		*	@param {Object} destination
+		*	@param {Object} response
+		*/
+		var searchandReplaceResponseData = function(destination, response) {
+			// Cycle through a root (like Labels) and replace any references if the object.id matches
+
+			// Ensure the `destination` is an Object...
+			if (angular.isObject(destination)) {
+
+				// Get all keys found in our `destination`; this *should* be Project IDs, Milestone IDs, and Time Records
+				var _destination_keys = Object.keys(destination);
+				for (var i_dest = _destination_keys.length - 1; i_dest >= 0; i_dest--) {
+
+					// Now get all child IDs (think Label IDs or Comment IDs) from this Project, Milestone, or Time Record
+					var _destination_label_keys = Object.keys(destination[_destination_keys[i_dest]]);
+					for (var i_dest_label = _destination_label_keys.length - 1; i_dest_label >= 0; i_dest_label--) {
+
+						// Now loop through the destination's keys...
+						var _response_keys = Object.keys(response);
+						for (var i_resp = _response_keys.length - 1; i_resp >= 0; i_resp--) {
+
+							// ... and see if any children match a response key (Label or Comment)
+							if (_destination_label_keys[i_dest_label] == _response_keys[i_resp]) {
+
+								// One of our `response` keys were found in the `destination`... Assign!
+								destination[_destination_keys[i_dest]][_destination_label_keys[i_dest_label]] = response[_response_keys[i_resp]]
+							}
+						}
+					}
 				}
 			}
 		};

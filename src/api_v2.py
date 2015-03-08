@@ -23,6 +23,8 @@ import re
 
 import utilities
 
+import setup
+
 
 class Projects(webapp2.RequestHandler):
     def get(self, project_id=None):
@@ -72,6 +74,7 @@ class Projects(webapp2.RequestHandler):
             if description:
                 new_project.description = description
             new_project.put()
+        setup.default_project_labels(new_project)
         response_object = new_project.json_object()
         # Send response
         self.response.content_type = 'application/json'

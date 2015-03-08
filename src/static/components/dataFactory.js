@@ -472,41 +472,34 @@
 				});
 				return _cache._fetch_in_progress;
 			}, createProject: function(options) {
-
-				var data = {
-					'name': options.name,
-					'description': options.description
-				};
-
+				console.log('[app.dataFactory] service.createProject(): Called.');
 				return $http({
 					method: 'POST',
-					url: '/api/projects/create.json',
+					url: '/api/v2/projects',
 					params: {
 						't': new Date().getTime()
-					}, data: data
+					}, data: options
 				}).then(function(response) {
 					// HTTP 200-299 Status
-					if (angular.isObject(response.data)) {
-						if (response.data.hasOwnProperty('project')) {
-							// Success!!!
-							console.log('[app.dataFactory] service.createProject(): response.data has `project`, is valid');
+					if (angular.isObject(response.data) && response.status == 200) {
+						// Success!!!
+						console.log('[app.dataFactory] service.createProject(): Success.');
 
-							// Cache this Project
-							cacheProjects([response.data.project]);
-							return response.data.project;
-						}
+						// Cache this Project
+						cacheProjects([response.data]);
+						return response.data;
+					} else {
+						console.log('[app.dataFactory] service.createProject(): Error reading response.');
+						return {
+							error: true
+						};
 					}
-					console.log('[app.dataFactory] service.createProject(): Error reading response.');
-					return {
-						'error': true
-					};
 				}, function(response) {
 					// Error
-					delete cache.projects._create_in_progress;
 					console.log('[app.dataFactory] service.createProject(): Request error: '+response.status);
 					return {
-						'error': true,
-						'status': response.status
+						error: true,
+						status: response.status
 					};
 				});
 			}, cachedOrPlaceholderProject: function(projectId) {

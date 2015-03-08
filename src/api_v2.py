@@ -532,11 +532,14 @@ class Milestones(webapp2.RequestHandler):
             description = request_object.get('description')
             if description:
                 milestone.description = description
-            labels = request_object.get('labels')
-            if isinstance(labels, list):
-                for label_key_id in labels:
-                    label_key = ndb.Key(urlsafe=label_key_id)
-                    new_milestone.labels.append(label_key)
+            open = request_object.get('open')
+            if open is not None:
+              milestone.open = bool(open)
+            # labels = request_object.get('labels')
+            # if isinstance(labels, list):
+            #     for label_key_id in labels:
+            #         label_key = ndb.Key(urlsafe=label_key_id)
+            #         new_milestone.labels.append(label_key)
             milestone.put()
         response_object = milestone.json_object()
         # Send response

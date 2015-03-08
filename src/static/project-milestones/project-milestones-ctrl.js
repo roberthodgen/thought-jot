@@ -21,10 +21,6 @@
 
 			$scope.projectId = $routeParams.projectId;
 
-			$scope.search = {
-				name: ''
-			};
-
 			$scope.user = {};
 			$scope.userLoaded = false;
 
@@ -96,6 +92,12 @@
 					alert('Error loading User.');
 				}
 			});
+
+			// Search/filter config
+			$scope.openMilestones = true;
+			$scope.search = {
+				name: ''
+			};
 		};
 
 		// Watch for changes in the `view` search parameter...

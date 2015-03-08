@@ -71,6 +71,30 @@
 					});
 				};
 
+				$scope.toggleOpen = function() {
+					if ($scope.milestone.open) {
+						// Close
+						dataFactory.updateMilestone({
+							id: $scope.milestone.id,
+							open: !$scope.milestone.open
+						}, $routeParams.projectId).then(function(response) {
+							if (response.error) {
+								alert('Error closing milestone.');
+							}
+						});
+					} else {
+						// Reopen
+						dataFactory.updateMilestone({
+							id: $scope.milestone.id,
+							open: !$scope.milestone.open
+						}, $routeParams.projectId).then(function(response) {
+							if (response.error) {
+								alert('Error opening milestone.');
+							}
+						});
+					}
+				};
+
 				$scope.addComment = function(milestone) {
 					var options = {
 						'project_id': $routeParams.projectId,

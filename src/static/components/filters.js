@@ -231,6 +231,25 @@
 		};
 	});
 
+	app.filter('filterMilestones', function() {
+		return function(milestones, open) {
+
+			var _filter = [];
+
+			if (angular.isArray(milestones) || angular.isObject(milestones)) {
+				var _keys = Object.keys(milestones);
+				for (var i = _keys.length - 1; i >= 0; i--) {
+					if (milestones[_keys[i]].open == open) {
+						_filter.push(milestones[_keys[i]]);
+					} else if (milestones[_keys[i]]._view) {
+						_filter.push(milestones[_keys[i]]);
+					}
+				}
+			}
+			return _filter;
+		};
+	});
+
 
 
 })();

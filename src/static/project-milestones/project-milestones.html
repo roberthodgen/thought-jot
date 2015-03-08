@@ -27,7 +27,7 @@
 	</div>
 
 	<div class="projects-list-group">
-		<h4>Open milestones</h4>
+		<h4>{{ openMilestones ? 'Open' : 'Closed' }} milestones <small><a ng-href="#" ng-click="openMilestones = !openMilestones" class="text-muted">{{ openMilestones ? 'Closed' : 'Open' }}</a></small></h4>
 		<div class="list-group">
 			<div class="list-group-item" ng-class="{ 'list-group-item-edit': (milestone._view) }" milestone-list-group-item milestone="milestone" ng-click="milestoneClick(milestone);" ng-repeat="milestone in milestones | filterDisplayObjects | filterMilestones:openMilestones | filter:search | orderBy:'_created':true as milestoneResults"></div>
 		</div>

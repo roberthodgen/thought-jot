@@ -447,7 +447,7 @@
 					if (angular.isObject(response.data) && response.status == 200) {
 						if (response.data.hasOwnProperty('projects')) {
 							// Iterate through these projects, chang anything that must be changed...
-							console.log('[app.dataFactory] service.fetchProjects(): data.response has `projects`, is valid');
+							console.log('[app.dataFactory] service.fetchProjects(): response.data has `projects`, is valid');
 
 							// Cache these Projects
 							cacheProjects(response.data.projects);
@@ -489,7 +489,7 @@
 					if (angular.isObject(response.data)) {
 						if (response.data.hasOwnProperty('project')) {
 							// Success!!!
-							console.log('[app.dataFactory] service.createProject(): data.response has `project`, is valid');
+							console.log('[app.dataFactory] service.createProject(): response.data has `project`, is valid');
 
 							// Cache this Project
 							cacheProjects([response.data.project]);
@@ -567,7 +567,7 @@
 					if (angular.isObject(response.data)) {
 						if (response.data.hasOwnProperty('project')) {
 							// Success!!
-							console.log('[app.dataFactory] service.updateProject(): data.response has `project`, is valid');
+							console.log('[app.dataFactory] service.updateProject(): response.data has `project`, is valid');
 
 							// Cache this Project
 							cacheProjects([response.data.project]);
@@ -654,7 +654,7 @@
 					if (angular.isObject(response.data) && response.status == 200) {
 						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('time_records')) {
 							// Iterate through these projects, chang anything that must be changed...
-							console.log('[app.dataFactory] service.fetchTimeRecords(): data.response has `project` and `time_records`, is valid');
+							console.log('[app.dataFactory] service.fetchTimeRecords(): response.data has `project` and `time_records`, is valid');
 
 							// Cache this Project
 							cacheProjects([response.data.project], projectId);
@@ -696,7 +696,7 @@
 					if (angular.isObject(response.data)) {
 						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('time_record')) {
 							// Success!!!
-							console.log('[app.dataFactory] service.createTimeRecord(): data.response has `project` and `time_record`, is valid');
+							console.log('[app.dataFactory] service.createTimeRecord(): response.data has `project` and `time_record`, is valid');
 
 							// Cache this Project
 							cacheProjects([response.data.project]);
@@ -742,7 +742,7 @@
 					if (angular.isObject(response.data)) {
 						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('time_record')) {
 							// Success!!!
-							console.log('[app.dataFactory] service.completeTimeRecord(): data.response has `project` and `time_record`, is valid');
+							console.log('[app.dataFactory] service.completeTimeRecord(): response.data has `project` and `time_record`, is valid');
 
 							// Cache this Project
 							cacheProjects([response.data.project]);
@@ -789,7 +789,7 @@
 					if (angular.isObject(response.data)) {
 						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('time_record')) {
 							// Success!!
-							console.log('[app.dataFactory] service.updateTimeRecord(): data.response has `project` and `time_record`, is valid');
+							console.log('[app.dataFactory] service.updateTimeRecord(): response.data has `project` and `time_record`, is valid');
 
 							// Cache this Project
 							cacheProjects([response.data.project]);
@@ -833,7 +833,7 @@
 					if (angular.isObject(response.data)) {
 						if (response.data.hasOwnProperty('comment')) {
 							// Success!!!
-							console.log('[app.dataFactory] service.createComment(): data.response has `comment`, is valid');
+							console.log('[app.dataFactory] service.createComment(): response.data has `comment`, is valid');
 
 							// Cache these Comments
 							cacheComments([response.data.comment], [data.project_id, data.parent_id], null);
@@ -915,7 +915,7 @@
 					if (angular.isObject(response.data) && response.status == 200) {
 						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('milestones')) {
 							// Iterate through these projects, chang anything that must be changed...
-							console.log('[app.dataFactory] service.fetchMilestones(): data.response has `project` and `milestones`, is valid');
+							console.log('[app.dataFactory] service.fetchMilestones(): response.data has `project` and `milestones`, is valid');
 
 							// Cache this Project
 							cacheProjects([response.data.project], projectId);
@@ -958,7 +958,7 @@
 					if (angular.isObject(response.data)) {
 						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('milestone')) {
 							// Success!!!
-							console.log('[app.dataFactory] service.createMilestone(): data.response has `project` and `milestone`, is valid');
+							console.log('[app.dataFactory] service.createMilestone(): response.data has `project` and `milestone`, is valid');
 
 							// Cache this Project
 							cacheProjects([response.data.project]);
@@ -981,6 +981,35 @@
 						'status': response.status
 					};
 				});
+			}, updateMilestone: function(milestone, projectId) {
+				return $http({
+					method: 'PUT',
+					url: '/api/v2/projects/'+projectId+'/milestones/'+milestone.id,
+					data: milestone
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					if (angular.isObject(response.data) && response.status == 200) {
+						// Success!
+						console.log('[app.dataFactory] service.updateMilestone(): response.data is Object, response.status: 200');
+
+						// Cache this Milestone
+						cacheMilestones([response.data], projectId, false);
+
+						return response.data;
+					} else {
+						console.log('[app.dataFactory] service.updateMilestone(): Error reading response.');
+						return {
+							error: true
+						};
+					}
+				}, function(response) {
+					// Error
+					console.log('[app.dataFactory] service.updateMilestone(): Request error: '+response.error);
+					return {
+						error: true,
+						status: response.status
+					};
+				})
 			}, milestoneLabelAdd: function(labelId, milestoneId, projectId) {
 
 				var data = {
@@ -1081,7 +1110,7 @@
 					if (angular.isObject(response.data) && response.status == 200) {
 						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('labels')) {
 							// Iterate through these projects, chang anything that must be changed...
-							console.log('[app.dataFactory] service.fetchLabelsForProject(): data.response has `project` and `labels`, is valid');
+							console.log('[app.dataFactory] service.fetchLabelsForProject(): response.data has `project` and `labels`, is valid');
 
 							// Cache this Project
 							cacheProjects([response.data.project], projectId);
@@ -1182,7 +1211,7 @@
 					if (angular.isObject(response.data)) {
 						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('label')) {
 							// Success!!!
-							console.log('[app.dataFactory] service.createLabel(): data.response has `project` and `label`, is valid');
+							console.log('[app.dataFactory] service.createLabel(): response.data has `project` and `label`, is valid');
 
 							// Cache this Project
 							cacheProjects([response.data.project]);

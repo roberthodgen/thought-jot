@@ -18,7 +18,7 @@
 		'app.homeCtrl',
 		'app.errorCtrl',
 		'app.loginCtrl',
-		'app.newProjectCtrl',
+		'app.createProjectCtrl',
 		'app.projectTimeRecordsCtrl',
 		'app.projectIssuesCtrl',
 		'app.createIssueCtrl',
@@ -26,7 +26,6 @@
 		'app.createLabelCtrl',
 		
 		'app.projectsHomeCtrl',
-		'app.projectDetailCtrl',
 		'app.projectSettingsCtrl',
 
 		// Directives
@@ -124,8 +123,8 @@
 
 		$stateProvider.state('app.create-project', {
 			url: '^/projects/create-project',
-			templateUrl: '/new-project/new-project.html',
-			controller: 'app.newProjectCtrl'
+			templateUrl: '/project/create.html',
+			controller: 'app.createProjectCtrl'
 		});
 
 
@@ -154,8 +153,6 @@
 		$stateProvider.state('app.project.project-overview', {
 			url: '',
 			templateUrl: '/project-overview/project-overview.html',
-			// controller: 'app.projectDetailCtrl',
-			// reloadOnSearch: false,
 			resolve: {
 				projectId: ['$stateParams', function($stateParams) {
 					return $stateParams.projectId;

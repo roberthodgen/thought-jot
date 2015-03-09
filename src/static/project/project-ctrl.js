@@ -27,6 +27,10 @@
 		};
 
 		$scope.backgroundClick = function() {
+			console.log('[app.projectCtrl] $scope.backgroundClick(): Called.');
+
+			$state.go('app.project.issues.project-issues', { milestoneId: '' });
+			
 			// Remove the edit search property
 			var _search = $location.search();
 			$location.search({

@@ -314,6 +314,7 @@
 		var PROJECTS_LIFE = 30;
 		var TIME_RECORDS_LIFE = 15;
 		var LABELS_LIFE = 30;
+		var ISSUES_LIFE = 30;
 		var refreshIntervalPassed = function(lastFetchDate, interval) {
 			/*
 				Return TRUE if `date` is outside of our max interval.
@@ -873,16 +874,30 @@
 				_comments.resolve(service._comments(parentId));
 				return _comments.promise;
 			}, cachedOrPlaceholderMilestones: function(projectId) {
+				/*
+				*	Return all Milestones (found in `projectId`) or an empty Object.
+				*/
+
 				if (!angular.isDefined(cache.milestones[projectId])) {
 					cache.milestones[projectId] = {};
 				}
 				return cache.milestones[projectId];
+			}, cachedOrPlaceholderMilestone: function(projectId, milestoneId) {
+				/*
+				*	Return an individual Milestone (found in `projectId`) or an empty Object.
+				*/
+
+				var _project_cache = service.cachedOrPlaceholderMilestones(projectId);
+				if (!angular.isDefined(_project_cache[milestoneId])) {
+					_project_cache[milestoneId] = {};
+				}
+				return _project_cache[milestoneId];
 			}, milestones: function(projectId) {
 				console.log('[app.dataFactory] service.milestones(): call, `projectId`: '+projectId);
 
 				var _cache = service.cachedOrPlaceholderMilestones(projectId);
 
-				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, TIME_RECORDS_LIFE)) && !_cache._fetch_in_progress && !_cache._last_fetch_error) {
+				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, ISSUES_LIFE)) && !_cache._fetch_in_progress && !_cache._last_fetch_error) {
 					return service.fetchMilestones(projectId);
 				} else if (_cache._fetch_in_progress) {
 					return _cache._fetch_in_progress;
@@ -933,6 +948,55 @@
 					return {
 						'error': true,
 						'status': response.status
+					};
+				});
+				return _cache._fetch_in_progress;
+			}, milestone: function(projectId, milestoneId) {
+				console.log('[app.dataFactory] service.milestone(): Called, `projectId`: '+projectId+', `milestoneId`: '+milestoneId);
+
+				var _cache = service.cachedOrPlaceholderMilestone(projectId, milestoneId);
+
+				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, ISSUES_LIFE)) && !_cache._fetch_in_progress && !_cache._last_fetch_error) {
+					return service.fetchMilestone(projectId, milestoneId);
+				} else if (_cache._fetch_in_progress) {
+					return _cache._fetch_in_progress;
+				}
+				var _milestone = $q.defer();
+				_milestone.resolve(_cache);
+				return _milestone.promise;
+			}, fetchMilestone: function(projectId, milestoneId) {
+				console.log('[app.dataFactory] service.fetchMilestone(): Called, `projectId`: '+projectId+', `milestoneId`: '+milestoneId);
+				var _cache = service.cachedOrPlaceholderMilestone(projectId, milestoneId);
+				_cache._force_fetch = false;
+				_cache._fetch_in_progress = $http({
+					method: 'GET',
+					url: '/api/v2/projects/'+projectId+'/milestones/'+milestoneId
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					delete _cache._fetch_in_progress;
+					delete _cache._last_fetch_error;
+					if (angular.isObject(response.data) && response.status == 200) {
+						console.log('[app.dataFactory] service.fetchMilestone(): response.data has `project` and `milestones`, is valid');
+
+						// Cache these Milestones
+						cacheMilestones([response.data], projectId, false)
+
+						return _cache;
+					} else {
+						_cache._last_fetch_error = true;
+						console.log('[app.dataFactory] service.fetchMilestone(): Error reading response.');
+						return {
+							error: true
+						};
+					}
+				}, function(response) {
+					// Error
+					delete _cache._fetch_in_progress;
+					_cache._last_fetch_error = response.status;
+					console.log('[app.dataFactory] service.fetchMilestone(): Request error: '+response.status);
+					return {
+						error: true,
+						status: response.status
 					};
 				});
 				return _cache._fetch_in_progress;

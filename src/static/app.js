@@ -210,6 +210,22 @@
 
 
 		/*
+		*	App > Project > View Time Record
+		*/
+
+		$stateProvider.state('app.project.view-time-record', {
+			url: '/time-records/:timeRecordId',
+			reloadOnSearch: false,
+			templateUrl: '/project-time-records/project-time-records.html',
+			resolve: {
+				timeRecord: ['$stateParams', 'app.dataFactory', function($stateParams, dataFactory) {
+					return dataFactory.timeRecords($stateParams.projectId);
+				}]
+			}, controller: 'app.projectTimeRecordsCtrl'
+		});
+
+
+		/*
 		*	App > Project > Issues
 		*/
 
@@ -233,13 +249,24 @@
 
 		$stateProvider.state('app.project.issues.project-issues', {
 			url: '',
-			reloadOnSearch: false,
 			templateUrl: '/project-issues/issues.html',
 			resolve: {
 				issues: ['$stateParams', 'app.dataFactory', function($stateParams, dataFactory) {
 					return dataFactory.milestones($stateParams.projectId);
 				}]
 			}, controller: 'app.projectIssuesCtrl'
+		});
+
+
+		/*
+		*	App > Project > Issues > View Issue
+		*
+		*	This is essentially an abstract State in that it doesn't modify the view;
+		*	view modification is done via `app.project.issues.project-issues`.
+		*/
+
+		$stateProvider.state('app.project.issues.project-issues.view-issue', {
+			url: '/:milestoneId'
 		});
 
 

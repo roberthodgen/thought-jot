@@ -45,12 +45,18 @@
 						}
 					});
 
+					$scope.milestone._view = ($stateParams.milestoneId == $scope.milestone.id);
+
 					$scope.commentsPluralizeWhen = {
 						'0': 'No comments',
 						'1': '1 comment',
 						'other': '{} comments'
 					};
 				};
+
+				$scope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
+					$scope.milestone._view = (toParams['milestoneId'] == $scope.milestone.id);
+				});
 
 				$scope.complete = function() {
 					dataFactory.completeMilestone($scope.milestone).then(function(response) {

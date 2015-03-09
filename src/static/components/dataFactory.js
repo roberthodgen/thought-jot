@@ -1187,18 +1187,14 @@
 				});
 			}, createLabel: function(label, projectId) {
 
-				var data = {
-					'project_id': projectId,
-					'name': label.name,
-					'color': label.color
-				};
+				label['project_id'] = projectId;
 
 				return $http({
 					method: 'POST',
 					url: '/api/projects/labels/create.json',
 					params: {
 						't': new Date().getTime()
-					}, data: data
+					}, data: label
 				}).then(function(response) {
 					// HTTP 200-299 Status
 					if (angular.isObject(response.data)) {
@@ -1229,15 +1225,12 @@
 				});
 			}, updateLabel: function(label, projectId) {
 
-				var data = {
-					name: label.name,
-					color: label.color
-				};
+				label['project_id'] = projectId;
 
 				return $http({
 					method: 'PUT',
 					url: '/api/v2/projects/'+projectId+'/labels/'+label.id,
-					data: data
+					data: label
 				}).then(function(response) {
 					// HTTP 200-299 Status
 					if (angular.isObject(response.data) && response.status == 200) {

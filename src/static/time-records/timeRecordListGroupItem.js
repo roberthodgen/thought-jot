@@ -9,7 +9,7 @@
 			restrict: 'A',	// Only match attribute name
 			scope: {	// Isolate the directive's scope...
 				timeRecord: '=timeRecord'	// We need the Time Record as `timeRecord`
-			}, controller: ['$scope', '$routeParams', 'app.dataFactory', function($scope, $routeParams, dataFactory) {
+			}, controller: ['$scope', '$stateParams', 'app.dataFactory', function($scope, $stateParams, dataFactory) {
 				/*
 					Controller for timeRecordListGroupItem directive
 				*/
@@ -51,7 +51,7 @@
 
 				$scope.addComment = function(timeRecord) {
 					var options = {
-						'project_id': $routeParams.projectId,
+						'project_id': $stateParams.projectId,
 						'parent_id': timeRecord.id,
 						'comment': timeRecord._new_comment
 					};

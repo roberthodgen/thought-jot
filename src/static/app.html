@@ -62,7 +62,7 @@
 	<div class="thoughtjot-sidebar" projects-sidebar projects="projects" ng-show="config.sidebar.show"></div>
 
 	<div class="wrapper" ng-click="wrapperClick();">
-		<div class="main-container" ng-view></div>
+		<div class="main-container" ui-view></div>
 	</div>
 
 	<div class="footer">
@@ -70,9 +70,9 @@
 	</div>
 
 	<!-- AngularJS -->
-	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.10/angular.min.js"></script>
-	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.10/angular-route.min.js"></script>
-	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.10/angular-animate.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+	<!-- <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular-route.min.js"></script> -->
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular-animate.min.js"></script>
 
 	<!-- jQuery -->
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
@@ -89,28 +89,26 @@
 	<script src="/components/userFactory.js"></script>
 	<script src="/components/dataFactory.js"></script>
 	<!-- App-specific controllers -->
-	<script src="/home/homeCtrl.js"></script>
-	<script src="/error/errorCtrl.js"></script>
 	<script src="/login/loginCtrl.js"></script>
+	<script src="/project/project-ctrl.js"></script>
+	<script src="/project/create-project-ctrl.js"></script>
 	<script src="/projects/projectsHomeCtrl.js"></script>
 	<script src="/projects/projectListGroupItem.js"></script>
-	<script src="/new-project/new-project-ctrl.js"></script>
-	<script src="/projects/projectDetailCtrl.js"></script>
 	<script src="/project-time-records/project-time-records-ctrl.js"></script>
-	<script src="/project-milestones/project-milestones-ctrl.js"></script>
-	<script src="/new-milestone/new-milestone-ctrl.js"></script>
+	<script src="/project-issues/project-issues-ctrl.js"></script>
+	<script src="/project-issues/create-issue-ctrl.js"></script>
 	<script src="/project-settings/project-settings-ctrl.js"></script>
 	<script src="/project-labels/project-labels-ctrl.js"></script>
-	<script src="/project-labels/new-label-ctrl.js"></script>
+	<script src="/project-labels/create-label-ctrl.js"></script>
 	<!-- App-specific directives -->
 	<script src="/time-records/timeRecordListGroupItem.js"></script>
 	<script src="/projects-sidebar/projects-sidebar-directive.js"></script>
-	<script src="/projects-nav/projects-nav-directive.js"></script>
 	<script src="/project-milestones/milestone-list-group-item-directive.js"></script>
 	<script src="/project-labels/label-directive.js"></script>
 	<script src="/project-labels/add-labels-popover-directive.js"></script>
 
 	<!-- Third Party -->
+	<script src="/third-party/angular-ui-router.min.js"></script>
 	<script src="/third-party/marked.min.js"></script>
 	<script src="/third-party/angular-md.min.js"></script>
 

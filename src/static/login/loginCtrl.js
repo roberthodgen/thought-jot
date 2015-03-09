@@ -2,7 +2,7 @@
 
 	var app = angular.module('app.loginCtrl', []);
 
-	app.controller('app.loginCtrl', ['$scope', '$location', 'app.appFactory', 'ndb_users.userFactory', function($scope, $location, appFactory, userFactory) {
+	app.controller('app.loginCtrl', ['$scope', '$state', 'app.appFactory', 'ndb_users.userFactory', function($scope, $state, appFactory, userFactory) {
 
 		// Perform setup and reset $scope variables...
 		$scope.init = function() {
@@ -21,7 +21,7 @@
 
 					// Redirect if logged in
 					if (response.email) {
-						$location.path('/projects');
+						$state.go('app.projects');
 					}
 				}
 			});
@@ -39,7 +39,7 @@
 					$scope.user = response;
 
 					// Redirect...
-					$location.path('/projects');
+					$state.go('app.projects');
 				} else {
 					if (response.message) {
 						alert(response.message);
@@ -58,10 +58,10 @@
 
 					if (response.hasOwnProperty('email')) {
 						// Redirect
-						$location.path('/projects');
+						$location.go('app.projects');
 					} else {
 						// Success
-						$location.path('/login/login-create-success');
+						$location.go('/login/login-create-success');
 					}
 					
 				} else {

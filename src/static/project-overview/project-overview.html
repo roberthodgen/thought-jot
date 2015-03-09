@@ -1,44 +1,32 @@
-<div class="click-watch" ng-click="backgroundClick();"></div>
-
-<div class="container" projects-nav></div>
-
-<div class="container">
-	<div class="row">
-		<div class="col-md-4">
-			<dl>
-				<dt>{{ project.has_uncompleted_time_records ? 'In progress' : 'Completed' }}</dt>
-				<dd>
-					{{ project.has_uncompleted_time_records ? project._uncompleted : project.completed | completedTime }}
-				</dd>
-			</dl>
-		</div>
-		<div class="col-md-4">
-			<dl>
-				<dt>Updated</dt>
-				<dd>
-					{{ project._updated | date:'medium' }}
-				</dd>
-			</dl>
-		</div>
-		<div class="col-md-4">
-			<dl>
-				<dt>Contributors</dt>
-				<dd>
-					me <span class="text-muted">(owner)</span>
-				</dd>
-			</dl>
-		</div>
+<div class="row">
+	<div class="col-md-4">
+		<dl>
+			<dt>{{ project.has_uncompleted_time_records ? 'In progress' : 'Completed' }}</dt>
+			<dd>
+				{{ project.has_uncompleted_time_records ? project._uncompleted : project.completed | completedTime }}
+			</dd>
+		</dl>
 	</div>
-	<div class="row">
-		<div class="col-md-10">
-			<md ng-model="project.description"></md>
-			<h4 ng-if="!project.description" class="text-muted">No description</h4>
-		</div>
-<!-- 		<div class="col-md-2 hidden-xs hidden-sm text-right">
-			<a ng-href="/projects/{{ projectId }}/settings" style="margin-top:10px; display:block;"><span class="glyphicon glyphicon-cog"></span> Project Settings</a>
-		</div>
-		<div class="col-md-2 hidden-md hidden-lg">
-			<a ng-href="/projects/{{ projectId }}/settings" style="margin-bottom:24px; display:block;"><span class="glyphicon glyphicon-cog"></span> Project Settings</a>
-		</div> -->
+	<div class="col-md-4">
+		<dl>
+			<dt>Updated</dt>
+			<dd>
+				{{ project._updated | date:'medium' }}
+			</dd>
+		</dl>
+	</div>
+	<div class="col-md-4">
+		<dl>
+			<dt>Contributors</dt>
+			<dd>
+				me <span class="text-muted">(owner)</span>
+			</dd>
+		</dl>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-10">
+		<md ng-model="project.description"></md>
+		<h4 ng-if="!project.description" class="text-muted">No description</h4>
 	</div>
 </div>

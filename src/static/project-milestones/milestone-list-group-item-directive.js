@@ -9,7 +9,7 @@
 			restrict: 'A',	// Only match attribute name
 			scope: {	// Isolate the directive's scope...
 				milestone: '=milestone'	// We need the Time Record as `milestone`
-			}, controller: ['$scope', '$routeParams', 'app.dataFactory', function($scope, $routeParams, dataFactory) {
+			}, controller: ['$scope', '$stateParams', 'app.dataFactory', function($scope, $stateParams, dataFactory) {
 				/*
 					Controller for milestoneListGroupItem directive
 				*/
@@ -77,7 +77,7 @@
 						dataFactory.updateMilestone({
 							id: $scope.milestone.id,
 							open: !$scope.milestone.open
-						}, $routeParams.projectId).then(function(response) {
+						}, $stateParams.projectId).then(function(response) {
 							if (response.error) {
 								alert('Error closing milestone.');
 							}
@@ -87,7 +87,7 @@
 						dataFactory.updateMilestone({
 							id: $scope.milestone.id,
 							open: !$scope.milestone.open
-						}, $routeParams.projectId).then(function(response) {
+						}, $stateParams.projectId).then(function(response) {
 							if (response.error) {
 								alert('Error opening milestone.');
 							}
@@ -97,7 +97,7 @@
 
 				$scope.addComment = function(milestone) {
 					var options = {
-						'project_id': $routeParams.projectId,
+						'project_id': $stateParams.projectId,
 						'parent_id': milestone.id,
 						'comment': milestone._new_comment
 					};

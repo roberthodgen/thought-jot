@@ -1,0 +1,10 @@
+<div class="container">
+	<ul class="nav nav-links">
+		<li ui-sref-active="active"><a ui-sref="app.project.project-overview">Overview</a></li>
+		<li ui-sref-active="active"><a ui-sref="app.project.project-time-records">Time Records</a></li>
+		<li ng-class="{ 'active': stateIncludes('app.project.issues') }"><a ui-sref="app.project.issues.project-issues">Issues</a></li>
+		<li ng-class="{ 'active': stateIncludes('app.project.labels') }"><a ui-sref="app.project.labels.project-labels">Labels</a></li>
+		<li ui-sref-active="active"><a ui-sref="app.project.project-comments">Comments</a></li>
+		<li ui-sref-active="active"><a ui-sref="app.project.project-settings">Settings</a></li>
+	</ul>
+</div>

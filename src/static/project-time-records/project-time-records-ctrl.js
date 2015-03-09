@@ -2,104 +2,42 @@
 
 	var app = angular.module('app.projectTimeRecordsCtrl', []);
 
-	app.controller('app.projectTimeRecordsCtrl', ['$scope', '$location', '$routeParams', '$filter', 'app.appFactory', 'ndb_users.userFactory', 'app.dataFactory', function($scope, $location, $routeParams, $filter, appFactory, userFactory, dataFactory) {
+	app.controller('app.projectTimeRecordsCtrl', ['$scope', '$state', '$location', 'app.appFactory', 'app.dataFactory', 'timeRecords', function($scope, $state, $location, appFactory, dataFactory, timeRecords) {
+
+		$scope.timeRecords = timeRecords;
 
 		// Perform setup and reset $scope variables...
 		$scope.init = function() {
 			console.log('[app.projectTimeRecordsCtrl] $scope.init(): Called.');
 			appFactory.config({
-				pageTitle: 'Loading...',
-				navbar: {
-					title: 'Loading...',
-					link: $location.path()
-				}, sidebar: {
-					selection: $routeParams.projectId
-				}, projectsNav: {
-					selection: 'time-records'
-				}
+				pageTitle: 'Time Records: ' + $scope.project.name
 			});
-
-			$scope.projectId = $routeParams.projectId;
 
 			$scope.search = {
 				name: ''
 			};
 
-			$scope.user = {};
-			$scope.userLoaded = false;
-
-			$scope.project = {};
-			$scope.projectLoaded = true;
-
-			$scope.timeRecords = {};
-			$scope.timeRecordsLoaded = false;
 			$scope.inProgressTimeRecords = [];
 			$scope.inProgressResults = [];
 
 			$scope.activeResults = [];
 
-			userFactory.user().then(function(response) {
-				$scope.userLoaded = true;
-				if (!response.error) {
-					$scope.user = response;
+			// Search for uncompleted Time Records (to start the counter)
+			var _search = $location.search();
+			if (angular.isDefined(_search.edit)) {
+				var _keys = Object.keys($scope.timeRecords);
+				for (var i = _keys.length - 1; i >= 0; i--) {
 
-					// Redirect if not logged in
-					if (!response.email) {
-						$location.path('/login');
+					// Delete our temp `_edit` property
+					if ($scope.timeRecords[_keys[i]].id === _search.edit) {
+						$scope.timeRecords[_keys[i]]._edit = true;
+						$scope.timeRecords[_keys[i]]._name = angular.copy($scope.timeRecords[_keys[i]].name);
+					} else {
+						delete $scope.timeRecords[_keys[i]]._edit;
 					}
-
-					dataFactory.timeRecords($scope.projectId).then(function(response) {
-						$scope.timeRecordsLoaded = true;
-						if (!response.error) {
-							// Success
-							$scope.timeRecords = response;
-
-							var _search = $location.search();
-
-							// Search for uncompleted Time Records (to start the counter)
-							var _keys = Object.keys(response);
-							for (var i = _keys.length - 1; i >= 0; i--) {
-
-								// Delete our temp `_edit` property
-								if (response[_keys[i]].id === _search.edit) {
-									response[_keys[i]]._edit = true;
-									response[_keys[i]]._name = angular.copy(response[_keys[i]].name);
-								} else {
-									delete response[_keys[i]]._edit;
-								}
-
-								
-							}
-						} else {
-							alert('Error loading Time Records.');
-						}
-					});
-
-					dataFactory.project($scope.projectId).then(function(response) {
-						$scope.projectLoaded = true;
-						if (!response.error) {
-							// Success
-							$scope.project = response;
-
-							// Add this Project to the uncompleted seconds watcher...
-							dataFactory.uncompletedSecondsWatchAddProjectId(response.id);
-
-							appFactory.config({
-								pageTitle: response.name,
-								navbar: {
-									title: response.name
-								}, sidebar: {
-									selection: response.id
-								}
-							});
-						} else {
-							// Error
-						}
-					});
-				} else {
-					alert('Error loading User.');
 				}
-			});
+			}
+
 		};
 
 		// Watch for changes in the `edit` search parameter...
@@ -142,21 +80,9 @@
 			$location.search('edit', timeRecord.id);
 		};
 
-		$scope.backgroundClick = function() {
-			// Remove the edit search property
-			var _search = $location.search();
-			$location.search('edit', null);
-		};
-
 
 		// Init
 		$scope.init();
-
-		// Destroy
-		$scope.$on('$destroy',  function() {
-			// Remove this Project from the uncompleted seconds watcher...
-			dataFactory.uncompletedSecondsWatchRemoveProjectId($scope.project.id);
-		});
 	}]);
 
 })();

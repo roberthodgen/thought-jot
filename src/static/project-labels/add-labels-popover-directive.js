@@ -9,7 +9,7 @@
 			restrict: 'A',	// Only match attribute name
 			scope: {	// Isolate the directive's scope...
 				milestone: '='	// We need the Time Record as `milestone`
-			}, controller: ['$scope', '$routeParams', 'app.dataFactory', function($scope, $routeParams, dataFactory) {
+			}, controller: ['$scope', '$stateParams', 'app.dataFactory', function($scope, $stateParams, dataFactory) {
 				/*
 					Controller for addLabelsPopover directive
 				*/
@@ -17,7 +17,7 @@
 				$scope.init = function() {
 					console.log('[app.addLabelsPopover] $scope.init(): Called.');
 
-					$scope.projectId = $routeParams.projectId;
+					$scope.projectId = $stateParams.projectId;
 
 					$scope.milestoneLabels = {};
 					$scope.milestoneLabelsLoaded = false;
@@ -36,7 +36,7 @@
 					$scope.projectLabels = {};
 					$scope.projectLabelsLoaded = false;
 					$scope.projectLabelsError = false;
-					dataFactory.labelsForProject($routeParams.projectId).then(function(response) {
+					dataFactory.labelsForProject($stateParams.projectId).then(function(response) {
 						$scope.projectLabelsLoaded = true;
 						if (!response.error) {
 							// Success

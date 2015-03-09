@@ -2,7 +2,7 @@
 
 	var app = angular.module('app.projectsHomeCtrl', []);
 
-	app.controller('app.projectsHomeCtrl', ['$scope', '$location', '$filter', '$interval', 'app.appFactory', 'ndb_users.userFactory', 'app.dataFactory', function($scope, $location, $filter, $interval, appFactory, userFactory, dataFactory) {
+	app.controller('app.projectsHomeCtrl', ['$scope', '$location', '$filter', '$interval', 'app.appFactory', 'projects', function($scope, $location, $filter, $interval, appFactory, projects) {
 
 		// Perform setup and reset $scope variables...
 		$scope.init = function() {
@@ -15,44 +15,18 @@
 				'name': ''
 			};
 
-			$scope.user = {};
-			$scope.userLoaded = false;
-
-			$scope.projects = {};
-			$scope.projectsLoaded = true;
+			$scope.projects = projects;
 			$scope.activeResults = [];
 			$scope.inProgressProjects = [];
 			$scope.inProgressResults = [];
-
-			userFactory.user().then(function(response) {
-				$scope.userLoaded = true;
-				if (!response.error) {
-					$scope.user = response;
-
-					// Redirect if not logged in
-					if (!response.email) {
-						$location.path('/login');
-					}
-
-					dataFactory.projects().then(function(response) {
-						$scope.projectsLoaded = true;
-						if (!response.error) {
-							// Success
-							$scope.projects = response;
-
-							// Search for uncompleted Time Records (to start the counter)
-							var keys = Object.keys(response);
-							for (var i = keys.length - 1; i >= 0; i--) {
-								if (response[keys[i]].has_uncompleted_time_records) {
-									$scope.startUncompletedSecondsCount();
-								}
-							}
-						} else {
-							// Error
-						}
-					});
+			
+			// Search for uncompleted Time Records (to start the counter)
+			var keys = Object.keys($scope.projects);
+			for (var i = keys.length - 1; i >= 0; i--) {
+				if ($scope.projects[keys[i]].has_uncompleted_time_records) {
+					$scope.startUncompletedSecondsCount();
 				}
-			});
+			}
 		};
 
 		$scope.startUncompletedSecondsCount = function() {

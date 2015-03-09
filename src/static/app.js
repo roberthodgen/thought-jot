@@ -15,8 +15,6 @@
 
 		// Controllers
 		'app.projectCtrl',
-		'app.homeCtrl',
-		'app.errorCtrl',
 		'app.loginCtrl',
 		'app.createProjectCtrl',
 		'app.projectTimeRecordsCtrl',
@@ -44,7 +42,8 @@
 	]);
 
 	app.config(['$stateProvider', function($stateProvider) {
-		
+
+
 		/*
 		*	Home
 		*/
@@ -52,7 +51,34 @@
 		$stateProvider.state('home', {
 			url: '/',
 			templateUrl: '/home/home.html',
-			controller: 'app.homeCtrl'
+			controller: ['$state', 'app.appFactory', function($state, appFactory) {
+				appFactory.config({
+					pageTitle: null,
+					navbar: {
+						title: null,
+						link: $state.href('home')
+					}
+				});
+			}]
+		});
+
+
+		/*
+		*	Home
+		*/
+
+		$stateProvider.state('not-found', {
+			url: '/not-found',
+			templateUrl: '/error/not-found.html',
+			controller: ['$state', 'app.appFactory', function($state, appFactory) {
+				appFactory.config({
+					pageTitle: 'Not found',
+					navbar: {
+						title: null,
+						link: $state.href('home')
+					}
+				});
+			}]
 		});
 
 
@@ -301,7 +327,7 @@
 	app.config(function($urlRouterProvider){
 		// if the path doesn't match any of the urls you configured
 		// otherwise will take care of routing the user to the specified url
-		$urlRouterProvider.otherwise('/');
+		$urlRouterProvider.otherwise('/not-found');
 	});
 
 

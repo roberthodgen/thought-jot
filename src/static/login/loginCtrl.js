@@ -58,10 +58,10 @@
 
 					if (response.hasOwnProperty('email')) {
 						// Redirect
-						$location.go('app.projects');
+						$state.go('app.projects');
 					} else {
 						// Success
-						$location.go('/login/login-create-success');
+						$state.go('app.projects');	// TODO: Redirect to message indicating email address must be verified
 					}
 					
 				} else {

@@ -1,13 +1,13 @@
 <div class="sidebar-list">
-	<div class="sidebar-list-item" ng-class="{ 'active': (config.sidebar.selection == project.id) }" ng-repeat="project in projects | filterDisplayObjects | orderBy:'_updated':true as displayedProjects">
-		<a ng-href="/projects/{{ project.id }}" ng-click="sidebarClick();">
+	<div class="sidebar-list-item" ui-sref-active="active" ng-repeat="project in projects | filterDisplayObjects | orderBy:'_updated':true as displayedProjects">
+		<a ui-sref="app.project.project-overview({ projectId: project.id })" ng-click="sidebarClick();">
 			<div class="sidebar-list-item-name">{{ project.name }}</div>
 			<div><span class="glyphicon glyphicon-time"></span> <span ng-show="project.has_uncompleted_time_records"><strong>In progress:</strong></span> {{ project._uncompleted ? project._uncompleted : project.completed | aproximateCompletedTime }}</div>
 		</a>
 	</div>
 	<hr />
 	<div class="sidebar-list-item" ng-class="{ 'active': (config.sidebar.selection == 'new-project') }">
-		<a href="/projects/new-project" ng-click="sidebarClick();"><div class="sidebar-list-item-name text-success"><span class="glyphicon glyphicon-plus"></span> New Project</div></a>
+		<a ui-sref="app.create-project" ng-click="sidebarClick();"><div class="sidebar-list-item-name text-success"><span class="glyphicon glyphicon-plus"></span> New Project</div></a>
 	</div>
 </div>
 

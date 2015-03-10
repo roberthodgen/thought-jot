@@ -3,7 +3,7 @@
 		<h1>{{ issue.name }} <span class="text-muted">#{{ issue.number }}</span></h1>
 	</div>
 	<div class="col-sm-2 text-right" style="padding-top:10px;">
-		<a ui-sref="app.project.issues.project-issues.edit-issue({ milestoneId: issue.id })" class="text-muted" style="position:relative; top:1px; margin-right:10px;">Edit</a>
+		<a ui-sref="app.project.issues.project-issues.edit-issue({ milestoneId: issue.id })" title="Edit issue." class="text-muted" style="position:relative; top:1px; margin-right:10px;">Edit</a>
 		<button type="button" class="btn btn-default" ng-click="toggleOpen();">{{ issue.open ? 'Close issue' : 'Reopen issue' }}</button>
 	</div>
 </div>
@@ -13,15 +13,15 @@
 </p>
 
 <div class="comment" style="margin-left:-15px; margin-right:-15px; padding:10px 15px 10px 15px; border-top:1px solid #ddd;">
+
+	<ul class="list-inline">
+		<li add-labels-popover milestone="issue"></li>
+		<li ng-repeat="label in milestoneLabels | filterDisplayObjects" style="padding:0px;"><a href="#" label="label"></a></li>
+	</ul>
+
 	<md ng-model="issue.description"></md>
 	<p class="text-muted" ng-show="!issue.description" style="margin-top:10px;"><em>No description given.</em></p>
 
-	<div>
-		<ul class="list-inline" style="margin-bottom:0px;">
-			<li add-labels-popover milestone="issue"></li>
-			<li ng-repeat="label in milestoneLabels | filterDisplayObjects" style="padding:0px;"><a href="#" label="label"></a></li>
-		</ul>
-	</div>
 </div>
 
 <div class="comment" ng-repeat="comment in comments | filterDisplayObjects | orderBy:'created' as displayComments" style="margin-left:-15px; margin-right:-15px; padding:10px 15px 10px 15px; border-top:1px solid #ddd;">

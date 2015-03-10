@@ -2,7 +2,7 @@
 
 	var app = angular.module('app.projectIssuesCtrl', []);
 
-	app.controller('app.projectIssuesCtrl', ['$scope', '$state', '$location', '$timeout', 'app.appFactory', 'app.dataFactory', 'issues', function($scope, $state, $location, $timeout, appFactory, dataFactory, issues) {
+	app.controller('app.projectIssuesCtrl', ['$scope', '$state', 'app.appFactory', 'app.dataFactory', 'issues', function($scope, $state, appFactory, dataFactory, issues) {
 
 		$scope.issues = issues;
 
@@ -23,6 +23,12 @@
 			$scope.openIssues = true;
 
 			$scope.activeResults = [];
+
+			if (angular.isDefined($state.params.milestoneId)) {
+				if (angular.isDefined($scope.issues[$state.params.milestoneId])) {
+					$scope.issues[$state.params.milestoneId]._view = true;
+				}
+			}
 
 		};
 

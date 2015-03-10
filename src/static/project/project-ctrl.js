@@ -43,7 +43,7 @@
 		// Init
 		$scope.init();
 
-		// Destroy
+		// Cleanup
 		$scope.$on('$destroy',  function() {
 			// Remove this Project from the uncompleted seconds watcher...
 			dataFactory.uncompletedSecondsWatchRemoveProjectId($scope.projectId);

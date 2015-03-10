@@ -76,7 +76,7 @@
 		// Init
 		$scope.init();
 
-		// Destroy
+		// Cleanup
 		$scope.$on('$destroy',  function() {
 			// Stop the uncompleted seconds interval, if it's running
 			$scope.stopUncompletedSecondsCount();

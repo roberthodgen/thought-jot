@@ -221,10 +221,21 @@
 				};
 
 				$scope.save = function() {
-					$scope.issueEditForm.$setPristine();	// Clears $dirty
-					$state.go('app.project.issues.project-issues.view-issue', $stateParams);
+					dataFactory.updateMilestone({
+						id: angular.copy($scope.issue.id),
+						name: angular.copy($scope.issue._name),
+						description: angular.copy($scope.issue._description)
+					}, $stateParams.projectId).then(function(response) {
+						if (!response.error) {
+							$scope.issueEditForm.$setPristine();	// Clears $dirty
+							$state.go('app.project.issues.project-issues.view-issue', $stateParams);
+						} else {
+							alert('Error saving Issue: '+response.status);
+						}
+					});
 				};
 
+				// On `$stateChangeStart` check to see if the form has unsaved changes, i.e. it's dirty
 				$scope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
 					if ($scope.issueEditForm.$dirty) {
 						if (!confirm('Unsaved changes; continue and lose changes?')) {

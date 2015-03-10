@@ -30,9 +30,9 @@
 		'app.projectListGroupItem',
 		'app.timeRecordListGroupItem',
 		'app.projectsSidebar',
-		'app.milestoneListGroupItem',
 		'app.addLabelsPopover',
 		'app.label',
+		'app.issueDirectives',
 
 
 		// Third-party
@@ -267,6 +267,18 @@
 
 		$stateProvider.state('app.project.issues.project-issues.view-issue', {
 			url: '/:milestoneId'
+		});
+
+
+		/*
+		*	App > Project > Issues > Edit Issue
+		*
+		*	This is essentially an abstract State in that it doesn't modify the view;
+		*	view modification is done via `app.project.issues.project-issues`.
+		*/
+
+		$stateProvider.state('app.project.issues.project-issues.edit-issue', {
+			url: '/:milestoneId/edit'
 		});
 
 

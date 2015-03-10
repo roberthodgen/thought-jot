@@ -70,20 +70,6 @@
 			}
 		});
 
-		// $scope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
-		// 	// Check to see if we're transitioning to view an Issue...
-		// 	console.log('$stateChangeStart: toState: '+toState.name);
-		// 	console.log('$stateChangeStart: toState href: '+$state.href(toState.name, toParams));
-		// 	if (toState.name == 'app.project.issues.view-issue') {
-		// 		if ($scope.issues.hasOwnProperty(toParams.milestoneId)) {
-		// 			$scope.issues[toParams.milestoneId]._view = true;
-		// 		}
-		// 		// console.log('$stateChangeStart: toParams.milestoneId: '+toParams.milestoneId);
-		// 		event.preventDefault();
-				
-		// 	}
-		// });
-
 		$scope.issueClick = function(issue) {
 			console.log('[app.projectIssuesCtrl] $scope.issueClick(): Called with `issue` of id: '+issue.id);
 			$state.go('app.project.issues.project-issues.view-issue', { milestoneId: issue.id });

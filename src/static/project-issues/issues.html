@@ -23,8 +23,8 @@
 
 <div class="projects-list-group">
 	<h4>{{ openIssues ? 'Open' : 'Closed' }} issues <small><a ng-href="#" ng-click="openIssues = !openIssues" class="text-muted">{{ openIssues ? 'Closed' : 'Open' }}</a></small></h4>
-	<div class="list-group">
-		<div class="list-group-item" ng-class="{ 'list-group-item-edit': (milestone._view) }" milestone-list-group-item milestone="issue" ng-click="issueClick(issue);" ng-repeat="issue in issues | filterDisplayObjects | filterMilestones:openIssues | filter:search | orderBy:'_created':true as issueResults"></div>
+	<div class="list-group popout">
+		<div class="list-group-item" ng-class="{ 'view': (issue._view) }" milestone-list-group-item milestone="issue" ng-click="issueClick(issue);" ng-repeat="issue in issues | filterDisplayObjects | filterMilestones:openIssues | filter:search | orderBy:'_created':true as issueResults"></div>
 		<!-- <div ui-view></div> -->
 {{ miletoneId }}
 		

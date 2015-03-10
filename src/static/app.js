@@ -33,6 +33,7 @@
 		'app.milestoneListGroupItem',
 		'app.addLabelsPopover',
 		'app.label',
+		'app.issueDirectives',
 
 
 		// Third-party

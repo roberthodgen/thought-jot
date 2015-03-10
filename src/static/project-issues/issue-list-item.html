@@ -1,0 +1,13 @@
+<div class="row">
+	<div class="col-md-10">
+		<p>
+			<strong>{{ issue.name }}</strong>
+			<span label="label" ng-repeat="label in milestoneLabels | filterDisplayObjects"></span>
+		</p>
+	</div>
+	<div class="col-md-2" ng-pluralize count="(comments | filterDisplayObjects).length" when="commentsPluralizeWhen"></div>
+</div>
+
+<p class="text-muted" style="margin-bottom:0px;">
+	#{{ issue.number }} created on {{ issue._created | date:'mediumDate' }} by {{ issue.user }}
+</p>

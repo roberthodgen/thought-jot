@@ -30,7 +30,6 @@
 		'app.projectListGroupItem',
 		'app.timeRecordListGroupItem',
 		'app.projectsSidebar',
-		'app.milestoneListGroupItem',
 		'app.addLabelsPopover',
 		'app.label',
 		'app.issueDirectives',

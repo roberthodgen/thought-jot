@@ -2,8 +2,9 @@
 	<div class="col-sm-10">
 		<h1>{{ issue.name }} <span class="text-muted">#{{ issue.number }}</span></h1>
 	</div>
-	<div class="col-sm-2 text-right">
-		<button type="button" class="btn btn-default" ng-click="toggleOpen();" style="margin-top:10px;">{{ issue.open ? 'Close' : 'Reopen' }}</button>
+	<div class="col-sm-2 text-right" style="padding-top:10px;">
+		<a ui-sref="app.project.issues.project-issues.edit-issue({ milestoneId: issue.id })" class="text-muted" style="position:relative; top:1px; margin-right:10px;">Edit</a>
+		<button type="button" class="btn btn-default" ng-click="toggleOpen();">{{ issue.open ? 'Close issue' : 'Reopen issue' }}</button>
 	</div>
 </div>
 

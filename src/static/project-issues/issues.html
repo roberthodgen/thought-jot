@@ -26,7 +26,8 @@
 	<div class="list-group popout">
 		<div class="list-group-item" ng-class="{ 'view': (issue._view) }" ng-click="issueClick(issue);" ng-repeat="issue in issues | filterDisplayObjects | filterMilestones:openIssues | filter:search | orderBy:'_created':true as issueResults">
 			<div ng-if="!issue._view" issue-list-item="issue"></div>
-			<div ng-if="issue._view" issue-view="issue"></div>
+			<div ng-if="issue._view && !issue._edit" issue-view="issue"></div>
+			<div ng-if="issue._view && issue._edit" issue-edit="issue"></div>
 		</div>
 	</div>
 	<p class="text-muted" ng-show="issueResults.length == 0">No results.</p>

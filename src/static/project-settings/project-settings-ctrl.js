@@ -11,7 +11,7 @@
 				pageTitle: 'Settings: ' + $scope.project.name
 			});
 
-			$scope.projectDescriptionPreview = false;
+			$scope.descriptionPreview = false;
 
 			// Copy variables we'll be editing...
 			$scope.project._name = angular.copy($scope.project.name);

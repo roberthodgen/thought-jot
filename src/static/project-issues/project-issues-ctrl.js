@@ -24,48 +24,22 @@
 
 			$scope.activeResults = [];
 
-			// Search for uncompleted Issues (to start the counter)
-			var _search = $location.search();
-			if (angular.isDefined(_search.view)) {
-				var _keys = Object.keys($scope.issues);
-				for (var i = _keys.length - 1; i >= 0; i--) {
+		};
 
-					// Delete our temp `_view` property
-					if ($scope.issues[_keys[i]].id === _search.view) {
-						$scope.issues[_keys[i]]._view = true;
-						$scope.issues[_keys[i]]._name = angular.copy($scope.issues[_keys[i]].name);
-					} else {
-						delete $scope.issues[_keys[i]]._view;
-					}
+		// When `$stateChangeStart` is emitted;
+		$scope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
+			
+			// Add the `_view` property of the currently viewed issue;
+			if (angular.isDefined(toParams.milestoneId)) {
+				if (angular.isDefined($scope.issues[toParams.milestoneId])) {
+					$scope.issues[toParams.milestoneId]._view = true;
 				}
 			}
 
-		};
-
-		// Watch for changes in the `view` search parameter...
-		$scope.$watch(function() {
-			var _search = $location.search();
-			return _search.view;
-		}, function(newValue, oldValue) {
-			// Loop through and delete all not equal to this `newValue`
-			console.log('[app.projectIssuesCtrl] $scope.$watch(): Detected new `view` search value: '+newValue);
-			var _keys = Object.keys($scope.issues);
-			if (angular.isString(newValue)) {
-				// Loop through and delete all but this key
-				for (var i = _keys.length - 1; i >= 0; i--) {
-					if ($scope.issues[_keys[i]].id != newValue) {
-						delete $scope.issues[_keys[i]]._view;
-						delete $scope.issues[_keys[i]]._name;
-					} else {
-						$scope.issues[_keys[i]]._view = true;
-						$scope.issues[_keys[i]]._name = angular.copy($scope.issues[_keys[i]].name);
-					}
-				}
-			} else {
-				// Loop through all and remove `_view` and `_name`
-				for (var i = _keys.length - 1; i >= 0; i--) {
-					delete $scope.issues[_keys[i]]._view;
-					delete $scope.issues[_keys[i]]._name;
+			// Delete the `_view` property of the old issue; if present.
+			if (angular.isDefined(fromParams.milestoneId)) {
+				if (angular.isDefined($scope.issues[fromParams.milestoneId])) {
+					delete $scope.issues[fromParams.milestoneId]._view;
 				}
 			}
 		});

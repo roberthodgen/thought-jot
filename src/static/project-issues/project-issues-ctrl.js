@@ -2,7 +2,7 @@
 
 	var app = angular.module('app.projectIssuesCtrl', []);
 
-	app.controller('app.projectIssuesCtrl', ['$scope', '$state', 'app.appFactory', 'app.dataFactory', 'issues', function($scope, $state, appFactory, dataFactory, issues) {
+	app.controller('app.projectIssuesCtrl', ['$scope', '$state', '$stateParams', 'app.appFactory', 'app.dataFactory', 'issues', function($scope, $state, $stateParams, appFactory, dataFactory, issues) {
 
 		$scope.issues = issues;
 
@@ -16,6 +16,8 @@
 			$scope.search = {
 				name: ''
 			};
+
+			$scope.searchLabels = {};
 
 			$scope.inProgressissues = [];
 			$scope.inProgressResults = [];
@@ -33,8 +35,12 @@
 					}
 				}
 			}
-
 		};
+
+		$scope.$on('backgroundClick', function() {
+			var params = angular.extend({ milestoneId: '' }, $stateParams);
+			$state.go('app.project.issues.project-issues', params);
+		});
 
 		// When `$stateChangeSuccess` is emitted;
 		// used instead of `$stateChangeStart` so Directives have a chance to call `preventDefault()`
@@ -60,6 +66,16 @@
 						$scope.issues[toParams.milestoneId]._edit = true;
 					}
 				}
+			}
+
+			if (angular.isDefined(toParams.f)) {
+				if (toParams.f == 'open') {
+					$scope.openIssues = true;
+				} else if (toParams.f == 'closed') {
+					$scope.openIssues = false;
+				}
+			} else {
+				$scope.openIssues = true;
 			}
 		});
 

@@ -60,8 +60,8 @@ html, body {
 
 }
 
-.list-group.popout .list-group-item:first-child,
-.list-group.popout .list-group-item:last-child {
+.list-group.popout > .list-group-item:first-child,
+.list-group.popout > .list-group-item:last-child {
 	border-radius: 0px;
 }
 

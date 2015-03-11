@@ -2,7 +2,7 @@
 
 	var app = angular.module('app.projectCtrl', []);
 
-	app.controller('app.projectCtrl', ['$scope', '$location', '$state', 'app.appFactory', 'app.dataFactory', 'project', 'projectId', function($scope, $location, $state, appFactory, dataFactory, project, projectId) {
+	app.controller('app.projectCtrl', ['$scope', '$state', 'app.appFactory', 'app.dataFactory', 'project', 'projectId', function($scope, $state, appFactory, dataFactory, project, projectId) {
 
 		$scope.projectId = projectId;
 		$scope.project = project;
@@ -29,14 +29,7 @@
 		$scope.backgroundClick = function() {
 			console.log('[app.projectCtrl] $scope.backgroundClick(): Called.');
 
-			$state.go('app.project.issues.project-issues', { milestoneId: '' });
-			
-			// Remove the edit search property
-			var _search = $location.search();
-			$location.search({
-				edit: null,
-				view: null
-			});
+			$scope.$broadcast('backgroundClick', {});
 		};
 
 

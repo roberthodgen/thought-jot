@@ -5,14 +5,18 @@
 
 			<div class="input-group-btn">
 				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-					Open issues <span class="caret"></span>
+					{{ openIssues ? 'Open' : 'Closed' }} issues <span class="caret"></span>
 				</button>
 				<ul class="dropdown-menu" role="menu">
-					<li class="active"><a href="#">Open</a></li>
-					<li><a href="#">Closed</a></li>
+					<li ui-sref-active="active"><a ui-sref="app.project.issues.project-issues({ f: 'open' })">Open</a></li>
+					<li ui-sref-active="active"><a ui-sref="app.project.issues.project-issues({ f: 'closed' })">Closed</a></li>
 					<li class="divider"></li>
-					<li><a href="#">All</a></li>
+					<li ui-sref-active="active"><a ui-sref="app.project.issues.project-issues({ f: 'all' })">All</a></li>
 				</ul>
+			</div>
+			<div class="input-button-group">
+				<button class="btn btn-default" ng-click="showSearchLabels = !showSearchLabels">Labels</button>
+				<div select-labels-popover="searchLabels" ng-show="showSearchLabels"></div>
 			</div>
 		</div>
 	</div>
@@ -22,7 +26,7 @@
 </div>
 
 <div class="projects-list-group">
-	<h4>{{ openIssues ? 'Open' : 'Closed' }} issues <small><a ng-href="#" ng-click="openIssues = !openIssues" class="text-muted">{{ openIssues ? 'Closed' : 'Open' }}</a></small></h4>
+	<h4>{{ openIssues ? 'Open' : 'Closed' }} issues</h4>
 	<div class="list-group popout">
 		<div class="list-group-item" ng-class="{ 'view': (issue._view) }" ng-click="issueClick(issue);" ng-repeat="issue in issues | filterDisplayObjects | filterMilestones:openIssues | filter:search | orderBy:'_created':true as issueResults">
 			<div ng-if="!issue._view" issue-list-item="issue"></div>

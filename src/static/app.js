@@ -30,7 +30,7 @@
 		'app.projectListGroupItem',
 		'app.timeRecordListGroupItem',
 		'app.projectsSidebar',
-		'app.addLabelsPopover',
+		'app.labelsPopover',
 		'app.label',
 		'app.issueDirectives',
 
@@ -248,7 +248,7 @@
 		*/
 
 		$stateProvider.state('app.project.issues.project-issues', {
-			url: '',
+			url: '?f',
 			templateUrl: '/project-issues/issues.html',
 			resolve: {
 				issues: ['$stateParams', 'app.dataFactory', function($stateParams, dataFactory) {

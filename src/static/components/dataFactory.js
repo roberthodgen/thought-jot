@@ -1125,7 +1125,7 @@
 					};
 				}, function(response) {
 					// Error
-					console.log('[app.dataFactory] service.fetchLabelsForProject(): Request error: '+response.status);
+					console.log('[app.dataFactory] service.milestoneLabelRemove(): Request error: '+response.status);
 					return {
 						'error': true,
 						'status': response.status

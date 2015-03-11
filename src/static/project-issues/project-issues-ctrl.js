@@ -2,7 +2,7 @@
 
 	var app = angular.module('app.projectIssuesCtrl', []);
 
-	app.controller('app.projectIssuesCtrl', ['$scope', '$state', 'app.appFactory', 'app.dataFactory', 'issues', function($scope, $state, appFactory, dataFactory, issues) {
+	app.controller('app.projectIssuesCtrl', ['$scope', '$state', '$stateParams', 'app.appFactory', 'app.dataFactory', 'issues', function($scope, $state, $stateParams, appFactory, dataFactory, issues) {
 
 		$scope.issues = issues;
 
@@ -13,14 +13,15 @@
 				pageTitle: 'Issues: ' + $scope.project.name
 			});
 
-			$scope.search = {
-				name: ''
+			$scope.searchOptions = {
+				open: 'open',
+				text: {
+					name: ''
+				}, labels: []
 			};
 
 			$scope.inProgressissues = [];
 			$scope.inProgressResults = [];
-
-			$scope.openIssues = true;
 
 			$scope.activeResults = [];
 
@@ -33,8 +34,12 @@
 					}
 				}
 			}
-
 		};
+
+		$scope.$on('backgroundClick', function() {
+			var params = angular.extend({ milestoneId: '' }, $stateParams);
+			$state.go('app.project.issues.project-issues', params);
+		});
 
 		// When `$stateChangeSuccess` is emitted;
 		// used instead of `$stateChangeStart` so Directives have a chance to call `preventDefault()`
@@ -60,6 +65,16 @@
 						$scope.issues[toParams.milestoneId]._edit = true;
 					}
 				}
+			}
+
+			if (angular.isDefined(toParams.f)) {
+				if (toParams.f == 'closed') {
+					$scope.searchOptions.open = 'closed';
+				} else {
+					$scope.searchOptions.open = 'all';
+				}
+			} else {
+				$scope.searchOptions.open = 'open';
 			}
 		});
 

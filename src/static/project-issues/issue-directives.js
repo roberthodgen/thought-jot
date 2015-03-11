@@ -9,17 +9,17 @@
 				issue: '=issueListItem'
 			}, controller: ['$scope', 'app.dataFactory', function($scope, dataFactory) {
 				$scope.init = function() {
-					$scope.milestoneLabels = {};
-					$scope.milestoneLabelsLoaded = false;
-					$scope.milestoneLabelsError = false;
+					$scope.labels = {};
+					$scope.labelsLoaded = false;
+					$scope.labelsError = false;
 					dataFactory.labelsForMilestone($scope.issue.id).then(function(response) {
-						$scope.milestoneLabelsLoaded = true;
+						$scope.labelsLoaded = true;
 						if (!response.error) {
 							// Success
-							$scope.milestoneLabels = response;
+							$scope.labels = response;
 						} else {
 							// Error
-							$scope.milestoneLabelsError = true;
+							$scope.labelsError = true;
 						}
 					});
 
@@ -60,19 +60,21 @@
 						}
 					});
 
-					$scope.milestoneLabels = {};
-					$scope.milestoneLabelsLoaded = false;
-					$scope.milestoneLabelsError = false;
+					$scope.labels = {};
+					$scope.labelsLoaded = false;
+					$scope.labelsError = false;
 					dataFactory.labelsForMilestone($scope.issue.id).then(function(response) {
-						$scope.milestoneLabelsLoaded = true;
+						$scope.labelsLoaded = true;
 						if (!response.error) {
 							// Success
-							$scope.milestoneLabels = response;
+							$scope.labels = response;
 						} else {
 							// Error
-							$scope.milestoneLabelsError = true;
+							$scope.labelsError = true;
 						}
 					});
+
+					$scope.showLabelsPopover = false;
 				};
 
 				$scope.commentsPluralizeWhen = {
@@ -155,17 +157,17 @@
 						}
 					});
 
-					$scope.milestoneLabels = {};
-					$scope.milestoneLabelsLoaded = false;
-					$scope.milestoneLabelsError = false;
+					$scope.labels = {};
+					$scope.labelsLoaded = false;
+					$scope.labelsError = false;
 					dataFactory.labelsForMilestone($scope.issue.id).then(function(response) {
-						$scope.milestoneLabelsLoaded = true;
+						$scope.labelsLoaded = true;
 						if (!response.error) {
 							// Success
-							$scope.milestoneLabels = response;
+							$scope.labels = response;
 						} else {
 							// Error
-							$scope.milestoneLabelsError = true;
+							$scope.labelsError = true;
 						}
 					});
 

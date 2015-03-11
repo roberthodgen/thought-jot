@@ -231,18 +231,30 @@
 		};
 	});
 
-	app.filter('filterMilestones', function() {
-		return function(milestones, open) {
+	app.filter('issueOpen', function() {
+		return function(issues, open) {
+
+			if (open == 'all') {
+				return issues;
+			}
+
+			if (open == 'open') {
+				open = true;
+			}
+
+			if (open == 'closed') {
+				open = false;
+			}
 
 			var _filter = [];
 
-			if (angular.isArray(milestones) || angular.isObject(milestones)) {
-				var _keys = Object.keys(milestones);
+			if (angular.isArray(issues) || angular.isObject(issues)) {
+				var _keys = Object.keys(issues);
 				for (var i = _keys.length - 1; i >= 0; i--) {
-					if (milestones[_keys[i]].open == open) {
-						_filter.push(milestones[_keys[i]]);
-					} else if (milestones[_keys[i]]._view) {
-						_filter.push(milestones[_keys[i]]);
+					if (issues[_keys[i]].open == open) {
+						_filter.push(issues[_keys[i]]);
+					} else if (issues[_keys[i]]._view) {
+						_filter.push(issues[_keys[i]]);
 					}
 				}
 			}
@@ -250,6 +262,61 @@
 		};
 	});
 
+	app.filter('issueLabels', ['app.dataFactory', function(dataFactory) {
+		return function(issues, labels) {
+
+			var _label_keys = Object.keys(labels);
+
+			// If we have no Labels by which to filter;
+			if (_label_keys.length < 1) {
+				// Return `issues` "as is"
+				return issues;
+			}
+
+			var _filter = [];
+
+			if (angular.isArray(issues) || angular.isObject(issues)) {
+				var _issue_keys = Object.keys(issues);
+				for (var i = _issue_keys.length - 1; i >= 0; i--) {
+					// Hit the cache for a list of Labels belonging to this Issue...
+					var issue_labels = dataFactory._labels(issues[_issue_keys[i]].id);
+
+					// Keep track of the matches
+					var _found_count = 0;
+
+					// Loop through all `labels`...
+					for (var i_label = _label_keys.length - 1; i_label >= 0; i_label--) {
+
+						// If our Issue contains this Label;
+						if (issue_labels.hasOwnProperty(_label_keys[i_label])) {
+							// Increatement the found counter by 1
+							_found_count++;
+						}
+					}
+
+					// If we found the same number of Labels in this Issue as belong in `labels`;
+					if (_found_count == _label_keys.length) {
+						// add this Issue to `_filter`
+						_filter.push(issues[_issue_keys[i]]);
+					}
+				}
+			}
+			return _filter;
+		};
+	}]);
+
+	app.filter('capitalize', function() {
+		// FROM: http://codepen.io/WinterJoey/pen/sfFaK
+		return function(input, all) {
+			if (!!input) {
+				return input.replace(/([^\W_]+[^\s-]*) */g, function(txt) {
+					return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+				});
+			} else {
+				return '';
+			}
+		};
+	});
 
 
 })();

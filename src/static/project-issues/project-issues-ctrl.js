@@ -23,7 +23,13 @@
 			$scope.inProgressissues = [];
 			$scope.inProgressResults = [];
 
-			$scope.activeResults = [];
+			$scope.issueResults = [];
+
+			$scope.issuesPluralizeWhen = {
+				'0': 'No issues',
+				'1': '1 issue',
+				'other': '{} issues'
+			};
 
 			if (angular.isDefined($state.params.milestoneId)) {
 				if (angular.isDefined($scope.issues[$state.params.milestoneId])) {

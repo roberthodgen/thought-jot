@@ -26,8 +26,9 @@
 	<div class="form-group">
 		<label class="control-label col-md-2">Labels</label>
 		<div class="col-md-10">
+			<p class="text-muted" ng-show="labelsList.length == 0" style="margin-top:7px;">No labels found. <a ui-sref="app.project.labels.create-label">Create a new label</a>.</p>
 			<div class="list-group">
-				<a href="#" class="list-group-item" ng-repeat="label in labels | filterDisplayObjects" ng-click="toggleLabel(label);" ng-style="{ 'color': (labelSelected(label) ? (label.color | textColorGivenBackgroundColor) : 'inherit' ), 'background-color': (labelSelected(label) ? label.color : 'white') }">
+				<a href="#" class="list-group-item" ng-repeat="label in labels | filterDisplayObjects as labelsList" ng-click="toggleLabel(label);" ng-style="{ 'color': (labelSelected(label) ? (label.color | textColorGivenBackgroundColor) : 'inherit' ), 'background-color': (labelSelected(label) ? label.color : 'white') }">
 					<span ng-style="{ 'background-color': (label.color) }" style="display:inline-block; height:20px; width:20px; border-radius:4px; margin-right:10px;">
 						<span class="glyphicon glyphicon-ok" style="position:absolute; margin-top:16px; margin-left:4px;" ng-show="labelSelected(label);"></span>
 						&nbsp;
@@ -36,7 +37,6 @@
 					<strong>{{ label.name }}</strong>
 				</a>
 			</div>
-			<p class="text-muted" ng-show="!labelsLoaded">Loading labels...</p>
 		</div>
 	</div>
 

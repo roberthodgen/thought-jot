@@ -16,7 +16,6 @@
 				description: '',
 				labels: {}
 			};
-			$scope.issueLoaded = true;	// Simply indicates FALSE when a request to create is in progress
 
 			$scope.projectDescriptionPreview = false;
 
@@ -24,7 +23,6 @@
 
 		$scope.create = function() {
 			console.log('[app.createIssueCtrl] $scope.create(): Called.');
-			$scope.issueLoaded = false;
 
 			var issue = {
 				name: $scope.issue.name,
@@ -39,7 +37,6 @@
 			}
 
 			dataFactory.createMilestone(issue, $scope.projectId).then(function(response) {
-				$scope.issueLoaded = true;
 				if (!response.error) {
 					$state.go('app.project.issues.project-issues');	// Don't forget to link to the NEW Issue!
 				} else {

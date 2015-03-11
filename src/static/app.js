@@ -244,6 +244,17 @@
 
 
 		/*
+		*	App > Project > Issues > Create Issue
+		*/
+
+		$stateProvider.state('app.project.issues.create-issue', {
+			url: '/create-issue',
+			templateUrl: '/project-issues/create.html',
+			controller: 'app.createIssueCtrl'
+		});
+
+
+		/*
 		*	App > Project > Issues > Project Issues
 		*/
 
@@ -279,17 +290,6 @@
 
 		$stateProvider.state('app.project.issues.project-issues.edit-issue', {
 			url: '/:milestoneId/edit'
-		});
-
-
-		/*
-		*	App > Project > Issues > Create Issue
-		*/
-
-		$stateProvider.state('app.project.issues.create-issue', {
-			url: '/create-issue',
-			templateUrl: '/project-issues/create.html',
-			controller: 'app.createIssueCtrl'
 		});
 
 

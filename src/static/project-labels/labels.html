@@ -38,8 +38,10 @@
 	</div>
 </form>
 
+<p class="text-muted" ng-show="labelsList.length == 0" style="margin-top:7px;">No labels found. <a ui-sref="app.project.labels.create-label">Create a new label</a>.</p>
+
 <ul class="list-group">
-	<li class="list-group-item label-edit" ng-repeat="label in labels | filterDisplayObjects">
+	<li class="list-group-item label-edit" ng-repeat="label in labels | filterDisplayObjects as labelsList">
 		<form class="form-horizontal" ng-show="label._edit">
 			<div class="form-group">
 				<div class="col-md-3">

@@ -170,7 +170,7 @@
 
 				// Copy this Milestone's Labels into the Labels Cache
 				cacheLabels(newOrUpdatedMilestones[i].labels, [cacheKey, newOrUpdatedMilestones[i].id], newOrUpdatedMilestones[i].id);
-				delete newOrUpdatedMilestones[i].comments;
+				delete newOrUpdatedMilestones[i].labels;
 
 				// Add this Milestone to `_keyed`
 				_keyed[newOrUpdatedMilestones[i].id] = newOrUpdatedMilestones[i];

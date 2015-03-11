@@ -13,16 +13,15 @@
 				pageTitle: 'Issues: ' + $scope.project.name
 			});
 
-			$scope.search = {
-				name: ''
+			$scope.searchOptions = {
+				open: 'open',
+				text: {
+					name: ''
+				}, labels: []
 			};
-
-			$scope.searchLabels = {};
 
 			$scope.inProgressissues = [];
 			$scope.inProgressResults = [];
-
-			$scope.openIssues = true;
 
 			$scope.activeResults = [];
 
@@ -69,13 +68,13 @@
 			}
 
 			if (angular.isDefined(toParams.f)) {
-				if (toParams.f == 'open') {
-					$scope.openIssues = true;
-				} else if (toParams.f == 'closed') {
-					$scope.openIssues = false;
+				if (toParams.f == 'closed') {
+					$scope.searchOptions.open = 'closed';
+				} else {
+					$scope.searchOptions.open = 'all';
 				}
 			} else {
-				$scope.openIssues = true;
+				$scope.searchOptions.open = 'open';
 			}
 		});
 

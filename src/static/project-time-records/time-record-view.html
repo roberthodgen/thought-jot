@@ -1,29 +1,17 @@
 <div class="row">
-	<div class="col-sm-10">
-		<h1>{{ timeRecord.name }} <span class="text-muted">1 minute 0 seconds</span></h1>
+	<div class="col-sm-8">
+		<h1>{{ timeRecord.name ? timeRecord.name : timeRecord._start | friendlyStartTime }} <span class="text-muted">{{ timeRecord.completed ? timeRecord.completed : timeRecord._uncompleted | completedTime }}</span></h1>
 	</div>
-	<div class="col-sm-2 text-right" style="padding-top:10px;">
-		<a ui-sref="app.project.time-records.project-time-records.edit-time-record({ timeRecordId: timeRecord.id })" title="Edit issue." class="text-muted" style="position:relative; top:1px; margin-right:10px;">Edit</a>
-		<button type="button" class="btn btn-default" ng-click="toggleOpen();">{{ timeRecord.open ? 'Close issue' : 'Reopen issue' }}</button>
+	<div class="col-sm-4 text-right" style="padding-top:10px;">
+		<a ui-sref="app.project.time-records.project-time-records.edit-time-record({ timeRecordId: timeRecord.id })" title="Edit issue." class="text-muted" style="position:relative; top:1px;">Edit</a>
+		<button type="button" class="btn btn-default" ng-show="!timeRecord.completed" ng-click="complete();" style="margin-left:10px;">End time record</button>
 	</div>
 </div>
 
 <p>
-	<span class="tj-label" style="margin-left:0px;" ng-style="{ 'background-color': (timeRecord.open ? '#5cb85c' : '#c9302c') }">{{ timeRecord.open? 'Open!' : 'Closed' }}</span> <strong>{{ timeRecord.user }}</strong> started this time record on <span ng-attr-title="{{ timeRecord._created | date:'medium' }}">{{ timeRecord._created | date:'mediumDate' }}</span>. <span ng-pluralize count="displayComments.length" when="commentsPluralizeWhen"></span>
+	<span class="tj-label" ng-show="!timeRecord.completed" style="margin-left:0px; background-color:#967adc;">In-progress</span>
+	<strong>{{ timeRecord.user }}</strong> started this time record on {{ timeRecord._created | date:'mediumDate' }} at {{ timeRecord._created | date:'shortTime' }}. <span ng-pluralize count="displayComments.length" when="commentsPluralizeWhen"></span>
 </p>
-
-<div class="comment" style="margin-left:-15px; margin-right:-15px; padding:10px 15px 10px 15px; border-top:1px solid #ddd;">
-
-	<ul class="list-inline">
-		<li><a href="#" ng-click="showLabelsPopover = !showLabelsPopover"><strong>Labels</strong></a>:
-		<div select-labels-popover="labels" issue="timeRecord" ng-show="showLabelsPopover"></div></li>
-		<li ng-repeat="label in labels | filterDisplayObjects" style="padding:0px;"><a href="#" label="label"></a></li>
-	</ul>
-
-	<md ng-model="timeRecord.description"></md>
-	<p class="text-muted" ng-show="!timeRecord.description" style="margin-top:10px;"><em>No description given.</em></p>
-
-</div>
 
 <div class="comment" ng-repeat="comment in comments | filterDisplayObjects | orderBy:'created' as displayComments" style="margin-left:-15px; margin-right:-15px; padding:10px 15px 10px 15px; border-top:1px solid #ddd;">
 	<p>

@@ -93,6 +93,37 @@
 		};
 	});
 
+	app.filter('timeOfDay', ['$filter', function($filter) {
+		return function(date) {
+
+			if (angular.isDate(date)) {
+
+				var _hours =  date.getHours();
+
+				if (_hours >=0 && _hours < 6) {
+					return 'early morning';
+				} else if (_hours >= 6 && _hours < 12) {
+					return 'morning';
+				} else if (_hours >= 12 && _hours < 17) {
+					return 'afternoon';
+				} else if (_hours >= 17 && _hours < 21) {
+					return 'evening'
+				} else if (_hours >= 21) {
+					return 'night'
+				}
+			} else {
+				return 'undefined';
+			}
+		};
+	}]);
+
+	// Return a day and time of day, e.g.: 'Wednesday afternoon'
+	app.filter('friendlyStartTime', ['$filter', function($filter) {
+		return function(startDate) {
+			return $filter('date')(startDate, 'EEEE') + ' ' + $filter('timeOfDay')(startDate);
+		};
+	}]);
+
 	// Return all Active (not in-progress) Projects
 	app.filter('filterActiveProjects', function() {
 		return function(projects) {

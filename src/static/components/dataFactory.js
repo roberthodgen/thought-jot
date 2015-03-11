@@ -713,47 +713,31 @@
 						'status': response.status
 					};
 				});
-			}, completeTimeRecord: function(timeRecord) {
-				timeRecord._complete_in_progress = true;
-				var options = {
-					'time_record_id': timeRecord.id
-				};
-
-				if (timeRecord.hasOwnProperty('_name')) {
-					if (timeRecord._name) {
-						options.name = timeRecord._name;						
-					}
-				}
+			}, completeTimeRecord: function(timeRecordId, projectId) {
 				return $http({
-					method: 'POST',
-					url: '/api/projects/time-records/complete.json',
-					params: {
-						't': new Date().getTime()
-					}, data: options
+					method: 'PUT',
+					url: '/api/v2/projects/'+projectId+'/time-records/'+timeRecordId,
+					data: {
+						end: true
+					}
 				}).then(function(response) {
 					// HTTP 200-299 Status
-					delete timeRecord._complete_in_progress;
-					if (angular.isObject(response.data)) {
-						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('time_record')) {
-							// Success!!!
-							console.log('[app.dataFactory] service.completeTimeRecord(): response.data has `project` and `time_record`, is valid');
+					if (angular.isObject(response.data) && response.status == 200) {
+						// Success!!!
+						console.log('[app.dataFactory] service.completeTimeRecord(): response.data is Object, response.status: 200');
 
-							// Cache this Project
-							cacheProjects([response.data.project]);
+						// Cache this Time Record
+						cahceTimeRecords([response.data], projectId);
 
-							// Cache this Time Record
-							cahceTimeRecords([response.data.time_record], response.data.project.id);
-
-							return response.data.time_record;
-						}
+						return response.data;
+					} else {
+						console.log('[app.dataFactory] service.completeTimeRecord(): Error reading response.');
+						return {
+							'error': true
+						};
 					}
-					console.log('[app.dataFactory] service.completeTimeRecord(): Error reading response.');
-					return {
-						'error': true
-					};
 				}, function(response) {
 					// Error
-					delete timeRecord._complete_in_progress;
 					console.log('[app.dataFactory] service.completeTimeRecord(): Request error: '+response.status);
 					return {
 						'error': true,

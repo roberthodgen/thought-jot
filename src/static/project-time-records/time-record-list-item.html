@@ -1,8 +1,6 @@
 <div class="row">
 	<div class="col-md-7">
-		<p>
-			<strong>{{ timeRecord.name }}</strong>
-		</p>
+		<strong>{{ timeRecord.name ? timeRecord.name : timeRecord._start | friendlyStartTime }}</strong>
 	</div>
 	<div class="col-md-3">
 		{{ timeRecord.completed ? timeRecord.completed : timeRecord._uncompleted | completedTime }}

@@ -70,28 +70,13 @@
 					'other': '{} comments'
 				};
 
-				$scope.toggleOpen = function() {
-					if ($scope.timeRecord.open) {
-						// Close
-						dataFactory.updateMilestone({
-							id: $scope.timeRecord.id,
-							open: !$scope.timeRecord.open
-						}, $stateParams.projectId).then(function(response) {
-							if (response.error) {
-								alert('Error closing Time record.');
-							}
-						});
-					} else {
-						// Reopen
-						dataFactory.updateMilestone({
-							id: $scope.timeRecord.id,
-							open: !$scope.timeRecord.open
-						}, $stateParams.projectId).then(function(response) {
-							if (response.error) {
-								alert('Error opening Time record.');
-							}
-						});
-					}
+				$scope.complete = function() {
+					// Complete this Time Record
+					dataFactory.completeTimeRecord($scope.timeRecord.id, $stateParams.projectId).then(function(response) {
+						if (response.error) {
+							alert('Error completing Time Record: '+response.message);
+						}
+					});
 				};
 
 				$scope.addComment = function(timeRecord) {

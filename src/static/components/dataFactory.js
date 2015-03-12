@@ -15,14 +15,17 @@
 		*	Merges Projects into the Cache
 		*	@param {Array} newOrUpdatedProjects - The new or updated Project objects
 		*/
-		var cacheProjects = function(newOrUpdatedProjects) {
+		var cacheProjects = function(newOrUpdatedProjects, fetchAll) {
 
 			// Get the current time these Projects are being processed...
 			var _date = new Date();
 
 			// Get an Object that we'll later pass to `mergeResponseData()`
-			var _keyed = {
-				'_loaded': _date
+			var _keyed = {};
+
+			// Set the `_loaded` property ONLY IF we fetched all (via `fetchAll`)
+			if (fetchAll) {
+				_keyed._loaded = _date;
 			};
 
 			// Loop through all `newOrUpdatedProjects` and perform any necessary tasks...
@@ -51,16 +54,20 @@
 		*	Merges Time Records into the Cache
 		*	@param {Array} newOrUpdatedTimeRecords		- The new or updated Time Record objects
 		*	@param {String} cacheKey					- The Key in which new or updated Time Record objects will be added in the global `cache.timeRecords` object
+		*	@param {String|NULL} fetchSourceKey			- The Key from which the information is complete (the Fetch source)
 		*/
-		var cahceTimeRecords = function(newOrUpdatedTimeRecords, cacheKey) {
+		var cahceTimeRecords = function(newOrUpdatedTimeRecords, cacheKey, fetchSourceKey) {
 
 			// Get the current time these Projects are being processed...
 			var _date = new Date();
 
 			// Get an Object that we'll later pass to `mergeResponseData()`
-			var _keyed = {
-				'_loaded': _date
-			};
+			var _keyed = {};
+
+			// Set the `_loaded` property ONLY IF this cacheKey was our fetchSourceKey
+			if (cacheKey == fetchSourceKey) {
+				_keyed._loaded = _date;
+			}
 
 			// Loop through all `newOrUpdatedTimeRecords` and perform any necessary tasks...
 			for (var i = newOrUpdatedTimeRecords.length - 1; i >= 0; i--) {
@@ -452,7 +459,7 @@
 							console.log('[app.dataFactory] service.fetchProjects(): response.data has `projects`, is valid');
 
 							// Cache these Projects
-							cacheProjects(response.data.projects);
+							cacheProjects(response.data.projects, true);
 							return _cache;
 						}
 					} else {
@@ -488,7 +495,7 @@
 						console.log('[app.dataFactory] service.createProject(): Success.');
 
 						// Cache this Project
-						cacheProjects([response.data]);
+						cacheProjects([response.data], false);
 						return response.data;
 					} else {
 						console.log('[app.dataFactory] service.createProject(): Error reading response.');
@@ -510,29 +517,56 @@
 				}
 				return cache.projects[projectId];
 			}, project: function(projectId) {
-				console.log('[app.dataFactory] service.project(): call, projectId: '+projectId);
+				console.log('[app.dataFactory] service.project(): call, `projectId`: '+projectId);
 
 				var _cache = service.cachedOrPlaceholderProject(projectId);
-				var _projects_cache = service.cachedOrPlaceholderProjects();
-				var _projects_fetch_promise;
 
-				if ((!_cache || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, PROJECTS_LIFE)) && !_projects_cache._fetch_in_progress && !_projects_cache._last_fetch_error) {
-					_projects_fetch_promise = service.fetchProjects();
-				} else if (_projects_cache._fetch_in_progress) {
-					_projects_fetch_promise = _projects_cache._fetch_in_progress;
+				if ((!_cache || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, PROJECTS_LIFE)) && !_cache._fetch_in_progress && !_cache._last_fetch_error) {
+					return service.fetchProject(projectId);
+				} else if (_cache._fetch_in_progress) {
+					return _cache._fetch_in_progress;	// return the $http promise
 				}
-
 				var _projects = $q.defer();
-				if (_projects_fetch_promise) {
-					_projects_fetch_promise.then(function(response) {
-						if (!response.error) {
-							_projects.resolve(response[projectId]);
-						}
-					});
-				} else {
-					_projects.resolve(_cache);
-				}
+				_projects.resolve(_cache);
 				return _projects.promise;
+			}, fetchProject: function(projectId) {
+				console.log('[app.dataFactory] service.fetchProject(): Called, `projectId`: '+projectId);
+
+				var _cache = service.cachedOrPlaceholderProject(projectId);
+
+				_cache._force_fetch = false;
+				_cache._fetch_in_progress = $http({
+					method: 'GET',
+					url: '/api/v2/projects/'+projectId
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					delete _cache._fetch_in_progress;
+					delete _cache._last_fetch_error;
+					if (angular.isObject(response.data) && response.status == 200) {
+						// Success
+						console.log('[app.dataFactory] service.fetchProject(): response.data has `projects`, is valid');
+
+						// Cache these Projects
+						cacheProjects([response.data], false);
+						return _cache;
+					} else {
+						_cache._last_fetch_error = true;
+						console.log('[app.dataFactory] service.fetchProject(): Error reading response.');
+						return {
+							'error': true
+						};
+					}
+				}, function(response) {
+					// Error
+					delete _cache._fetch_in_progress;
+					_cache._last_fetch_error = response.status;
+					console.log('[app.dataFactory] service.fetchProject(): Request error: '+response.status);
+					return {
+						'error': true,
+						'status': response.status
+					};
+				});
+				return _cache._fetch_in_progress;
 			}, updateProject: function(project) {
 				project._update_in_progress = true;
 				var options = {
@@ -565,7 +599,7 @@
 							console.log('[app.dataFactory] service.updateProject(): response.data has `project`, is valid');
 
 							// Cache this Project
-							cacheProjects([response.data.project]);
+							cacheProjects([response.data.project], false);
 							return response.data.project;
 						}
 					}
@@ -652,10 +686,10 @@
 							console.log('[app.dataFactory] service.fetchTimeRecords(): response.data has `project` and `time_records`, is valid');
 
 							// Cache this Project
-							cacheProjects([response.data.project], projectId);
+							cacheProjects([response.data.project], false);
 
 							// Cache these Time Records
-							cahceTimeRecords(response.data.time_records, projectId)
+							cahceTimeRecords(response.data.time_records, projectId, projectId);
 
 							return _cache;
 						}
@@ -680,7 +714,7 @@
 			}, createTimeRecord: function(projectId) {
 				return $http({
 					method: 'POST',
-					url: '/api/projects/time-records/create.json',
+					url: '/api/v2/projects/'+projectId+'/time-records',
 					params: {
 						't': new Date().getTime()
 					}, data: {
@@ -688,24 +722,25 @@
 					}
 				}).then(function(response) {
 					// HTTP 200-299 Status
-					if (angular.isObject(response.data)) {
-						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('time_record')) {
-							// Success!!!
-							console.log('[app.dataFactory] service.createTimeRecord(): response.data has `project` and `time_record`, is valid');
+					if (angular.isObject(response.data) && response.status == 200) {
+						// Success!!!
+						console.log('[app.dataFactory] service.createTimeRecord(): response.data is Object, response.status: 200');
 
-							// Cache this Project
-							cacheProjects([response.data.project]);
+						// Cache this Time Record
+						cahceTimeRecords([response.data], projectId, null);
 
-							// Cache this Time Record
-							cahceTimeRecords([response.data.time_record], projectId);
+						// Force a refetch of the Project...
+						var project = service.cachedOrPlaceholderProject(projectId);
+						project._force_fetch = true;
+						service.project(projectId);
 
-							return response.data.time_record;
-						}
+						return response.data;
+					} else {
+						console.log('[app.dataFactory] service.createTimeRecord(): Error reading response.');
+						return {
+							'error': true
+						};
 					}
-					console.log('[app.dataFactory] service.createTimeRecord(): Error reading response.');
-					return {
-						'error': true
-					};
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.createTimeRecord(): Request error: '+response.status);
@@ -728,7 +763,12 @@
 						console.log('[app.dataFactory] service.completeTimeRecord(): response.data is Object, response.status: 200');
 
 						// Cache this Time Record
-						cahceTimeRecords([response.data], projectId);
+						cahceTimeRecords([response.data], projectId, null);
+
+						// Force a refetch of the Project...
+						var project = service.cachedOrPlaceholderProject(projectId);
+						project._force_fetch = true;
+						service.project(projectId);
 
 						return response.data;
 					} else {
@@ -756,10 +796,10 @@
 						// Success
 						console.log('[app.dataFactory] service.updateTimeRecord(): response.data is Object, response.status: 200');
 
-							// Cache this Time Record
-							cahceTimeRecords([response.data], projectId);
+						// Cache this Time Record
+						cahceTimeRecords([response.data], projectId, null);
 
-							return response.data;
+						return response.data;
 					} else {
 						console.log('[app.dataFactory] service.updateTimeRecord(): Error reading response.');
 						return {
@@ -893,7 +933,7 @@
 							console.log('[app.dataFactory] service.fetchMilestones(): response.data has `project` and `milestones`, is valid');
 
 							// Cache this Project
-							cacheProjects([response.data.project], projectId);
+							cacheProjects([response.data.project], false);
 
 							// Cache these Milestones
 							cacheMilestones(response.data.milestones, projectId, projectId)
@@ -985,7 +1025,7 @@
 							console.log('[app.dataFactory] service.createMilestone(): response.data has `project` and `milestone`, is valid');
 
 							// Cache this Project
-							cacheProjects([response.data.project]);
+							cacheProjects([response.data.project], false);
 
 							// Cache this Milestone
 							cacheMilestones([response.data.milestone], projectId, false);
@@ -1137,7 +1177,7 @@
 							console.log('[app.dataFactory] service.fetchLabelsForProject(): response.data has `project` and `labels`, is valid');
 
 							// Cache this Project
-							cacheProjects([response.data.project], projectId);
+							cacheProjects([response.data.project], false);
 
 							// Cache these Labels
 							cacheLabels(response.data.labels, [projectId], projectId);
@@ -1234,7 +1274,7 @@
 							console.log('[app.dataFactory] service.createLabel(): response.data has `project` and `label`, is valid');
 
 							// Cache this Project
-							cacheProjects([response.data.project]);
+							cacheProjects([response.data.project], false);
 
 							// Cache this Label
 							cacheLabels([response.data.label], [projectId], projectId);

@@ -64,14 +64,6 @@
 			}
 		});
 
-		$scope.createTimeRecord = function() {
-			dataFactory.createTimeRecord($scope.projectId).then(function(response) {
-				if (response.error) {
-					alert('Error creating Time Record: '+response.message);
-				}
-			});
-		};
-
 		$scope.timeRecordClick = function(timeRecord) {
 			if (!timeRecord._view) {
 				console.log('[app.projectTimeRecordsCtrl] $scope.timeRecordClick(): Called with `timeRecord` of id: '+timeRecord.id);

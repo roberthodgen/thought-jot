@@ -26,6 +26,16 @@
 			dataFactory.uncompletedSecondsWatchAddProjectId($scope.projectId);
 		};
 
+		$scope.createTimeRecord = function() {
+			dataFactory.createTimeRecord($scope.projectId).then(function(response) {
+				if (!response.error) {
+					$state.go('app.project.time-records.project-time-records.view-time-record', { timeRecordId: response.id });
+				} else {
+					alert('Error creating Time Record: '+response.message);
+				}
+			});
+		};
+
 		$scope.backgroundClick = function() {
 			console.log('[app.projectCtrl] $scope.backgroundClick(): Called.');
 

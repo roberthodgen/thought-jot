@@ -5,7 +5,7 @@
 	</div>
 	<div class="col-md-4">
 		<dl>
-			<dt>{{ project.has_uncompleted_time_records ? 'In progress' : 'Completed' }}</dt>
+			<dt>{{ project.has_uncompleted_time_records ? 'In progress' : 'Completed' }} time</dt>
 			<dd>
 				<p>{{ project.has_uncompleted_time_records ? project._uncompleted : project.completed | completedTime }}</p>
 				
@@ -21,14 +21,14 @@
 		<dl>
 			<dt>Contributors</dt>
 			<dd>
-				me <span class="text-muted">(owner)</span>
+				<p>me <span class="text-muted">(owner)</span></p>
 			</dd>
 		</dl>
 		
 		<dl>
 			<dt>Updated</dt>
 			<dd>
-				{{ project._updated | date:'medium' }}
+				<p>{{ project._updated | date:'medium' }}</p>
 			</dd>
 		</dl>
 	</div>

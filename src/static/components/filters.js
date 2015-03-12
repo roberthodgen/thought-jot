@@ -262,6 +262,101 @@
 		};
 	}]);
 
+	app.filter('timeGroupingToday', function() {
+		return function(timeRecords) {
+
+			var _filter = [];
+
+			if (angular.isArray(timeRecords) || angular.isObject(timeRecords)) {
+				var _keys = Object.keys(timeRecords);
+				var date = new Date();
+				for (var i = _keys.length - 1; i >= 0; i--) {
+					
+					// Only inspect Objects with `_created` as a Date object...
+					if (angular.isDate(timeRecords[_keys[i]]._created)) {
+						if (date.getDate() == timeRecords[_keys[i]]._created.getDate() && date.getMonth() == timeRecords[_keys[i]]._created.getMonth() && date.getYear() == timeRecords[_keys[i]]._created.getYear()) {
+							_filter.push(timeRecords[_keys[i]]);
+						}
+					}
+				}
+			}
+
+			return _filter;
+		};
+	});
+
+	app.filter('timeGroupingYesterday', function() {
+		return function(timeRecords) {
+
+			var _filter = [];
+
+			if (angular.isArray(timeRecords) || angular.isObject(timeRecords)) {
+				var _keys = Object.keys(timeRecords);
+				var date = new Date();
+				date.setDate(date.getDate() -1);
+				for (var i = _keys.length - 1; i >= 0; i--) {
+					
+					// Only inspect Objects with `_created` as a Date object...
+					if (angular.isDate(timeRecords[_keys[i]]._created)) {
+						if (date.getDate() == timeRecords[_keys[i]]._created.getDate() && date.getMonth() == timeRecords[_keys[i]]._created.getMonth() && date.getYear() == timeRecords[_keys[i]]._created.getYear()) {
+							_filter.push(timeRecords[_keys[i]]);
+						}
+					}
+				}
+			}
+
+			return _filter;
+		};
+	});
+
+	app.filter('timeGroupingThisMonth', function() {
+		return function(timeRecords) {
+
+			var _filter = [];
+
+			if (angular.isArray(timeRecords) || angular.isObject(timeRecords)) {
+				var _keys = Object.keys(timeRecords);
+				var date = new Date();
+				date.setDate(date.getDate() -1);
+				for (var i = _keys.length - 1; i >= 0; i--) {
+					
+					// Only inspect Objects with `_created` as a Date object...
+					if (angular.isDate(timeRecords[_keys[i]]._created)) {
+						if (date.getDate() > timeRecords[_keys[i]]._created.getDate() && date.getMonth() == timeRecords[_keys[i]]._created.getMonth() && date.getYear() == timeRecords[_keys[i]]._created.getYear()) {
+							_filter.push(timeRecords[_keys[i]]);
+						}
+					}
+				}
+			}
+
+			return _filter;
+		};
+	});
+
+	app.filter('timeGroupingWhileAgo', function() {
+		return function(timeRecords) {
+
+			var _filter = [];
+
+			if (angular.isArray(timeRecords) || angular.isObject(timeRecords)) {
+				var _keys = Object.keys(timeRecords);
+				var date = new Date();
+				date.setDate(0);
+				for (var i = _keys.length - 1; i >= 0; i--) {
+					
+					// Only inspect Objects with `_created` as a Date object...
+					if (angular.isDate(timeRecords[_keys[i]]._created)) {
+						if (date.getDate() > timeRecords[_keys[i]]._created.getDate() && date.getMonth() == timeRecords[_keys[i]]._created.getMonth() && date.getYear() == timeRecords[_keys[i]]._created.getYear()) {
+							_filter.push(timeRecords[_keys[i]]);
+						}
+					}
+				}
+			}
+
+			return _filter;
+		};
+	});
+
 	app.filter('timeGrouping2', ['$filter', function($filter) {
 		return function(timeRecords, params) {
 
@@ -335,33 +430,33 @@
 		}
 	}]);
 
-	app.filter('sortTimeGrouping', ['$filter', function($filter) {
-		return function(filter) {
-		// Sort
+	// app.filter('sortTimeGrouping', ['$filter', function($filter) {
+	// 	return function(filter) {
+	// 	// Sort
 
-			var _filter_keys = Object.keys(filter);
+	// 		var _filter_keys = Object.keys(filter);
 
-			var sorted_filter_keys = $filter('orderBy')(_filter_keys);
+	// 		var sorted_filter_keys = $filter('orderBy')(_filter_keys);
 
-			return_filter = [];
+	// 		return_filter = [];
 
-			for (var i = sorted_filter_keys.length - 1; i >= 0; i--) {
-				return_filter.push(filter[sorted_filter_keys[i]]);
-			};
+	// 		for (var i = sorted_filter_keys.length - 1; i >= 0; i--) {
+	// 			return_filter.push(filter[sorted_filter_keys[i]]);
+	// 		};
 
-			return return_filter;
-		};
-	}]);
+	// 		return return_filter;
+	// 	};
+	// }]);
 
-	app.filter('timeGroupTitle2', ['$filter', function($filter) {
+	app.filter('timeGroupTitle', ['$filter', function($filter) {
 		return function(dateString) {
 			// @param {String} dateString - Takes `dateString` and returns a group
 
-			console.log('dateString: '+dateString);
+			// console.log('dateString: '+dateString);
 
 			if (angular.isString(dateString)) {
 				if (dateString.length == 10) {
-					console.log('proper date length!');
+					// console.log('proper date length!');
 				}
 			}
 
@@ -376,7 +471,7 @@
 			var _d = parseInt(dateString.substring(8, 10), 10);
 
 			var date = new Date(_y, _m, _d);
-			console.log('comparing to date: '+ $filter('date')(date, 'yyyy-MM-dd'));
+			// console.log('comparing to date: '+ $filter('date')(date, 'yyyy-MM-dd'));
 
 			// Check today...
 			if (movingDate.getDate() == date.getDate() && movingDate.getMonth() == date.getMonth() && movingDate.getYear() == date.getYear()) {
@@ -410,19 +505,36 @@
 		};
 	}]);
 
-	app.filter('timeGroupTitle', ['$filter', function($filter) {
-		return function(dateString) {
+	app.filter('timeGroupTitle2', ['$filter', function($filter) {
+		return function(dateStrings) {
+			// @param {String} dateString - Takes `dateString` and returns a group
 
-			var _now = new Date();
-			var nowString = $filter('date')(_now, 'yyyy-MM-dd');
+			var _distinct = [];
 
-			if (nowString == dateString) {
-				return 'Today';
-			}
+			for (var i = dateStrings.length - 1; i >= 0; i--) {
+				var group_name = $filter('timeGroupTitle')(dateStrings[i]);
+				if (_distinct.indexOf(group_name) == -1) {
+					_distinct.push(group_name);
+				}
+			};
 
-			return 'Previous years';
+			return _distinct;
 		};
 	}]);
+
+	// app.filter('timeGroupTitle', ['$filter', function($filter) {
+	// 	return function(dateString) {
+
+	// 		var _now = new Date();
+	// 		var nowString = $filter('date')(_now, 'yyyy-MM-dd');
+
+	// 		if (nowString == dateString) {
+	// 			return 'Today';
+	// 		}
+
+	// 		return 'Previous years';
+	// 	};
+	// }]);
 
 	// Return a light or dark color depending upon the background color
 	app.filter('textColorGivenBackgroundColor', function() {

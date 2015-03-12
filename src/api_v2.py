@@ -277,12 +277,14 @@ class TimeRecords(webapp2.RequestHandler):
         name = request_object.get('name')
         if name:
             time_record.name = name
+        project.put()
         end = request_object.get('end')
+        time_record.put()
+        # Check `end` after updating the Project and Time Record;
+        # avoids a bug whereby the Project's original `completed` time is saved.
         if end:
             if end is True:
                 time_record.complete_time_record()
-        time_record.put()
-        project.put()
         response_object = time_record.json_object()
         # Send response
         self.response.content_type = 'application/json'

@@ -26,9 +26,9 @@
 			$scope.issueResults = [];
 
 			$scope.issuesPluralizeWhen = {
-				'0': 'No issues',
-				'1': '1 issue',
-				'other': '{} issues'
+				'0': 'No {{ (searchOptions.open == "all" ? "" : searchOptions.open) }} issues',
+				'1': '1 {{ (searchOptions.open == "all" ? "" : searchOptions.open) }} issue',
+				'other': '{} {{ (searchOptions.open == "all" ? "" : searchOptions.open) }} issues'
 			};
 
 			if (angular.isDefined($state.params.milestoneId)) {

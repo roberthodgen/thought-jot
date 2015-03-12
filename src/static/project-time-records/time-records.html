@@ -22,7 +22,7 @@
 </div>
 
 <div class="projects-list-group" ng-show="todayTimeRecords.length > 0">
-	<p class="text-muted">Today</p>
+	<p>Today</p>
 	<div class="list-group popout">
 		<div class="list-group-item" ng-class="{ 'list-group-item-in-progress': (!timeRecord.completed), 'view': (timeRecord._view) }" ng-click="timeRecordClick(timeRecord);" ng-repeat="timeRecord in timeRecords | timeGroupingToday | filter:search | orderBy:'_start':true as todayTimeRecords">
 			<div ng-if="!timeRecord._view" time-record-list-item="timeRecord"></div>
@@ -33,7 +33,7 @@
 </div>
 
 <div class="projects-list-group" ng-show="yesterdayTimeRecords.length > 0">
-	<p class="text-muted">Yesterday</p>
+	<p>Yesterday</p>
 	<div class="list-group popout">
 		<div class="list-group-item" ng-class="{ 'list-group-item-in-progress': (!timeRecord.completed), 'view': (timeRecord._view) }" ng-click="timeRecordClick(timeRecord);" ng-repeat="timeRecord in timeRecords | timeGroupingYesterday | filter:search | orderBy:'_start':true as yesterdayTimeRecords">
 			<div ng-if="!timeRecord._view" time-record-list-item="timeRecord"></div>
@@ -44,7 +44,7 @@
 </div>
 
 <div class="projects-list-group" ng-show="thisMonthTimeRecords.length > 0">
-	<p class="text-muted">This month</p>
+	<p>This month</p>
 	<div class="list-group popout">
 		<div class="list-group-item" ng-class="{ 'list-group-item-in-progress': (!timeRecord.completed), 'view': (timeRecord._view) }" ng-click="timeRecordClick(timeRecord);" ng-repeat="timeRecord in timeRecords | timeGroupingThisMonth | filter:search | orderBy:'_start':true as thisMonthTimeRecords">
 			<div ng-if="!timeRecord._view" time-record-list-item="timeRecord"></div>
@@ -55,7 +55,7 @@
 </div>
 
 <div class="projects-list-group" ng-show="whileAgoTimeRecords.length > 0">
-	<p class="text-muted">A while ago</p>
+	<p>A while ago</p>
 	<div class="list-group popout">
 		<div class="list-group-item" ng-class="{ 'list-group-item-in-progress': (!timeRecord.completed), 'view': (timeRecord._view) }" ng-click="timeRecordClick(timeRecord);" ng-repeat="timeRecord in timeRecords | timeGroupingWhileAgo | filter:search | orderBy:'_start':true as whileAgoTimeRecords">
 			<div ng-if="!timeRecord._view" time-record-list-item="timeRecord"></div>

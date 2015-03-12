@@ -1,6 +1,6 @@
 <div class="row">
 	<div class="col-sm-8">
-		<h1>{{ timeRecord.name ? timeRecord.name : timeRecord._start | friendlyStartTime }} <span class="text-muted">{{ timeRecord.completed ? timeRecord.completed : timeRecord._uncompleted | completedTime }}</span></h1>
+		<h1>{{ timeRecord.name ? timeRecord.name : (timeRecord._start | friendlyStartTime) }} <span class="text-muted">{{ timeRecord.completed ? timeRecord.completed : timeRecord._uncompleted | completedTime }}</span></h1>
 	</div>
 	<div class="col-sm-4 text-right" style="padding-top:10px;">
 		<a ui-sref="app.project.time-records.project-time-records.edit-time-record({ timeRecordId: timeRecord.id })" title="Edit issue." class="text-muted" style="position:relative; top:1px;">Edit</a>

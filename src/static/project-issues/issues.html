@@ -33,7 +33,7 @@
 </div>
 
 <div class="projects-list-group">
-	<h4>{{ searchOptions.open | capitalize }} issues <small ng-pluralize count="(issueResults).length" when="issuesPluralizeWhen"></small></h4>
+	<p ng-pluralize count="(issueResults).length" when="issuesPluralizeWhen">{{ searchOptions.open }}</p>
 	<div class="list-group popout">
 		<div class="list-group-item" ng-class="{ 'view': (issue._view) }" ng-click="issueClick(issue);" ng-repeat="issue in issues | filterDisplayObjects | issueOpen:searchOptions.open | issueLabels:searchOptions.labels | filter:searchOptions.text | orderBy:'_created':true as issueResults">
 			<div ng-if="!issue._view" issue-list-item="issue"></div>
@@ -41,5 +41,5 @@
 			<div ng-if="issue._view && issue._edit" issue-edit="issue"></div>
 		</div>
 	</div>
-	<p class="text-muted" ng-show="issueResults.length == 0">No issues found matching filters. Try broading your search or <a ui-sref="app.project.issues.create-issue">open a new issue</a>.</p>
+	<p ng-show="issueResults.length == 0">Try broading your search or <a ui-sref="app.project.issues.create-issue">open a new issue</a>.</p>
 </div>

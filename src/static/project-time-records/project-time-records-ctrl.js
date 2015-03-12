@@ -2,9 +2,7 @@
 
 	var app = angular.module('app.projectTimeRecordsCtrl', []);
 
-	app.controller('app.projectTimeRecordsCtrl', ['$scope', '$state', '$location', 'app.appFactory', 'app.dataFactory', 'timeRecords', function($scope, $state, $location, appFactory, dataFactory, timeRecords) {
-
-		$scope.timeRecords = timeRecords;
+	app.controller('app.projectTimeRecordsCtrl', ['$scope', '$state', '$stateParams', '$filter', 'app.appFactory', 'app.dataFactory', function($scope, $state, $stateParams, $filter, appFactory, dataFactory) {
 
 		// Perform setup and reset $scope variables...
 		$scope.init = function() {
@@ -22,48 +20,46 @@
 
 			$scope.activeResults = [];
 
-			// Search for uncompleted Time Records (to start the counter)
-			var _search = $location.search();
-			if (angular.isDefined(_search.edit)) {
-				var _keys = Object.keys($scope.timeRecords);
-				for (var i = _keys.length - 1; i >= 0; i--) {
+			if (angular.isDefined($state.params.timeRecordId)) {
+				if (angular.isDefined($scope.timeRecords[$state.params.timeRecordId])) {
+					$scope.timeRecords[$state.params.timeRecordId]._view = true;
 
-					// Delete our temp `_edit` property
-					if ($scope.timeRecords[_keys[i]].id === _search.edit) {
-						$scope.timeRecords[_keys[i]]._edit = true;
-						$scope.timeRecords[_keys[i]]._name = angular.copy($scope.timeRecords[_keys[i]].name);
-					} else {
-						delete $scope.timeRecords[_keys[i]]._edit;
+					if ($state.name == 'app.project.time-records.project-time-records.edit-time-record') {
+						$scope.timeRecords[$state.params.timeRecordId]._edit = true;
 					}
 				}
 			}
 
 		};
 
-		// Watch for changes in the `edit` search parameter...
-		$scope.$watch(function() {
-			var _search = $location.search();
-			return _search.edit;
-		}, function(newValue, oldValue) {
-			// Loop through and delete all not equal to this `newValue`
-			console.log('[app.projectTimeRecordsCtrl] $scope.$watch(): Detected new `edit` search value: '+newValue);
-			var _keys = Object.keys($scope.timeRecords);
-			if (angular.isString(newValue)) {
-				// Loop through and delete all but this key
-				for (var i = _keys.length - 1; i >= 0; i--) {
-					if ($scope.timeRecords[_keys[i]].id != newValue) {
-						delete $scope.timeRecords[_keys[i]]._edit;
-						delete $scope.timeRecords[_keys[i]]._name;
-					} else {
-						$scope.timeRecords[_keys[i]]._edit = true;
-						$scope.timeRecords[_keys[i]]._name = angular.copy($scope.timeRecords[_keys[i]].name);
+		$scope.$on('backgroundClick', function() {
+			var params = angular.extend({ timeRecordId: '' }, $stateParams);
+			$state.go('app.project.time-records.project-time-records', params);
+		});
+
+		// When `$stateChangeSuccess` is emitted;
+		// used instead of `$stateChangeStart` so Directives have a chance to call `preventDefault()`
+		$scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
+
+			// Delete the `_view` property of the old Time Record; if present.
+			if (angular.isDefined(fromParams.timeRecordId)) {
+				if (angular.isDefined($scope.timeRecords[fromParams.timeRecordId])) {
+					delete $scope.timeRecords[fromParams.timeRecordId]._view;
+
+					if (fromState.name == 'app.project.time-records.project-time-records.edit-time-record') {
+						delete $scope.timeRecords[fromParams.timeRecordId]._edit;
 					}
 				}
-			} else {
-				// Loop through all and remove `_edit` and `_name`
-				for (var i = _keys.length - 1; i >= 0; i--) {
-					delete $scope.timeRecords[_keys[i]]._edit;
-					delete $scope.timeRecords[_keys[i]]._name;
+			}
+
+			// Add the `_view` property of the currently viewed Time Record;
+			if (angular.isDefined(toParams.timeRecordId)) {
+				if (angular.isDefined($scope.timeRecords[toParams.timeRecordId])) {
+					$scope.timeRecords[toParams.timeRecordId]._view = true;
+
+					if (toState.name == 'app.project.time-records.project-time-records.edit-time-record') {
+						$scope.timeRecords[toParams.timeRecordId]._edit = true;
+					}
 				}
 			}
 		});
@@ -77,7 +73,10 @@
 		};
 
 		$scope.timeRecordClick = function(timeRecord) {
-			$location.search('edit', timeRecord.id);
+			if (!timeRecord._view) {
+				console.log('[app.projectTimeRecordsCtrl] $scope.timeRecordClick(): Called with `timeRecord` of id: '+timeRecord.id);
+				$state.go('app.project.time-records.project-time-records.view-time-record', { timeRecordId: timeRecord.id });
+			}
 		};
 
 

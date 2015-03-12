@@ -38,7 +38,7 @@
 
 			dataFactory.createMilestone(issue, $scope.projectId).then(function(response) {
 				if (!response.error) {
-					$state.go('app.project.issues.project-issues');	// Don't forget to link to the NEW Issue!
+					$state.go('app.project.issues.project-issues.view-issue', { milestoneId: response.id });	// Don't forget to link to the NEW Issue!
 				} else {
 					alert('Error creating Issue.');
 				}

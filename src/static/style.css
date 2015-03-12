@@ -362,6 +362,12 @@ a.list-group-item:focus {
 *   In Progress
 */
 
+.projects-list-group > p {
+	margin-bottom: 5px;
+	margin-left: 10px;
+	color: #999;
+}
+
 .projects-list-group .list-group-item {
 	cursor: pointer;
 }

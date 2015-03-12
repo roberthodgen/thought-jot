@@ -93,6 +93,37 @@
 		};
 	});
 
+	app.filter('timeOfDay', ['$filter', function($filter) {
+		return function(date) {
+
+			if (angular.isDate(date)) {
+
+				var _hours =  date.getHours();
+
+				if (_hours >=0 && _hours < 6) {
+					return 'early morning';
+				} else if (_hours >= 6 && _hours < 12) {
+					return 'morning';
+				} else if (_hours >= 12 && _hours < 17) {
+					return 'afternoon';
+				} else if (_hours >= 17 && _hours < 21) {
+					return 'evening'
+				} else if (_hours >= 21) {
+					return 'night'
+				}
+			} else {
+				return 'undefined';
+			}
+		};
+	}]);
+
+	// Return a day and time of day, e.g.: 'Wednesday afternoon'
+	app.filter('friendlyStartTime', ['$filter', function($filter) {
+		return function(startDate) {
+			return $filter('date')(startDate, 'EEEE') + ' ' + $filter('timeOfDay')(startDate);
+		};
+	}]);
+
 	// Return all Active (not in-progress) Projects
 	app.filter('filterActiveProjects', function() {
 		return function(projects) {
@@ -129,42 +160,6 @@
 		};
 	});
 
-	// Return all Time Records that are not in-progress
-	app.filter('filterActiveTimeRecords', function() {
-		return function(timeRecords) {
-			// Return an array of Time Records that are not in-progress
-			var _filter = [];
-
-			var _keys = Object.keys(timeRecords);
-			for (var i = _keys.length - 1; i >= 0; i--) {
-				if (timeRecords[_keys[i]].hasOwnProperty('end')) {
-					if (timeRecords[_keys[i]].end != null) {
-						_filter.push(timeRecords[_keys[i]]);
-					}
-				}
-			};
-			return _filter;
-		};
-	});
-
-	// Return all In-progress Time Records
-	app.filter('filterInProgressTimeRecords', function() {
-		return function(timeRecords) {
-			// Return an array of Time Records that are in-progress
-			var _filter = [];
-
-			var _keys = Object.keys(timeRecords);
-			for (var i = _keys.length - 1; i >= 0; i--) {
-				if (timeRecords[_keys[i]].hasOwnProperty('end')) {
-					if (timeRecords[_keys[i]].end == null) {
-						_filter.push(timeRecords[_keys[i]]);
-					}
-				}
-			};
-			return _filter;
-		};
-	});
-
 	// Return Objects that have an `id` property
 	app.filter('filterDisplayObjects', function() {
 		return function(objects) {
@@ -179,6 +174,101 @@
 					}
 				}
 			}
+			return _filter;
+		};
+	});
+
+	app.filter('timeGroupingToday', function() {
+		return function(timeRecords) {
+
+			var _filter = [];
+
+			if (angular.isArray(timeRecords) || angular.isObject(timeRecords)) {
+				var _keys = Object.keys(timeRecords);
+				var date = new Date();
+				for (var i = _keys.length - 1; i >= 0; i--) {
+					
+					// Only inspect Objects with `_created` as a Date object...
+					if (angular.isDate(timeRecords[_keys[i]]._created)) {
+						if (date.getDate() == timeRecords[_keys[i]]._created.getDate() && date.getMonth() == timeRecords[_keys[i]]._created.getMonth() && date.getYear() == timeRecords[_keys[i]]._created.getYear()) {
+							_filter.push(timeRecords[_keys[i]]);
+						}
+					}
+				}
+			}
+
+			return _filter;
+		};
+	});
+
+	app.filter('timeGroupingYesterday', function() {
+		return function(timeRecords) {
+
+			var _filter = [];
+
+			if (angular.isArray(timeRecords) || angular.isObject(timeRecords)) {
+				var _keys = Object.keys(timeRecords);
+				var date = new Date();
+				date.setDate(date.getDate() -1);
+				for (var i = _keys.length - 1; i >= 0; i--) {
+					
+					// Only inspect Objects with `_created` as a Date object...
+					if (angular.isDate(timeRecords[_keys[i]]._created)) {
+						if (date.getDate() == timeRecords[_keys[i]]._created.getDate() && date.getMonth() == timeRecords[_keys[i]]._created.getMonth() && date.getYear() == timeRecords[_keys[i]]._created.getYear()) {
+							_filter.push(timeRecords[_keys[i]]);
+						}
+					}
+				}
+			}
+
+			return _filter;
+		};
+	});
+
+	app.filter('timeGroupingThisMonth', function() {
+		return function(timeRecords) {
+
+			var _filter = [];
+
+			if (angular.isArray(timeRecords) || angular.isObject(timeRecords)) {
+				var _keys = Object.keys(timeRecords);
+				var date = new Date();
+				date.setDate(date.getDate() -1);
+				for (var i = _keys.length - 1; i >= 0; i--) {
+					
+					// Only inspect Objects with `_created` as a Date object...
+					if (angular.isDate(timeRecords[_keys[i]]._created)) {
+						if (date.getDate() > timeRecords[_keys[i]]._created.getDate() && date.getMonth() == timeRecords[_keys[i]]._created.getMonth() && date.getYear() == timeRecords[_keys[i]]._created.getYear()) {
+							_filter.push(timeRecords[_keys[i]]);
+						}
+					}
+				}
+			}
+
+			return _filter;
+		};
+	});
+
+	app.filter('timeGroupingWhileAgo', function() {
+		return function(timeRecords) {
+
+			var _filter = [];
+
+			if (angular.isArray(timeRecords) || angular.isObject(timeRecords)) {
+				var _keys = Object.keys(timeRecords);
+				var date = new Date();
+				date.setDate(0);
+				for (var i = _keys.length - 1; i >= 0; i--) {
+					
+					// Only inspect Objects with `_created` as a Date object...
+					if (angular.isDate(timeRecords[_keys[i]]._created)) {
+						if (date.getDate() > timeRecords[_keys[i]]._created.getDate() && date.getMonth() == timeRecords[_keys[i]]._created.getMonth() && date.getYear() == timeRecords[_keys[i]]._created.getYear()) {
+							_filter.push(timeRecords[_keys[i]]);
+						}
+					}
+				}
+			}
+
 			return _filter;
 		};
 	});

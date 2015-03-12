@@ -1,0 +1,42 @@
+<form name="timeRecordEditForm" class="form-horizontal">
+	<div class="form-group" style="margin-bottom:7px;">
+		<div class="col-sm-9">
+			<input type="text" class="form-control input-lg" ng-model="timeRecord._name" ng-attr-placeholder="{{ timeRecord._start | friendlyStartTime }}..." required>
+		</div>
+		<div class="col-sm-3 text-right" style="padding-top:10px;">
+			<a ui-sref="app.project.time-records.project-time-records.view-time-record({ timeRecordId: timeRecord.id })" class="text-muted" style="position:relative; top:1px; margin-right:10px;">Cancel</a>
+			<button type="button" class="btn btn-primary" ng-click="save();" ng-disabled="!timeRecordEditForm.$valid">Save time record</button>
+		</div>
+	</div>
+
+	<p class="text-muted">
+		<span class="tj-label" ng-show="!timeRecord.completed" style="margin-left:0px; background-color:#999;">In-progress</span>
+		<strong>{{ timeRecord.user }}</strong> started this time record on {{ timeRecord._created | date:'mediumDate' }} at {{ timeRecord._created | date:'shortTime' }}. <span ng-pluralize count="displayComments.length" when="commentsPluralizeWhen"></span>
+	</p>
+</form>
+
+<div class="comment" ng-repeat="comment in comments | filterDisplayObjects | orderBy:'created' as displayComments" style="margin-left:-15px; margin-right:-15px; padding:10px 15px 10px 15px; border-top:1px solid #ddd;">
+	<p>
+		<strong>{{ comment.user }}</strong>
+		<span class="text-muted">{{ comment.created | date:'medium' }}</span>
+	</p>
+	<md ng-model="comment.comment"></md>
+</div>
+
+<form name="newCommentForm">
+	<div class="row" style="margin-bottom:-15px; padding-top:15px; border-top:1px solid #dddddd; background-color:#ececec;">
+		
+		<div class="col-md-10">
+
+			<div class="form-group">
+				<textarea class="form-control" name="" id="" ng-model="timeRecord._new_comment" placeholder="Comment..."></textarea>
+			</div>
+
+		</div>
+		<div class="col-md-2">
+			<div class="form-group">
+				<button class="btn btn-block btn-primary" ng-click="addComment(timeRecord);">Add Comment</button>
+			</div>
+		</div>
+	</div>
+</form>

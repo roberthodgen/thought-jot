@@ -28,11 +28,11 @@
 
 		// Directives
 		'app.projectListGroupItem',
-		'app.timeRecordListGroupItem',
 		'app.projectsSidebar',
 		'app.labelsPopover',
 		'app.label',
 		'app.issueDirectives',
+		'app.timeRecordDirectives',
 
 
 		// Third-party
@@ -194,34 +194,56 @@
 
 
 		/*
-		*	App > Project > Project Time Records
+		*	App > Project > Time Records
 		*/
 
-		$stateProvider.state('app.project.project-time-records', {
+		$stateProvider.state('app.project.time-records', {
 			url: '/time-records',
+			abstract: true,
 			reloadOnSearch: false,
-			templateUrl: '/project-time-records/project-time-records.html',
+			template: '<div ui-view></div>',
 			resolve: {
 				timeRecords: ['$stateParams', 'app.dataFactory', function($stateParams, dataFactory) {
 					return dataFactory.timeRecords($stateParams.projectId);
 				}]
-			}, controller: 'app.projectTimeRecordsCtrl'
+			}, controller: ['$scope', 'timeRecords', function($scope, timeRecords) {
+				$scope.timeRecords = timeRecords;
+			}]
 		});
 
 
 		/*
-		*	App > Project > View Time Record
+		*	App > Project > Time Records > Project Time Records
 		*/
 
-		$stateProvider.state('app.project.view-time-record', {
-			url: '/time-records/:timeRecordId',
-			reloadOnSearch: false,
-			templateUrl: '/project-time-records/project-time-records.html',
-			resolve: {
-				timeRecord: ['$stateParams', 'app.dataFactory', function($stateParams, dataFactory) {
-					return dataFactory.timeRecords($stateParams.projectId);
-				}]
-			}, controller: 'app.projectTimeRecordsCtrl'
+		$stateProvider.state('app.project.time-records.project-time-records', {
+			url: '',
+			templateUrl: '/project-time-records/time-records.html',
+			controller: 'app.projectTimeRecordsCtrl'
+		});
+
+
+		/*
+		*	App > Project > Time Record> Project Time Record > View Time Record
+		*
+		*	This is essentially an abstract State in that it doesn't modify the view;
+		*	view modification is done via `app.project.time-records.project-time-recordss`.
+		*/
+
+		$stateProvider.state('app.project.time-records.project-time-records.view-time-record', {
+			url: '/:timeRecordId'
+		});
+
+
+		/*
+		*	App > Project > Time Record> Project Time Record > Edit Time Record
+		*
+		*	This is essentially an abstract State in that it doesn't modify the view;
+		*	view modification is done via `app.project.time-records.project-time-recordss`.
+		*/
+
+		$stateProvider.state('app.project.time-records.project-time-records.edit-time-record', {
+			url: '/:timeRecordId/edit'
 		});
 
 
@@ -270,7 +292,7 @@
 
 
 		/*
-		*	App > Project > Issues > View Issue
+		*	App > Project > Issues > Project Issues > View Issue
 		*
 		*	This is essentially an abstract State in that it doesn't modify the view;
 		*	view modification is done via `app.project.issues.project-issues`.
@@ -282,7 +304,7 @@
 
 
 		/*
-		*	App > Project > Issues > Edit Issue
+		*	App > Project > Issues > Project Issues > Edit Issue
 		*
 		*	This is essentially an abstract State in that it doesn't modify the view;
 		*	view modification is done via `app.project.issues.project-issues`.

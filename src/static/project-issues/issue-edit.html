@@ -10,7 +10,7 @@
 	</div>
 
 	<p class="text-muted">
-		<span class="tj-label" style="margin-left:0px; background-color:#999;">{{ issue.open? 'Open!' : 'Closed' }}</span> <strong>{{ issue.user }}</strong> created this issue on <span ng-attr-title="{{ issue._created | date:'medium' }}">{{ issue._created | date:'mediumDate' }}</span>. <span ng-pluralize count="displayComments.length" when="commentsPluralizeWhen"></span>
+		<span class="tj-label" style="margin-left:0px; background-color:#999;">{{ issue.open ? 'Open!' : 'Closed' }}</span> <strong>{{ issue.user }}</strong> created this issue on <span ng-attr-title="{{ issue._created | date:'medium' }}">{{ issue._created | date:'mediumDate' }}</span>. <span ng-pluralize count="displayComments.length" when="commentsPluralizeWhen"></span>
 	</p>
 
 	<div class="comment" style="margin-left:-15px; margin-right:-15px; padding:10px 15px 10px 15px; border-top:1px solid #ddd;">

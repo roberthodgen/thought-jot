@@ -66,11 +66,11 @@
 		};
 
 		// Watch for changes in $scope.inProgressResults (an alias from an ngRepeat), to update our inProgressProjects (used for count; hiding the section)
-		$scope.$watch(function() {
-			return $scope.inProgressResults;
-		}, function(newValue, oldValue) {
-			$scope.inProgressProjects = $filter('filterInProgressProjects')($scope.projects);
-		});
+		// $scope.$watch(function() {
+		// 	return $scope.inProgressResults;
+		// }, function(newValue, oldValue) {
+		// 	$scope.inProgressProjects = $filter('filterInProgressProjects')($scope.projects);
+		// });
 
 
 		// Init

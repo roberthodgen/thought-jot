@@ -82,6 +82,18 @@
 
 		// Init
 		$scope.init();
+
+		// Cleanup
+		$scope.$on('$destroy', function() {
+			// Loop through all Issues...
+			var _keys = Object.keys($scope.timeRecords);
+			for (var i = _keys.length - 1; i >= 0; i--) {
+				// Delete the `_view` and `_edit` properties;
+				// Fixes an bug where a Time Record will appear open after naviging away from this controller and back.
+				delete $scope.timeRecords[_keys[i]]._view;
+				delete $scope.timeRecords[_keys[i]]._edit;
+			};
+		});
 	}]);
 
 })();

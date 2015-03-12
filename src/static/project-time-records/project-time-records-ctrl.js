@@ -30,14 +30,6 @@
 				}
 			}
 
-			$scope.timeGroupedTimeRecords = {};
-
-			$scope.timeRecordDates = $filter('createdDates')($scope.timeRecords);
-
-			$scope.timeGroupParams = {
-				month: new Date()
-			};
-
 		};
 
 		$scope.$on('backgroundClick', function() {

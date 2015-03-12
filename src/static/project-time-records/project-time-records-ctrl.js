@@ -2,7 +2,7 @@
 
 	var app = angular.module('app.projectTimeRecordsCtrl', []);
 
-	app.controller('app.projectTimeRecordsCtrl', ['$scope', '$state', '$stateParams', 'app.appFactory', 'app.dataFactory', function($scope, $state, $stateParams, appFactory, dataFactory) {
+	app.controller('app.projectTimeRecordsCtrl', ['$scope', '$state', '$stateParams', '$filter', 'app.appFactory', 'app.dataFactory', function($scope, $state, $stateParams, $filter, appFactory, dataFactory) {
 
 		// Perform setup and reset $scope variables...
 		$scope.init = function() {
@@ -30,35 +30,12 @@
 				}
 			}
 
-			// Filter by day
-			$scope.filteredByDay = {
-				'Today': {},
-				'Yesterday': {},
-				'This month': {},
-				'February': {}
-			};
+			$scope.timeGroupedTimeRecords = {};
 
-			var _now = new Date();
+			$scope.timeRecordDates = $filter('createdDates')($scope.timeRecords);
 
-			// Loop through all Time Records...
-			var _keys = Object.keys($scope.timeRecords);
-			for (var i = _keys.length - 1; i >= 0; i--) {
-				
-				if (angular.isString(_keys[i])) {
-					if (_keys[i].charAt(0) != '_') {
-
-						// Perform logic on this Time Record's `_start` date...
-						var _start = $scope.timeRecords[_keys[i]]._start;
-
-						if (_start.getDate() == _now.getDate() && _start.getMonth() == _now.getMonth() && _start.getYear() == _now.getYear()) {
-							// Today!
-							$scope.filteredByDay['Today'][_keys[i]] = $scope.timeRecords[_keys[i]];
-						} else if (_start.getDate() == (_now.getDate() -1) && _start.getMonth() == _now.getMonth() && _start.getYear() == _now.getYear()) {
-							// Yesterday!
-							$scope.filteredByDay['Yesterday'][_keys[i]] = $scope.timeRecords[_keys[i]];
-						}
-					}
-				}
+			$scope.timeGroupParams = {
+				month: new Date()
 			};
 
 		};

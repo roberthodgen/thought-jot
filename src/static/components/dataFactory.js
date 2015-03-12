@@ -744,47 +744,29 @@
 						'status': response.status
 					};
 				});
-			}, updateTimeRecord: function(timeRecord) {
-				timeRecord._update_in_progress = true;
-				var options = {
-					'time_record_id': timeRecord.id
-				};
-
-				if (timeRecord.hasOwnProperty('_name')) {
-					if (timeRecord._name) {
-						options.name = timeRecord._name;
-					}
-				}
+			}, updateTimeRecord: function(timeRecord, projectId) {
 				return $http({
-					method: 'POST',
-					url: '/api/projects/time-records/update.json',
-					params: {
-						't': new Date().getTime()
-					}, data: options
+					method: 'PUT',
+					url: '/api/v2/projects/'+projectId+'/time-records/'+timeRecord.id,
+					data: timeRecord
 				}).then(function(response) {
 					// HTTP 200-299 Status
-					delete timeRecord._update_in_progress;
-					if (angular.isObject(response.data)) {
-						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('time_record')) {
-							// Success!!
-							console.log('[app.dataFactory] service.updateTimeRecord(): response.data has `project` and `time_record`, is valid');
-
-							// Cache this Project
-							cacheProjects([response.data.project]);
+					if (angular.isObject(response.data) && response.status == 200) {
+						// Success
+						console.log('[app.dataFactory] service.updateTimeRecord(): response.data is Object, response.status: 200');
 
 							// Cache this Time Record
-							cahceTimeRecords([response.data.time_record], response.data.project.id);
+							cahceTimeRecords([response.data], projectId);
 
-							return response.data.time_record;
-						}
+							return response.data;
+					} else {
+						console.log('[app.dataFactory] service.updateTimeRecord(): Error reading response.');
+						return {
+							'error': true
+						};
 					}
-					console.log('[app.dataFactory] service.updateTimeRecord(): Error reading response.');
-					return {
-						'error': true
-					};
 				}, function(response) {
 					// Error
-					delete timeRecord._update_in_progress;
 					console.log('[app.dataFactory] service.updateTimeRecord(): Request error: '+response.status);
 
 					return {

@@ -155,30 +155,6 @@
 					'other': '{} comments'
 				};
 
-				$scope.toggleOpen = function() {
-					if ($scope.timeRecord.open) {
-						// Close
-						dataFactory.updateMilestone({
-							id: $scope.timeRecord.id,
-							open: !$scope.timeRecord.open
-						}, $stateParams.projectId).then(function(response) {
-							if (response.error) {
-								alert('Error closing Issue.');
-							}
-						});
-					} else {
-						// Reopen
-						dataFactory.updateMilestone({
-							id: $scope.timeRecord.id,
-							open: !$scope.timeRecord.open
-						}, $stateParams.projectId).then(function(response) {
-							if (response.error) {
-								alert('Error opening Issue.');
-							}
-						});
-					}
-				};
-
 				$scope.addComment = function(timeRecord) {
 					var options = {
 						'project_id': $stateParams.projectId,
@@ -195,13 +171,12 @@
 				};
 
 				$scope.save = function() {
-					dataFactory.updateMilestone({
+					dataFactory.updateTimeRecord({
 						id: angular.copy($scope.timeRecord.id),
-						name: angular.copy($scope.timeRecord._name),
-						description: angular.copy($scope.timeRecord._description)
+						name: angular.copy($scope.timeRecord._name)
 					}, $stateParams.projectId).then(function(response) {
 						if (!response.error) {
-							$scope.issueEditForm.$setPristine();	// Clears $dirty
+							$scope.timeRecordEditForm.$setPristine();	// Clears $dirty
 							$state.go('app.project.time-records.project-time-records.view-time-record', $stateParams);
 						} else {
 							alert('Error saving Issue: '+response.status);
@@ -211,7 +186,7 @@
 
 				// On `$stateChangeStart` check to see if the form has unsaved changes, i.e. it's dirty
 				$scope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
-					if ($scope.issueEditForm.$dirty) {
+					if ($scope.timeRecordEditForm.$dirty) {
 						if (!confirm('Unsaved changes; continue and lose changes?')) {
 							event.preventDefault();
 						}

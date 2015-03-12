@@ -1,30 +1,18 @@
-<form name="issueEditForm" class="form-horizontal">
+<form name="timeRecordEditForm" class="form-horizontal">
 	<div class="form-group" style="margin-bottom:7px;">
 		<div class="col-sm-9">
-			<input type="text" class="form-control input-lg" ng-model="timeRecord._name" required>
+			<input type="text" class="form-control input-lg" ng-model="timeRecord._name" ng-attr-placeholder="{{ timeRecord._start | friendlyStartTime }}..." required>
 		</div>
 		<div class="col-sm-3 text-right" style="padding-top:10px;">
-			<a ui-sref="app.project.issues.project-issues.view-issue({ milestoneId: timeRecord.id })" class="text-muted" style="position:relative; top:1px; margin-right:10px;">Cancel</a>
-			<button type="button" class="btn btn-primary" ng-click="save();" ng-disabled="!issueEditForm.$valid">Save issue</button>
+			<a ui-sref="app.project.time-records.project-time-records.view-time-record({ timeRecordId: timeRecord.id })" class="text-muted" style="position:relative; top:1px; margin-right:10px;">Cancel</a>
+			<button type="button" class="btn btn-primary" ng-click="save();" ng-disabled="!timeRecordEditForm.$valid">Save time record</button>
 		</div>
 	</div>
 
 	<p class="text-muted">
-		<span class="tj-label" style="margin-left:0px; background-color:#999;">{{ timeRecord.open ? 'Open!' : 'Closed' }}</span> <strong>{{ timeRecord.user }}</strong> created this issue on <span ng-attr-title="{{ timeRecord._created | date:'medium' }}">{{ timeRecord._created | date:'mediumDate' }}</span>. <span ng-pluralize count="displayComments.length" when="commentsPluralizeWhen"></span>
+		<span class="tj-label" ng-show="!timeRecord.completed" style="margin-left:0px; background-color:#999;">In-progress</span>
+		<strong>{{ timeRecord.user }}</strong> started this time record on {{ timeRecord._created | date:'mediumDate' }} at {{ timeRecord._created | date:'shortTime' }}. <span ng-pluralize count="displayComments.length" when="commentsPluralizeWhen"></span>
 	</p>
-
-	<div class="comment" style="margin-left:-15px; margin-right:-15px; padding:10px 15px 10px 15px; border-top:1px solid #ddd;">
-		<div ng-show="!descriptionPreview">
-			<textarea class="form-control with-btn-preview" name="description" ng-model="timeRecord._description" style="height:200px;"></textarea>
-		</div>
-		<div class="well with-btn-preview" ng-show="descriptionPreview">
-			<md ng-model="timeRecord._description"></md>
-		</div>
-		<div class="preview-link">
-			<span class="btn btn-primary btn-preview" ng-click="descriptionPreview = !descriptionPreview">{{ descriptionPreview ? 'Edit' : 'Preview' }}</span>
-			<p class="help-block">Description parsed using <a href="https://help.github.com/articles/markdown-basics/" target="_blank">GitHub Flavored Markdown</a>.</p>
-		</div>
-	</div>
 </form>
 
 <div class="comment" ng-repeat="comment in comments | filterDisplayObjects | orderBy:'created' as displayComments" style="margin-left:-15px; margin-right:-15px; padding:10px 15px 10px 15px; border-top:1px solid #ddd;">

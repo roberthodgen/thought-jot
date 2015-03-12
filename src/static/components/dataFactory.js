@@ -359,13 +359,11 @@
 
 				// Loop though all Projects in `uncompletdWatchProjects`...
 				for (var i = uncompletedWatchProjectIds.length - 1; i >= 0; i--) {
-					// console.log('[app.dataFactory] uncompletedSecondsUpdate(): Inspecting Project for `has_uncompleted_time_records` where `id`: '+uncompletedWatchProjectIds[i]);
 
 					var project = service.cachedOrPlaceholderProject(uncompletedWatchProjectIds[i]);
 
 					// If this Project has uncompleted Time Records...
 					if (project.has_uncompleted_time_records) {
-						// console.log('[app.dataFactory] uncompletedSecondsUpdate(): Project with `id`: '+uncompletedWatchProjectIds[i]+' `has_uncompleted_time_records`: true')
 
 						// Set this Project's `_uncompleted` to it's current `completed` value, will be added to later
 						project._uncompleted = project.completed;

@@ -14,42 +14,18 @@ with "In progress"/Projects with uncompleted Time Records at the TOP
 
 	<div class="row" style="margin-bottom:30px;">
 		<div class="col-sm-8">
-			<div class="input-group">
-				<input type="text" class="form-control" ng-model="search.name" placeholder="Find projects...">
-
-				<div class="input-group-btn">
-					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-						Active &amp; in progress <span class="caret"></span>
-					</button>
-					<ul class="dropdown-menu" role="menu">
-						<li class="active"><a href="#">Active &amp; in progress</a></li>
-						<li><a href="#">Projects I own</a></li>
-						<li><a href="#">Projects shared with me</a></li>
-						<li class="divider"></li>
-						<li><a href="#">Archived</a></li>
-					</ul>
-				</div>
-			</div>
+			<input type="text" class="form-control" ng-model="search.name" placeholder="Find projects...">
 		</div>
 		<div class="col-sm-4 text-right">
 			<a ui-sref="app.create-project" class="btn btn-primary">New Project</a>
 		</div>
 	</div>
 
-	<div class="projects-list-group" ng-hide="inProgressProjects.length == 0">
-		<h4>Projects-in-progress</h4>
-		<hr class="projects">
-		<div class="list-group">
-			<a ng-href="/projects/{{ project.id }}" class="list-group-item list-group-item-success" project-list-group-item project="project" ng-repeat="project in projects | filterInProgressProjects | filter:search | orderBy:'_updated':true as inProgressResults"></a>
-		</div>
-		<p class="text-muted" ng-show="inProgressResults.length == 0">No results.</p>
-	</div>
-
 	<div class="projects-list-group">
 		<h4>Active projects <small>most recently updated</small></h4>
 		<hr class="projects">
 		<div class="list-group">
-			<a ng-href="/projects/{{ project.id }}" class="list-group-item" project-list-group-item project="project" ng-repeat="project in projects | filterActiveProjects | filter:search | orderBy:'_updated':true as activeResults"></a>
+			<a ng-href="/projects/{{ project.id }}" class="list-group-item" project-list-group-item project="project" ng-repeat="project in projects | filterDisplayObjects | filter:search | orderBy:'_updated':true as activeResults"></a>
 		</div>
 		<p class="text-muted" ng-show="activeResults.length == 0">No results.</p>
 	</div>

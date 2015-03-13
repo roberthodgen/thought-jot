@@ -47,5 +47,4 @@ def send_project_contributor_email(email_address, user, project):
     body_text = body_text.format(login='http://thought-jot.appspot.com/login',
         from_email=user.email, to_email=email_address,
         project_name=project.name)
-    print body_text
     mail.send_mail(sender_email_address, email_address, subject, body_text)

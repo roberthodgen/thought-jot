@@ -64,15 +64,34 @@
 
 
 		/*
-		*	Home
+		*	Not Found
 		*/
 
 		$stateProvider.state('not-found', {
-			url: '/not-found',
+			// url: '/not-found',
 			templateUrl: '/error/not-found.html',
 			controller: ['$state', 'app.appFactory', function($state, appFactory) {
 				appFactory.config({
 					pageTitle: 'Not found',
+					navbar: {
+						title: null,
+						link: $state.href('home')
+					}
+				});
+			}]
+		});
+
+
+		/*
+		*	Unauthorized
+		*/
+
+		$stateProvider.state('unauthorized', {
+			// url: '/unauthorized',
+			templateUrl: '/error/unauthorized.html',
+			controller: ['$state', 'app.appFactory', function($state, appFactory) {
+				appFactory.config({
+					pageTitle: 'Unauthorized',
 					navbar: {
 						title: null,
 						link: $state.href('home')
@@ -396,9 +415,17 @@
 
 
 	app.config(function($urlRouterProvider){
-		// if the path doesn't match any of the urls you configured
-		// otherwise will take care of routing the user to the specified url
-		$urlRouterProvider.otherwise('/not-found');
+		// $urlRouterProvider.otherwise is invoked when no state matches the URL...
+		$urlRouterProvider.otherwise(function($injector, $location) {
+			// Get `$state`
+			state = $injector.get('$state');
+
+			// Go to `not-found`
+			state.go('not-found');
+
+			// But stay at this path...
+			return $location.path()
+		});
 	});
 
 

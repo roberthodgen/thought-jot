@@ -13,6 +13,12 @@
 
 			$scope.newContributor = '';
 
+			// Check permission
+			if ($scope.user.email != $scope.project.owner) {
+				// Shouldn't view this page...
+				$state.go('unauthorized');
+			}
+
 		};
 
 		$scope.addContributor = function() {

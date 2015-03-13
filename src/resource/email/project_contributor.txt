@@ -1,0 +1,13 @@
+Hello {to_email},
+
+{from_email} has added you as a contributor on the project: {project_name}
+
+Please log in or create an account below to access {project_name}.
+
+{login}
+
+
+Best from the ThoughtJot! team.
+
+---
+This is an automated message sent on behalf of {from_email}. You are receiving it because they added your email address on the {project_name} project.

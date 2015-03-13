@@ -21,7 +21,11 @@
 		<dl>
 			<dt>Contributors</dt>
 			<dd>
-				<p>me <span class="text-muted">(owner)</span></p>
+				{{ (user.email == project.owner) ? 'me' : project.owner }}
+				<span class="text-muted">(owner)</span>
+			</dd>
+			<dd ng-repeat="contributor in project.contributors">
+				{{ (user.email == contributor) ? 'me' : contributor }}
 			</dd>
 		</dl>
 		

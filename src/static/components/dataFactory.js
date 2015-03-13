@@ -244,7 +244,9 @@
 		*/
 		var internalKey = function(key) {
 			if (angular.isString(key)) {
-				return key.charAt(0) == '_';
+				// ThoughtJot! keys are prefixed with `_`;
+				// Angular uses `$$` prefix for hash indexes (me thinks)
+				return (key.charAt(0) == '_' || key.substring(0, 2) == '$$');
 			}
 
 			return false;
@@ -271,12 +273,22 @@
 				}
 			}
 
-			// Delete any keys from the cache that aren't found in our response (that don't begin with an underscore)
-			var _destination_keys = Object.keys(destination);
-			for (var i = destination.length - 1; i >= 0; i--) {
-				if (_response_keys.indexOf(_destination_keys[i]) === -1 && !internalKey(_destination_keys[i])) {
-					console.log('deleting key: '+_destination_keys[i]);
-					delete destination[_destination_keys[i]];
+			// Delete any keys/indexes from the cache that aren't found in our response (that aren't internal)
+			if (angular.isArray(destination)) {
+				for (var i = destination.length - 1; i >= 0; i--) {
+					if (response.indexOf(destination[i]) !== i) {
+
+						console.log('deleting index: '+i);
+						destination.splice(i, 1);
+					}
+				};
+			} else if (angular.isObject(destination)) {
+				var _destination_keys = Object.keys(destination);
+				for (var i = _destination_keys.length - 1; i >= 0; i--) {
+					if (_response_keys.indexOf(_destination_keys[i]) === -1 && !internalKey(_destination_keys[i])) {
+						console.log('deleting key: '+_destination_keys[i]);
+						delete destination[_destination_keys[i]];
+					}
 				}
 			}
 		};
@@ -615,6 +627,98 @@
 					return {
 						'error': true,
 						'status': response.status
+					};
+				});
+			}, projectContributorsAdd: function(email, projectId) {
+				return $http({
+					method: 'POST',
+					url: '/api/v2/projects/'+projectId+'/contributors/'+encodeURIComponent(email)
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					if (angular.isObject(response.data) && response.status == 200) {
+						// Success!
+						console.log('[app.dataFactory] service.projectContributorsAdd(): response.data is Object, response.status: 200');
+
+						// Cache this Project
+						cacheProjects([response.data], projectId, null);
+
+						return response.data;
+					}
+				}, function(response) {
+					// Error
+					console.log('[app.dataFactory] service.projectContributorsAdd(): Request error: '+response.status);
+					return {
+						error: true,
+						status: response.status
+					};
+				});
+			}, projectContributorsRemove: function(email, projectId) {
+				return $http({
+					method: 'DELETE',
+					url: '/api/v2/projects/'+projectId+'/contributors/'+encodeURIComponent(email)
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					if (angular.isObject(response.data) && response.status == 200) {
+						// Success!
+						console.log('[app.dataFactory] service.projectContributorsRemove(): response.data is Object, response.status: 200');
+
+						// Cache this Project
+						cacheProjects([response.data], projectId, null);
+
+						return response.data;
+					}
+				}, function(response) {
+					// Error
+					console.log('[app.dataFactory] service.projectContributorsRemove(): Request error: '+response.status);
+					return {
+						error: true,
+						status: response.status
+					};
+				});
+			}, projectObserversAdd: function(email, projectId) {
+				return $http({
+					method: 'POST',
+					url: '/api/v2/projects/'+projectId+'/observers/'+encodeURIComponent(email)
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					if (angular.isObject(response.data) && response.status == 200) {
+						// Success!
+						console.log('[app.dataFactory] service.projectObserversAdd(): response.data is Object, response.status: 200');
+
+						// Cache this Project
+						cacheProjects([response.data], projectId, null);
+
+						return response.data;
+					}
+				}, function(response) {
+					// Error
+					console.log('[app.dataFactory] service.projectObserversAdd(): Request error: '+response.status);
+					return {
+						error: true,
+						status: response.status
+					};
+				});
+			}, projectObserversRemove: function(email, projectId) {
+				return $http({
+					method: 'DELETE',
+					url: '/api/v2/projects/'+projectId+'/observers/'+encodeURIComponent(email)
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					if (angular.isObject(response.data) && response.status == 200) {
+						// Success!
+						console.log('[app.dataFactory] service.projectObserversRemove(): response.data is Object, response.status: 200');
+
+						// Cache this Project
+						cacheProjects([response.data], projectId, null);
+
+						return response.data;
+					}
+				}, function(response) {
+					// Error
+					console.log('[app.dataFactory] service.projectObserversRemove(): Request error: '+response.status);
+					return {
+						error: true,
+						status: response.status
 					};
 				});
 			}, projectUncompletedUpdate: function(projectId) {

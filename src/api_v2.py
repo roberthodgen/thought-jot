@@ -527,7 +527,8 @@ class Milestones(webapp2.RequestHandler):
         if (not (project and isinstance(project, model.Project)) or not
                 (milestone and isinstance(milestone, model.Milestone))):
             self.abort(404)
-        if user.email not in project.users:
+        if ((user.email not in project.contributors) and not
+                    project.is_owner(user.email)):
             self.abort(401)
         # Process optional items...
         if len(request_object) > 0:
@@ -539,7 +540,7 @@ class Milestones(webapp2.RequestHandler):
                 milestone.description = description
             open = request_object.get('open')
             if open is not None:
-              milestone.open = bool(open)
+                milestone.open = bool(open)
             # labels = request_object.get('labels')
             # if isinstance(labels, list):
             #     for label_key_id in labels:
@@ -570,7 +571,8 @@ class Milestones(webapp2.RequestHandler):
         if (not (project and isinstance(project, model.Project)) or not
                 (milestone and isinstance(milestone, model.Milestone))):
             self.abort(404)
-        if user.email not in project.users:
+        if ((user.email not in project.contributors) and not
+                    project.is_owner(user.email)):
             self.abort(401)
         # Get all Comments associated with this Milestone
         comments = model.Comment.query(ancestor=milestone_key)
@@ -686,7 +688,8 @@ class Labels(webapp2.RequestHandler):
         if (not (project and isinstance(project, model.Project)) or not
                 (label and isinstance(label, model.Label))):
             self.abort(404)
-        if user.email not in project.users:
+        if ((user.email not in project.contributors) and not
+                    project.is_owner(user.email)):
             self.abort(401)
         # Process optional items...
         if len(request_object) > 0:

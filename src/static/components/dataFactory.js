@@ -282,7 +282,8 @@
 						destination.splice(i, 1);
 					}
 				};
-			} else if (angular.isObject(destination)) {
+			} /* // Disabled to fix tj29, where labels were merged and deleted.
+			else if (angular.isObject(destination)) {
 				var _destination_keys = Object.keys(destination);
 				for (var i = _destination_keys.length - 1; i >= 0; i--) {
 					if (_response_keys.indexOf(_destination_keys[i]) === -1 && !internalKey(_destination_keys[i])) {
@@ -290,7 +291,7 @@
 						delete destination[_destination_keys[i]];
 					}
 				}
-			}
+			} */
 		};
 
 		/*

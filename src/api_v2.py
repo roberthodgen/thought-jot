@@ -25,6 +25,8 @@ import utilities
 
 import setup
 
+from google.appengine.api import mail
+
 
 class Projects(webapp2.RequestHandler):
     def get(self, project_id=None):
@@ -156,13 +158,17 @@ class Contributors(webapp2.RequestHandler):
         project = project_key.get()
         if not (project and isinstance(project, model.Project)):
             self.abort(404)
-        new_contributor = users.User.user_for_email(contributor_email)
-        if not new_contributor:
-            self.abort(404)
+        # new_contributor = users.User.user_for_email(contributor_email)
+        # if not new_contributor:
+        #     self.abort(404)
+        if not mail.is_email_valid(contributor_email):
+            self.abort(400)
         if (not project.is_owner(user.email) and not
                 project.has_contributor(user.email)):
             self.abort(401)
         project.add_contributors([contributor_email])
+        utilities.send_project_contributor_email(contributor_email, user,
+            project)
         response_object = project.json_object()
         # Send response
         self.response.content_type = 'application/json'
@@ -181,9 +187,7 @@ class Contributors(webapp2.RequestHandler):
         if not project_key:
             self.abort(400)
         project = project_key.get()
-        new_contributor = users.User.user_for_email(contributor_email)
-        if (not (project and isinstance(project, model.Project)) or not
-                new_contributor):
+        if not (project and isinstance(project, model.Project)):
             self.abort(404)
         if not project.is_owner(user.email):
             self.abort(401)

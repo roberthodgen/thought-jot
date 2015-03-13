@@ -22,7 +22,7 @@
 		'app.createIssueCtrl',
 		'app.projectLabelsCtrl',
 		'app.createLabelCtrl',
-		
+		'app.projectSharingCtrl',
 		'app.projectsHomeCtrl',
 		'app.projectSettingsCtrl',
 
@@ -178,7 +178,7 @@
 
 		$stateProvider.state('app.project.project-overview', {
 			url: '',
-			templateUrl: '/project-overview/project-overview.html',
+			templateUrl: '/project-overview/overview.html',
 			resolve: {
 				projectId: ['$stateParams', function($stateParams) {
 					return $stateParams.projectId;
@@ -377,10 +377,20 @@
 
 		$stateProvider.state('app.project.project-settings', {
 			url: '/settings',
-			templateUrl: '/project-settings/project-settings.html',
+			templateUrl: '/project-settings/settings.html',
 			controller: 'app.projectSettingsCtrl'
 		});
 
+
+		/*
+		*	App > Project > Project Sharing
+		*/
+
+		$stateProvider.state('app.project.project-sharing', {
+			url: '/sharing',
+			templateUrl: '/project-sharing/sharing.html',
+			controller: 'app.projectSharingCtrl'
+		});
 
 	}]);
 

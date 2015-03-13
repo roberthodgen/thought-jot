@@ -21,6 +21,10 @@ body {
 	color: #999;
 }
 
+p.help-block {
+	color: #999;
+}
+
 hr {
 	border-top: 1px solid #ddd;
 }
@@ -623,3 +627,4 @@ textarea.form-control.with-btn-preview {
 .select-labels-popover .list-group .list-group-item:last-child {
 	border-bottom: none;
 }
+

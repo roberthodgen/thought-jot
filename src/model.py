@@ -203,10 +203,8 @@ class TimeRecord(ndb.Model):
             'user': self.user
         }
         # Query all Comments that have this Time Record as their parent
-        comments = Comment.query(ancestor=self.key)
-        response_object['comments'] = []
-        for comment in comments:
-            response_object['comments'].append(comment.json_object())
+        response_object['comment_count'] = Comment.query(
+            ancestor=self.key).count(limit=10)
         return response_object
 
 

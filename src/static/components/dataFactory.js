@@ -976,8 +976,33 @@
 				var _timeRecords = $q.defer();
 				_timeRecords.resolve(_cache);
 				return _timeRecords.promise;
-			}, fetchComments: function(parentId) {
-				console.log('[app.dataFactory] service.fetchComments(): call, `parentId`: '+parentId)
+			}, fetchComments: function(parentId, projectId) {
+				console.log('[app.dataFactory] service.fetchComments(): Called, `parentId`: '+parentId+', `projectId`: 'projectId);
+
+				var _cache = service.cacheOrPlaceholderComments(parentId);
+				_cache._force_fetch = false;
+				_cache._fetch_in_progress = $http({
+					method:' GET',
+					url: '/api/v2/projects/'+projectId+'/comments/'+parentId
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					if (angular.isObject(response.data) && response.status == 200) {
+						console.log('[app.dataFactory] service.fetchComments(): response.data is Object, response.status: 200');
+
+						// Cache the comments
+						cacheComments(response.data, [parentId], parentId);
+
+						return response.data;
+					}
+				}, function(response) {
+					// Error
+					console.log('[app.dataFactory] service.fetchComments(): Request error: '+response.status);
+					return {
+						error: true,
+						status: response.status
+					};
+				});
+				return _cache._fetch_in_progress;
 
 				// Temp function, just return a promise-wrapped version of `service._comments`
 				// Update once API is written to fetch Comments for a particular parent object

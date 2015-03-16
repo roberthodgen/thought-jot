@@ -304,7 +304,17 @@
 			templateUrl: '/project-issues/issues.html',
 			resolve: {
 				issues: ['$stateParams', 'app.dataFactory', function($stateParams, dataFactory) {
-					return dataFactory.milestones($stateParams.projectId);
+
+					var filters = {};
+					if (angular.isDefined($stateParams.f)) {
+						if ($stateParams.f == 'closed') {
+							filters.open = false;
+						}
+					} else {
+						filters.open = true;
+					}
+
+					return dataFactory.milestones($stateParams.projectId, filters);
 				}]
 			}, controller: 'app.projectIssuesCtrl'
 		});

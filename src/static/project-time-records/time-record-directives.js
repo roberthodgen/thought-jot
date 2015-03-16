@@ -36,7 +36,7 @@
 					$scope.commentsLoaded = false;
 					$scope.commentsError = false;
 
-					dataFactory.comments($scope.timeRecord.id).then(function(response) {
+					dataFactory.comments($scope.timeRecord.id, $stateParams.projectId).then(function(response) {
 						$scope.commentsLoaded = true;
 						if (!response.error) {
 							// Success
@@ -118,7 +118,7 @@
 					$scope.commentsLoaded = false;
 					$scope.commentsError = false;
 
-					dataFactory.comments($scope.timeRecord.id).then(function(response) {
+					dataFactory.comments($scope.timeRecord.id, $stateParams.projectId).then(function(response) {
 						$scope.commentsLoaded = true;
 						if (!response.error) {
 							// Success

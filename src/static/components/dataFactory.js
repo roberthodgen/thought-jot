@@ -79,9 +79,11 @@
 				newOrUpdatedTimeRecords[i]._end = new Date(newOrUpdatedTimeRecords[i].end);
 				newOrUpdatedTimeRecords[i]._updated = new Date(newOrUpdatedTimeRecords[i].updated);
 
-				// Copy this Time Record's Comments into the Comments Cache
-				cacheComments(newOrUpdatedTimeRecords[i].comments, [cacheKey, newOrUpdatedTimeRecords[i].id], newOrUpdatedTimeRecords[i].id);
-				delete newOrUpdatedTimeRecords[i].comments;
+				if (angular.isArray(newOrUpdatedTimeRecords[i].comments)) {
+					// Copy this Time Record's Comments into the Comments Cache
+					cacheComments(newOrUpdatedTimeRecords[i].comments, [cacheKey, newOrUpdatedTimeRecords[i].id], newOrUpdatedTimeRecords[i].id);
+					delete newOrUpdatedTimeRecords[i].comments;
+				}
 
 				// Add this Time Record to `_keyed`
 				_keyed[newOrUpdatedTimeRecords[i].id] = newOrUpdatedTimeRecords[i];
@@ -124,7 +126,7 @@
 				for (var i = newOrUpdatedcomments.length - 1; i >= 0; i--) {
 
 					// Perform necessary tasks, like Date objects...
-					newOrUpdatedcomments[i]._laded = _date;
+					newOrUpdatedcomments[i]._loaded = _date;
 					newOrUpdatedcomments[i]._updated = new Date(newOrUpdatedcomments[i].updated);
 					newOrUpdatedcomments[i]._created = new Date(newOrUpdatedcomments[i].created);
 
@@ -134,7 +136,7 @@
 
 				// Merge our Labels into the cache
 				// console.log('[app.dataFactory] cacheComments(): calling `mergeResponseData()` with destination key: '+cacheKeys[i]);
-				mergeResponseData(service._comments(cacheKeys[i_keyed]), _keyed[i_keyed]);	// Use `service._comments()` so we get the actual Array
+				mergeResponseData(service.cachedOrPlaceholderComments(cacheKeys[i_keyed]), _keyed[i_keyed]);
 			}
 		};
 
@@ -171,9 +173,11 @@
 				newOrUpdatedMilestones[i]._updated = new Date(newOrUpdatedMilestones[i].updated);
 				newOrUpdatedMilestones[i]._created = new Date(newOrUpdatedMilestones[i].created);
 
-				// Copy this Milestone's Comments into the Comments Cache
-				cacheComments(newOrUpdatedMilestones[i].comments, [cacheKey, newOrUpdatedMilestones[i].id], newOrUpdatedMilestones[i].id);
-				delete newOrUpdatedMilestones[i].comments;
+				if (angular.isArray(newOrUpdatedMilestones[i].comments)) {
+					// Copy this Milestone's Comments into the Comments Cache
+					cacheComments(newOrUpdatedMilestones[i].comments, [cacheKey, newOrUpdatedMilestones[i].id], newOrUpdatedMilestones[i].id);
+					delete newOrUpdatedMilestones[i].comments;
+				}
 
 				// Copy this Milestone's Labels into the Labels Cache
 				cacheLabels(newOrUpdatedMilestones[i].labels, [cacheKey, newOrUpdatedMilestones[i].id], newOrUpdatedMilestones[i].id);
@@ -220,7 +224,7 @@
 				for (var i = newOrUpdatedLabels.length - 1; i >= 0; i--) {
 
 					// Perform necessary tasks, like Date objects...
-					newOrUpdatedLabels[i]._laded = _date;
+					newOrUpdatedLabels[i]._loaded = _date;
 					newOrUpdatedLabels[i]._updated = new Date(newOrUpdatedLabels[i].updated);
 					newOrUpdatedLabels[i]._created = new Date(newOrUpdatedLabels[i].created);
 
@@ -335,6 +339,7 @@
 		var TIME_RECORDS_LIFE = 15;
 		var LABELS_LIFE = 30;
 		var ISSUES_LIFE = 30;
+		var COMMENTS_LIFE = 5;
 		var refreshIntervalPassed = function(lastFetchDate, interval) {
 			/*
 				Return TRUE if `date` is outside of our max interval.
@@ -943,6 +948,7 @@
 
 							// Cache these Comments
 							cacheComments([response.data.comment], [data.project_id, data.parent_id], null);
+
 							return response.data.comment;
 						}
 					}
@@ -958,18 +964,18 @@
 						'status': response.status
 					};
 				});
-			}, _comments: function(parentId) {
+			}, cachedOrPlaceholderComments: function(parentId) {
 				if (!angular.isDefined(cache.comments[parentId])) {
 					cache.comments[parentId] = {};
 				}
 				return cache.comments[parentId];
-			}, comments: function(parentId) {
-				console.log('[app.dataFactory] service.comments(): call, parentId: '+parentId);
+			}, comments: function(parentId, projectId) {
+				console.log('[app.dataFactory] service.comments(): Called, `parentId`: '+parentId+', `projectId`: '+projectId);
 
-				var _cache = service._comments(parentId);
+				var _cache = service.cachedOrPlaceholderComments(parentId);
 
-				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, TIME_RECORDS_LIFE)) && !_cache._fetch_in_progress && !_cache._last_fetch_error) {
-					return service.fetchComments(parentId);
+				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, COMMENTS_LIFE)) && !_cache._fetch_in_progress && !_cache._last_fetch_error) {
+					return service.fetchComments(parentId, projectId);
 				} else if (_cache._fetch_in_progress) {
 					return _cache._fetch_in_progress;
 				}
@@ -977,14 +983,15 @@
 				_timeRecords.resolve(_cache);
 				return _timeRecords.promise;
 			}, fetchComments: function(parentId, projectId) {
-				console.log('[app.dataFactory] service.fetchComments(): Called, `parentId`: '+parentId+', `projectId`: 'projectId);
-
-				var _cache = service.cacheOrPlaceholderComments(parentId);
+				console.log('[app.dataFactory] service.fetchComments(): Called, `parentId`: '+parentId+', `projectId`: '+projectId);
+				var _cache = service.cachedOrPlaceholderComments(parentId);
 				_cache._force_fetch = false;
 				_cache._fetch_in_progress = $http({
-					method:' GET',
-					url: '/api/v2/projects/'+projectId+'/comments/'+parentId
+					method: 'GET',
+					url: '/api/v2/projects/'+projectId+'/parent/'+parentId+'/comments'
 				}).then(function(response) {
+					delete _cache._fetch_in_progress;
+					delete _cache._last_fetch_error;
 					// HTTP 200-299 Status
 					if (angular.isObject(response.data) && response.status == 200) {
 						console.log('[app.dataFactory] service.fetchComments(): response.data is Object, response.status: 200');
@@ -992,10 +999,18 @@
 						// Cache the comments
 						cacheComments(response.data, [parentId], parentId);
 
-						return response.data;
+						return _cache;
+					} else {
+						_cache._last_fetch_error = true;
+						console.log('[app.dataFactory] service.fetchComments(): Error reading response.');
+						return {
+							'error': true
+						};
 					}
 				}, function(response) {
 					// Error
+					delete _cache._fetch_in_progress;
+					_cache._last_fetch_error = response.status;
 					console.log('[app.dataFactory] service.fetchComments(): Request error: '+response.status);
 					return {
 						error: true,
@@ -1003,13 +1018,6 @@
 					};
 				});
 				return _cache._fetch_in_progress;
-
-				// Temp function, just return a promise-wrapped version of `service._comments`
-				// Update once API is written to fetch Comments for a particular parent object
-
-				var _comments = $q.defer();
-				_comments.resolve(service._comments(parentId));
-				return _comments.promise;
 			}, cachedOrPlaceholderMilestones: function(projectId) {
 				/*
 				*	Return all Milestones (found in `projectId`) or an empty Object.
@@ -1048,28 +1056,18 @@
 				_cache._force_fetch = false;
 				_cache._fetch_in_progress = $http({
 					method: 'GET',
-					url: '/api/projects/milestones/list.json',
-					params: {
-						't': new Date().getTime(),
-						'project_id': projectId
-					}
+					url: '/api/v2/projects/'+projectId+'/milestones'
 				}).then(function(response) {
 					// HTTP 200-299 Status
 					delete _cache._fetch_in_progress;
 					delete _cache._last_fetch_error;
 					if (angular.isObject(response.data) && response.status == 200) {
-						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('milestones')) {
-							// Iterate through these projects, chang anything that must be changed...
-							console.log('[app.dataFactory] service.fetchMilestones(): response.data has `project` and `milestones`, is valid');
+						console.log('[app.dataFactory] service.fetchMilestones(): response.data is Object, response.status: 200');
 
-							// Cache this Project
-							cacheProjects([response.data.project], false);
+						// Cache these Milestones
+						cacheMilestones(response.data, projectId, projectId)
 
-							// Cache these Milestones
-							cacheMilestones(response.data.milestones, projectId, projectId)
-
-							return _cache;
-						}
+						return _cache;
 					} else {
 						_cache._last_fetch_error = true;
 						console.log('[app.dataFactory] service.fetchMilestones(): Error reading response.');

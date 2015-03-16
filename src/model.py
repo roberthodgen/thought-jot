@@ -354,6 +354,7 @@ class Label(ndb.Model):
         information about this Label via JSON requests. """
         return {
             'id': self.key.urlsafe(),
+            '_id': self.key.id(),
             'created': self.created.replace(tzinfo=UTC()).isoformat(),
             'updated': self.updated.replace(tzinfo=UTC()).isoformat(),
             'name': self.name,

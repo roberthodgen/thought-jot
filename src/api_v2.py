@@ -513,7 +513,7 @@ class Milestones(webapp2.RequestHandler):
                 # Cursor-based request
                 cursor = ndb.Cursor(urlsafe=self.request.GET.get('cursor'))
                 milestones, next_cursor, more = query.fetch_page(
-                    5, start_cursor=cursor)
+                    15, start_cursor=cursor)
                 response_object = []
                 for milestone in milestones:
                     response_object.append(milestone.json_object())
@@ -521,7 +521,7 @@ class Milestones(webapp2.RequestHandler):
                     self.response.headers.add('X-Cursor', next_cursor.urlsafe())
             else:
                 # List all Milestones
-                milestones, next_cursor, more = query.fetch_page(5)
+                milestones, next_cursor, more = query.fetch_page(15)
                 response_object = []
                 for milestone in milestones:
                     response_object.append(milestone.json_object())

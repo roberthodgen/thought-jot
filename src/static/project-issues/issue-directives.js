@@ -49,7 +49,7 @@
 					$scope.commentsLoaded = false;
 					$scope.commentsError = false;
 
-					dataFactory.comments($scope.issue.id).then(function(response) {
+					dataFactory.comments($scope.issue.id, $stateParams.projectId).then(function(response) {
 						$scope.commentsLoaded = true;
 						if (!response.error) {
 							// Success
@@ -116,6 +116,10 @@
 					dataFactory.createComment(options).then(function(response) {
 						if (!response.error) {
 							$scope.issue._new_comment = '';
+
+							// Force reload this Issue...
+							$scope.issue._force_fetch = true;
+							dataFactory.milestone($stateParams.projectId, issue.id);
 						} else {
 							alert('Error adding Comment: '+response.message);
 						}
@@ -146,7 +150,7 @@
 					$scope.commentsLoaded = false;
 					$scope.commentsError = false;
 
-					dataFactory.comments($scope.issue.id).then(function(response) {
+					dataFactory.comments($scope.issue.id, $stateParams.projectId).then(function(response) {
 						$scope.commentsLoaded = true;
 						if (!response.error) {
 							// Success
@@ -216,6 +220,10 @@
 					dataFactory.createComment(options).then(function(response) {
 						if (!response.error) {
 							$scope.issue._new_comment = '';
+
+							// Force reload this Issue...
+							$scope.issue._force_fetch = true;
+							dataFactory.milestone($stateParams.projectId, issue.id);
 						} else {
 							alert('Error adding Comment: '+response.message);
 						}

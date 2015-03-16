@@ -203,10 +203,8 @@ class TimeRecord(ndb.Model):
             'user': self.user
         }
         # Query all Comments that have this Time Record as their parent
-        comments = Comment.query(ancestor=self.key)
-        response_object['comments'] = []
-        for comment in comments:
-            response_object['comments'].append(comment.json_object())
+        response_object['comment_count'] = Comment.query(
+            ancestor=self.key).count(limit=10)
         return response_object
 
 
@@ -245,7 +243,7 @@ class Comment(ndb.Model):
             'created': self.created.replace(tzinfo=UTC()).isoformat(),
             'updated': self.updated.replace(tzinfo=UTC()).isoformat(),
             'comment': self.comment,
-            'project_id': self.project.urlsafe(),
+            'project_id': self.project.urlsafe(),   # TODO: Phase out
             'parent_id': self.key.parent().urlsafe(),
             'user': self.user
         }
@@ -286,7 +284,7 @@ class Milestone(ndb.Model):
         project.put()  # Update the `updated` property of our Project
         return new_milestone.put()
 
-    def json_object(self):
+    def json_object(self, comments=None):
         """ Return a dictionary representing this Milestone. Will be used for
         sending information about this Milestone via JSON requests. """
         response_object = {
@@ -297,14 +295,19 @@ class Milestone(ndb.Model):
             'description': self.description,
             'open': self.open,
             'number': self.number,
-            'project_id': self.key.parent().urlsafe(),
             'user': self.user
         }
-        # Query all Comments that have this Milestone as their parent
-        comments = Comment.query(ancestor=self.key)
-        response_object['comments'] = []
-        for comment in comments:
-            response_object['comments'].append(comment.json_object())
+        if comments:
+            # Query all Comments that have this Milestone as their parent
+            comments = Comment.query(ancestor=self.key)
+            response_object['comments'] = []
+            response_object['comment_count'] = 0
+            for comment in comments:
+                response_object['comments'].append(comment.json_object())
+                response_object['comment_count'] += 1
+        else:
+            response_object['comment_count'] = Comment.query(
+                ancestor=self.key).count(limit=10)
         # Query all Labels that have this Milestone assigned
         response_object['labels'] = []
         for label_key in self.labels:

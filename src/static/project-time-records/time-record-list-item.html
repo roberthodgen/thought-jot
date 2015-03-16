@@ -5,5 +5,5 @@
 	<div class="col-md-3 in-progress-bold">
 		{{ timeRecord.completed ? timeRecord.completed : timeRecord._uncompleted | completedTime }}
 	</div>
-	<div class="col-md-2" ng-pluralize count="(comments | filterDisplayObjects).length" when="commentsPluralizeWhen"></div>
+	<div class="col-md-2" ng-pluralize count="timeRecord.comment_count" when="commentsPluralizeWhen"></div>
 </div>

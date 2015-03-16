@@ -199,7 +199,7 @@ class Contributors(webapp2.RequestHandler):
 
 
 class TimeRecords(webapp2.RequestHandler):
-    def get(self, project_id):
+    def get(self, project_id, time_record_id=None):
         """ List the Time Records associated with a Project. """
         response_object = {}
         user = users.get_current_user()
@@ -213,11 +213,21 @@ class TimeRecords(webapp2.RequestHandler):
             self.abort(404)
         if user.email not in project.users:
                 self.abort(401)
-        # Query for Projects this User owns, contributes to, or may observe
-        time_records = model.TimeRecord.query(ancestor=project_key)
-        response_object = []
-        for time_record in time_records:
-            response_object.append(time_record.json_object())
+        if time_record_id:
+            # Give a specific Time Record
+            time_record_key = utilities.key_for_urlsafe_id(time_record_id)
+            if not time_record_key or (project_key != time_record_key.parent()):
+                self.abort(400)
+            time_record = time_record_key.get()
+            if not (time_record or isinstance(time_record, model.TimeRecord)):
+                self.abort(404)
+            response_object = time_record.json_object()
+        else:
+            # List all Time Records
+            time_records = model.TimeRecord.query(ancestor=project_key)
+            response_object = []
+            for time_record in time_records:
+                response_object.append(time_record.json_object())
         # Send response
         self.response.content_type = 'application/json'
         self.response.out.write(json.dumps(response_object))
@@ -774,7 +784,7 @@ app = webapp2.WSGIApplication([
         handler=TimeRecords,
         methods=['GET', 'PUT', 'DELETE']
     ), webapp2.Route(
-        '/api/v2/projects/<project_id:([a-zA-Z0-9-_]+)>/<:(time-records|milestones)>/<parent_id:([a-zA-Z0-9-_]+)>/comments',
+        '/api/v2/projects/<project_id:([a-zA-Z0-9-_]+)>/<:(time-records|milestones|parent)>/<parent_id:([a-zA-Z0-9-_]+)>/comments',
         handler=Comments,
         methods=['GET', 'POST']
     ), webapp2.Route(

@@ -5,7 +5,7 @@
 			<span label="label" ng-repeat="label in labels | filterDisplayObjects"></span>
 		</p>
 	</div>
-	<div class="col-md-2" ng-pluralize count="(comments | filterDisplayObjects).length" when="commentsPluralizeWhen"></div>
+	<div class="col-md-2" ng-pluralize count="issue.comment_count" when="commentsPluralizeWhen"></div>
 </div>
 
 <p class="text-muted" style="margin-bottom:0px;">

@@ -339,7 +339,7 @@
 		var TIME_RECORDS_LIFE = 15;
 		var LABELS_LIFE = 30;
 		var ISSUES_LIFE = 30;
-		var COMMENTS_LIFE = 5;
+		var COMMENTS_LIFE = 15;
 		var refreshIntervalPassed = function(lastFetchDate, interval) {
 			/*
 				Return TRUE if `date` is outside of our max interval.

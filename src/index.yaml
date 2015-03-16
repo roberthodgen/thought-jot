@@ -20,6 +20,13 @@ indexes:
   ancestor: yes
   properties:
   - name: labels
+  - name: created
+    direction: desc
+
+- kind: Milestone
+  ancestor: yes
+  properties:
+  - name: labels
   - name: open
   - name: created
     direction: desc

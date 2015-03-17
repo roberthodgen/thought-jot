@@ -71,6 +71,15 @@
 			}
 		};
 
+		$scope.loadMore = function() {
+			// Called when the "Load more" button is clicked; should ask the `dataFactory` to load the next set of Time Records
+			dataFactory.fetchMoreTimeRecords($stateParams.projectId, angular.copy($scope.timeRecords._cursor)).then(function(response) {
+				if (response.error) {
+					alert('Error loading more Time Records: '+response.status);
+				}
+			});
+		};
+
 
 		// Init
 		$scope.init();

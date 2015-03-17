@@ -48,3 +48,13 @@ def send_project_contributor_email(email_address, user, project):
         from_email=user.email, to_email=email_address,
         project_name=project.name)
     mail.send_mail(sender_email_address, email_address, subject, body_text)
+
+
+def str_to_bool(string, allow_none=False):
+    """ Return a Boolean value for `string`. """
+    if allow_none and string is None:
+        return None
+    if string == 'True' or string == 'true':
+        return True
+    else:
+        return False

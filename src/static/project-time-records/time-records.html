@@ -1,24 +1,5 @@
-<div class="row" style="margin-bottom:30px;">
-	<div class="col-sm-8">
-		<div class="input-group">
-			<input type="text" class="form-control" ng-model="search.name" placeholder="Search time records...">
-
-			<div class="input-group-btn">
-				<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-					All time records <span class="caret"></span>
-				</button>
-				<ul class="dropdown-menu" role="menu">
-					<li class="active"><a href="#">All time records</a></li>
-					<li><a href="#">Time records I started</a></li>
-					<li class="divider"></li>
-					<li><a href="#">Deleted</a></li>
-				</ul>
-			</div>
-		</div>
-	</div>
-	<div class="col-sm-4 text-right">
+<div class="text-right">
 		<button type="button" class="btn btn-primary" ng-click="createTimeRecord();">New time record</button>
-	</div>
 </div>
 
 <div class="projects-list-group" ng-show="todayTimeRecords.length > 0">
@@ -63,4 +44,8 @@
 			<div ng-if="timeRecord._view && timeRecord._edit" time-record-edit="timeRecord"></div>
 		</div>
 	</div>
+</div>
+
+<div class="text-center" ng-show="timeRecords._cursor">
+	<a href="#" ng-click="loadMore();">Load more</a>
 </div>

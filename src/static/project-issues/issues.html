@@ -33,7 +33,7 @@
 </div>
 
 <div class="projects-list-group">
-	<p ng-pluralize count="(issueResults).length" when="issuesPluralizeWhen">{{ searchOptions.open }}</p>
+	<p>Showing <span ng-pluralize count="(issueResults).length" when="issuesPluralizeWhen">{{ searchOptions.open }}</span> of N total</p>
 	<div class="list-group popout">
 		<div class="list-group-item" ng-class="{ 'view': (issue._view) }" ng-click="issueClick(issue);" ng-repeat="issue in issues | filterDisplayObjects | issueOpen:searchOptions.open | issueLabels:searchOptions.labels | filter:searchOptions.text | orderBy:'_created':true as issueResults">
 			<div ng-if="!issue._view" issue-list-item="issue"></div>
@@ -42,4 +42,8 @@
 		</div>
 	</div>
 	<p ng-show="issueResults.length == 0">Try broading your search or <a ui-sref="app.project.issues.create-issue">open a new issue</a>.</p>
+</div>
+
+<div class="text-center" ng-show="issues._cursor">
+	<a href="#" ng-click="loadMore();">Load more</a>
 </div>

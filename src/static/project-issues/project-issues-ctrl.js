@@ -91,6 +91,16 @@
 			}
 		};
 
+		$scope.loadMore = function() {
+			// Called when the "Load more" button is clicked; should ask the `dataFactory` to load the next set of Issues
+			dataFactory.fetchMoreMilestones($stateParams.projectId, angular.copy($scope.issues._cursor)).then(function(response) {
+				if (response.error) {
+					alert(' Error loading more Issues: '+response.status);
+				}
+			});
+		};
+
+
 		// Init
 		$scope.init();
 

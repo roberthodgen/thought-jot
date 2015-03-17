@@ -223,11 +223,27 @@ class TimeRecords(webapp2.RequestHandler):
                 self.abort(404)
             response_object = time_record.json_object()
         else:
-            # List all Time Records
-            time_records = model.TimeRecord.query(ancestor=project_key)
-            response_object = []
-            for time_record in time_records:
-                response_object.append(time_record.json_object())
+            if self.request.GET.get('cursor'):
+                # Cursor-based request
+                cursor = ndb.Cursor(urlsafe=self.request.GET.get('cursor'))
+                time_records, next_cursor, more = model.TimeRecord.query(
+                    ancestor=project_key).order(-model.TimeRecord.created)\
+                    .fetch_page(15, start_cursor=cursor)
+                response_object = []
+                for time_record in time_records:
+                    response_object.append(time_record.json_object())
+                if more:
+                    self.response.headers.add('X-Cursor', next_cursor.urlsafe())
+            else:
+                # List all Time Records
+                time_records, next_cursor, more = model.TimeRecord.query(
+                    ancestor=project_key).order(-model.TimeRecord.created)\
+                    .fetch_page(15)
+                response_object = []
+                for time_record in time_records:
+                    response_object.append(time_record.json_object())
+                if more:
+                    self.response.headers.add('X-Cursor', next_cursor.urlsafe())
         # Send response
         self.response.content_type = 'application/json'
         self.response.out.write(json.dumps(response_object))
@@ -474,11 +490,43 @@ class Milestones(webapp2.RequestHandler):
                 self.abort(404)
             response_object = milestone.json_object()
         else:
-            # List all Milestones
-            milestones = model.Milestone.query(ancestor=project_key)
-            response_object = []
-            for milestone in milestones:
-                response_object.append(milestone.json_object())
+            # Check if we're filtering...
+            label_ids = self.request.GET.getall('label')
+            open_str = self.request.GET.get('open')
+            filters = []
+            if len(label_ids) > 0 or open_str is not None:
+                # Use filters
+                open_bool = utilities.str_to_bool(open_str, allow_none=True)
+                if open_bool is True or open_bool is False:
+                    filters.append(model.Milestone.open == open_bool)
+                for label_id in label_ids:
+                    filters.append(model.Milestone.labels == ndb.Key(
+                        model.Label, int(label_id), parent=project_key))
+                query = model.Milestone.query(
+                    ndb.AND(*filters), ancestor=project_key).order(
+                    -model.Milestone.created)
+            else:
+                # No filters
+                query = model.Milestone.query(
+                    ancestor=project_key).order(-model.Milestone.created)
+            if self.request.GET.get('cursor'):
+                # Cursor-based request
+                cursor = ndb.Cursor(urlsafe=self.request.GET.get('cursor'))
+                milestones, next_cursor, more = query.fetch_page(
+                    15, start_cursor=cursor)
+                response_object = []
+                for milestone in milestones:
+                    response_object.append(milestone.json_object())
+                if more:
+                    self.response.headers.add('X-Cursor', next_cursor.urlsafe())
+            else:
+                # List all Milestones
+                milestones, next_cursor, more = query.fetch_page(15)
+                response_object = []
+                for milestone in milestones:
+                    response_object.append(milestone.json_object())
+                if more:
+                    self.response.headers.add('X-Cursor', next_cursor.urlsafe())
         # Send response
         self.response.content_type = 'application/json'
         self.response.out.write(json.dumps(response_object))

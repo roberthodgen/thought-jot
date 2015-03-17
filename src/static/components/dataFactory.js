@@ -776,38 +776,33 @@
 				_timeRecords.resolve(_cache);
 				return _timeRecords.promise;
 			}, fetchTimeRecords: function(projectId) {
-				console.log('[app.dataFactory] service.fetchTimeRecords(): call, projectId: '+projectId)
+				console.log('[app.dataFactory] service.fetchTimeRecords(): Called, `projectId`: '+projectId)
 				var _cache = service.cachedOrPlaceholderTimeRecords(projectId);
 				_cache._force_fetch = false;
 				_cache._fetch_in_progress = $http({
 					method: 'GET',
-					url: '/api/projects/time-records/list.json',
-					params: {
-						't': new Date().getTime(),
-						'project_id': projectId
-					}
+					url: '/api/v2/projects/'+projectId+'/time-records'
 				}).then(function(response) {
 					// HTTP 200-299 Status
 					delete _cache._fetch_in_progress;
 					delete _cache._last_fetch_error;
-					if (angular.isObject(response.data) && response.status == 200) {
-						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('time_records')) {
-							// Iterate through these projects, chang anything that must be changed...
-							console.log('[app.dataFactory] service.fetchTimeRecords(): response.data has `project` and `time_records`, is valid');
+					if (angular.isArray(response.data) && response.status == 200) {
+						console.log('[app.dataFactory] service.fetchTimeRecords(): response.data is Arry, response.status: 200');
 
-							// Cache this Project
-							cacheProjects([response.data.project], false);
+						// Cache these Time Records
+						cahceTimeRecords(response.data, projectId, projectId);
 
-							// Cache these Time Records
-							cahceTimeRecords(response.data.time_records, projectId, projectId);
-
-							return _cache;
+						// Get Cursor, if any
+						if (response.headers('X-Cursor') && !angular.isDefined(_cache._cursor)) {
+							_cache._cursor = response.headers('X-Cursor');
 						}
+
+						return _cache;
 					} else {
 						_cache._last_fetch_error = true;
 						console.log('[app.dataFactory] service.fetchTimeRecords(): Error reading response.');
 						return {
-							'error': true
+							error: true
 						};
 					}
 				}, function(response) {
@@ -816,11 +811,56 @@
 					_cache._last_fetch_error = response.status;
 					console.log('[app.dataFactory] service.fetchTimeRecords(): Request error: '+response.status);
 					return {
-						'error': true,
-						'status': response.status
+						error: true,
+						status: response.status
 					};
 				});
 				return _cache._fetch_in_progress;
+			}, fetchMoreTimeRecords: function(projectId, cursor) {
+				console.log('[app.dataFactory] service.fetchMoreTimeRecords(): Called, `projectId`: '+projectId+', `cursor`: '+cursor);
+				var _cache = service.cachedOrPlaceholderTimeRecords(projectId);
+				_cache._fetch_more_in_progress = $http({
+					method: 'GET',
+					url: '/api/v2/projects/'+projectId+'/time-records',
+					params: {
+						cursor: cursor
+					}
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					delete _cache._fetch_more_in_progress;
+					delete _cache._last_fetch_error;
+					if (angular.isArray(response.data) && response.status == 200) {
+						console.log('[app.dataFactory] service.fetchMoreTimeRecords(): response.data is Arry, response.status: 200');
+
+						// Cache these Time Records
+						cahceTimeRecords(response.data, projectId, null);
+
+						// Get Cursor, if any
+						if (response.headers('X-Cursor')) {
+							_cache._cursor = response.headers('X-Cursor');
+						} else {
+							_cache._cursor = false;
+						}
+
+						return _cache;
+					} else {
+						_cache._last_fetch_error = true;
+						console.log('[app.dataFactory] service.fetchMoreTimeRecords(): Error reading response.');
+						return {
+							error: true
+						};
+					}
+				}, function(response) {
+					// Error
+					delete _cache._fetch_more_in_progress;
+					_cache._last_fetch_error = response.status;
+					console.log('[app.dataFactory] service.fetchMoreTimeRecords(): Request error: '+response.status);
+					return {
+						error: true,
+						status: response.status
+					};
+				});
+				return _cache._fetch_more_in_progress;
 			}, createTimeRecord: function(projectId) {
 				return $http({
 					method: 'POST',
@@ -1037,26 +1077,31 @@
 					_project_cache[milestoneId] = {};
 				}
 				return _project_cache[milestoneId];
-			}, milestones: function(projectId) {
+			}, milestones: function(projectId, filters) {
 				console.log('[app.dataFactory] service.milestones(): call, `projectId`: '+projectId);
+
+				var use_filter = filters || {
+					open: true
+				};
 
 				var _cache = service.cachedOrPlaceholderMilestones(projectId);
 
-				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, ISSUES_LIFE)) && !_cache._fetch_in_progress && !_cache._last_fetch_error) {
-					return service.fetchMilestones(projectId);
+				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, ISSUES_LIFE) || angular.isObject(filters)) && !_cache._fetch_in_progress && !_cache._last_fetch_error) {
+					return service.fetchMilestones(projectId, use_filter);
 				} else if (_cache._fetch_in_progress) {
 					return _cache._fetch_in_progress;
 				}
 				var _milestones = $q.defer();
 				_milestones.resolve(_cache);
 				return _milestones.promise;
-			}, fetchMilestones: function(projectId) {
+			}, fetchMilestones: function(projectId, filters) {
 				console.log('[app.dataFactory] service.fetchMilestones(): call, projectId: '+projectId)
 				var _cache = service.cachedOrPlaceholderMilestones(projectId);
 				_cache._force_fetch = false;
 				_cache._fetch_in_progress = $http({
 					method: 'GET',
-					url: '/api/v2/projects/'+projectId+'/milestones'
+					url: '/api/v2/projects/'+projectId+'/milestones',
+					params: filters
 				}).then(function(response) {
 					// HTTP 200-299 Status
 					delete _cache._fetch_in_progress;
@@ -1065,7 +1110,12 @@
 						console.log('[app.dataFactory] service.fetchMilestones(): response.data is Object, response.status: 200');
 
 						// Cache these Milestones
-						cacheMilestones(response.data, projectId, projectId)
+						cacheMilestones(response.data, projectId, projectId);
+
+						// Get Cursor, if any
+						if (response.headers('X-Cursor') && !angular.isDefined(_cache._cursor)) {
+							_cache._cursor = response.headers('X-Cursor');
+						}
 
 						return _cache;
 					} else {
@@ -1086,6 +1136,52 @@
 					};
 				});
 				return _cache._fetch_in_progress;
+			}, fetchMoreMilestones: function(projectId, cursor, filters) {
+				console.log('[app.dataFactory] service.fetchMoreMilestones(): Called, `projectId`: '+projectId+', `cursor`: '+cursor);
+				filters = filters || {};
+				var _cache = service.cachedOrPlaceholderMilestones(projectId);
+				_cache._fetch_more_in_progress = $http({
+					method: 'GET',
+					url: '/api/v2/projects/'+projectId+'/milestones',
+					params: angular.extend({}, filters, {
+						cursor: cursor
+					})
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					delete _cache._fetch_more_in_progress;
+					delete _cache._last_fetch_error;
+					if (angular.isArray(response.data) && response.status == 200) {
+						console.log('[app.dataFactory] service.fetchMoreMilestones(): response.data is Arry, response.status: 200');
+
+						// Cache these Milestones
+						cacheMilestones(response.data, projectId, null);
+
+						// Get Cursor, if any
+						if (response.headers('X-Cursor')) {
+							_cache._cursor = response.headers('X-Cursor');
+						} else {
+							_cache._cursor = false;
+						}
+
+						return _cache;
+					} else {
+						_cache._last_fetch_error = true;
+						console.log('[app.dataFactory] service.fetchMoreMilestones(): Error reading response.');
+						return {
+							error: true
+						};
+					}
+				}, function(response) {
+					// Error
+					delete _cache._fetch_more_in_progress;
+					_cache._last_fetch_error = response.status;
+					console.log('[app.dataFactory] service.fetchMoreMilestones(): Request error: '+response.status);
+					return {
+						error: true,
+						status: response.status
+					};
+				});
+				return _cache._fetch_more_in_progress;
 			}, milestone: function(projectId, milestoneId) {
 				console.log('[app.dataFactory] service.milestone(): Called, `projectId`: '+projectId+', `milestoneId`: '+milestoneId);
 
@@ -1114,7 +1210,7 @@
 						console.log('[app.dataFactory] service.fetchMilestone(): response.data has `project` and `milestones`, is valid');
 
 						// Cache these Milestones
-						cacheMilestones([response.data], projectId, false)
+						cacheMilestones([response.data], projectId, false);
 
 						return _cache;
 					} else {

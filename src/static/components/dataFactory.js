@@ -476,7 +476,7 @@
 						console.log('[app.dataFactory] service.fetchProjects(): response.data is Array, response.status: 200');
 
 						// Cache these Projects
-						cacheProjects([response.data], true);
+						cacheProjects(response.data, true);
 						return _cache;
 					} else {
 						// Error

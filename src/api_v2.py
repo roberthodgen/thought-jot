@@ -65,7 +65,7 @@ class Projects(webapp2.RequestHandler):
             response_object = project.json_object()
         else:
             # Query for Projects this User owns, contributes to, or may observe
-            projects = model.Project.query(model.Project.users.IN([user.email]))
+            projects = model.Project.query(model.Project.users == user.email)
             response_object = []
             for project in projects:
                 response_object.append(project.json_object())

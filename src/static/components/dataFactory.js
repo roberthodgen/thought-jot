@@ -463,7 +463,7 @@
 				_cache._force_fetch = false;
 				_cache._fetch_in_progress = $http({
 					method: 'GET',
-					url: '/api/projects/list.json',
+					url: '/api/v2/projects',
 					params: {
 						't': new Date().getTime()
 					}
@@ -471,20 +471,19 @@
 					// HTTP 200-299 Status
 					delete _cache._fetch_in_progress;
 					delete _cache._last_fetch_error;
-					if (angular.isObject(response.data) && response.status == 200) {
-						if (response.data.hasOwnProperty('projects')) {
-							// Iterate through these projects, chang anything that must be changed...
-							console.log('[app.dataFactory] service.fetchProjects(): response.data has `projects`, is valid');
+					if (angular.isArray(response.data) && response.status == 200) {
+						// Success
+						console.log('[app.dataFactory] service.fetchProjects(): response.data is Array, response.status: 200');
 
-							// Cache these Projects
-							cacheProjects(response.data.projects, true);
-							return _cache;
-						}
+						// Cache these Projects
+						cacheProjects(response.data, true);
+						return _cache;
 					} else {
+						// Error
 						_cache._last_fetch_error = true;
 						console.log('[app.dataFactory] service.fetchProjects(): Error reading response.');
 						return {
-							'error': true
+							error: true
 						};
 					}
 				}, function(response) {
@@ -493,8 +492,8 @@
 					_cache._last_fetch_error = response.status;
 					console.log('[app.dataFactory] service.fetchProjects(): Request error: '+response.status);
 					return {
-						'error': true,
-						'status': response.status
+						error: true,
+						status: response.status
 					};
 				});
 				return _cache._fetch_in_progress;
@@ -509,13 +508,14 @@
 				}).then(function(response) {
 					// HTTP 200-299 Status
 					if (angular.isObject(response.data) && response.status == 200) {
-						// Success!!!
-						console.log('[app.dataFactory] service.createProject(): Success.');
+						// Success
+						console.log('[app.dataFactory] service.createProject(): response.data is Object, response.status: 200');
 
 						// Cache this Project
 						cacheProjects([response.data], false);
 						return response.data;
 					} else {
+						// Error
 						console.log('[app.dataFactory] service.createProject(): Error reading response.');
 						return {
 							error: true
@@ -562,16 +562,17 @@
 					delete _cache._last_fetch_error;
 					if (angular.isObject(response.data) && response.status == 200) {
 						// Success
-						console.log('[app.dataFactory] service.fetchProject(): response.data has `projects`, is valid');
+						console.log('[app.dataFactory] service.fetchProject(): response.data is Object, response.status: 200');
 
-						// Cache these Projects
+						// Cache this Project
 						cacheProjects([response.data], false);
 						return _cache;
 					} else {
+						// Error
 						_cache._last_fetch_error = true;
 						console.log('[app.dataFactory] service.fetchProject(): Error reading response.');
 						return {
-							'error': true
+							error: true
 						};
 					}
 				}, function(response) {
@@ -580,59 +581,43 @@
 					_cache._last_fetch_error = response.status;
 					console.log('[app.dataFactory] service.fetchProject(): Request error: '+response.status);
 					return {
-						'error': true,
-						'status': response.status
+						error: true,
+						status: response.status
 					};
 				});
 				return _cache._fetch_in_progress;
-			}, updateProject: function(project) {
+			}, updateProject: function(project, projectId) {
 				project._update_in_progress = true;
-				var options = {
-					'project_id': project.id
-				};
-
-				if (project.hasOwnProperty('_name')) {
-					if (project._name) {
-						options.name = angular.copy(project._name);
-					}
-				}
-
-				if (project.hasOwnProperty('_description')) {
-					if (project._description) {
-						options.description = angular.copy(project._description);
-					}
-				}
 				return $http({
-					method: 'POST',
-					url: '/api/projects/update.json',
+					method: 'PUT',
+					url: '/api/v2/projects/'+projectId,
 					params: {
 						't': new Date().getTime()
-					}, data: options
+					}, data: project
 				}).then(function(response) {
 					// HTTP 200-299 Status
 					delete project._update_in_progress;
-					if (angular.isObject(response.data)) {
-						if (response.data.hasOwnProperty('project')) {
-							// Success!!
-							console.log('[app.dataFactory] service.updateProject(): response.data has `project`, is valid');
+					if (angular.isObject(response.data) && response.status == 200) {
+						// Success
+						console.log('[app.dataFactory] service.updateProject(): response.data is Object, response.status: 200');
 
-							// Cache this Project
-							cacheProjects([response.data.project], false);
-							return response.data.project;
-						}
+						// Cache this Project
+						cacheProjects([response.data], false);
+						return response.data;
+					} else {
+						// Error
+						console.log('[app.dataFactory] service.updateProject(): Error reading response.');
+						return {
+							error: true
+						};
 					}
-					console.log('[app.dataFactory] service.updateProject(): Error reading response.');
-					return {
-						'error': true
-					};
 				}, function(response) {
 					// Error
 					delete timeRecord._update_in_progress;
 					console.log('[app.dataFactory] service.updateProject(): Request error: '+response.status);
-
 					return {
-						'error': true,
-						'status': response.status
+						error: true,
+						status: response.status
 					};
 				});
 			}, projectContributorsAdd: function(email, projectId) {
@@ -642,13 +627,17 @@
 				}).then(function(response) {
 					// HTTP 200-299 Status
 					if (angular.isObject(response.data) && response.status == 200) {
-						// Success!
+						// Success
 						console.log('[app.dataFactory] service.projectContributorsAdd(): response.data is Object, response.status: 200');
 
 						// Cache this Project
 						cacheProjects([response.data], projectId, null);
-
 						return response.data;
+					} else {
+						console.log('[app.dataFactory] service.(): Error reading response.');
+						return {
+							error: true
+						};
 					}
 				}, function(response) {
 					// Error
@@ -665,13 +654,18 @@
 				}).then(function(response) {
 					// HTTP 200-299 Status
 					if (angular.isObject(response.data) && response.status == 200) {
-						// Success!
+						// Success
 						console.log('[app.dataFactory] service.projectContributorsRemove(): response.data is Object, response.status: 200');
 
 						// Cache this Project
 						cacheProjects([response.data], projectId, null);
-
 						return response.data;
+					} else {
+						// Error
+						console.log('[app.dataFactory] service.(): Error reading response.');
+						return {
+							error: true
+						};
 					}
 				}, function(response) {
 					// Error
@@ -787,7 +781,8 @@
 					delete _cache._fetch_in_progress;
 					delete _cache._last_fetch_error;
 					if (angular.isArray(response.data) && response.status == 200) {
-						console.log('[app.dataFactory] service.fetchTimeRecords(): response.data is Arry, response.status: 200');
+						// Success
+						console.log('[app.dataFactory] service.fetchTimeRecords(): response.data is Array, response.status: 200');
 
 						// Cache these Time Records
 						cahceTimeRecords(response.data, projectId, projectId);
@@ -799,6 +794,7 @@
 
 						return _cache;
 					} else {
+						// Error
 						_cache._last_fetch_error = true;
 						console.log('[app.dataFactory] service.fetchTimeRecords(): Error reading response.');
 						return {
@@ -830,7 +826,8 @@
 					delete _cache._fetch_more_in_progress;
 					delete _cache._last_fetch_error;
 					if (angular.isArray(response.data) && response.status == 200) {
-						console.log('[app.dataFactory] service.fetchMoreTimeRecords(): response.data is Arry, response.status: 200');
+						// Success
+						console.log('[app.dataFactory] service.fetchMoreTimeRecords(): response.data is Array, response.status: 200');
 
 						// Cache these Time Records
 						cahceTimeRecords(response.data, projectId, null);
@@ -844,6 +841,7 @@
 
 						return _cache;
 					} else {
+						// Error
 						_cache._last_fetch_error = true;
 						console.log('[app.dataFactory] service.fetchMoreTimeRecords(): Error reading response.');
 						return {
@@ -888,15 +886,15 @@
 					} else {
 						console.log('[app.dataFactory] service.createTimeRecord(): Error reading response.');
 						return {
-							'error': true
+							error: true
 						};
 					}
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.createTimeRecord(): Request error: '+response.status);
 					return {
-						'error': true,
-						'status': response.status
+						error: true,
+						status: response.status
 					};
 				});
 			}, completeTimeRecord: function(timeRecordId, projectId) {
@@ -924,15 +922,15 @@
 					} else {
 						console.log('[app.dataFactory] service.completeTimeRecord(): Error reading response.');
 						return {
-							'error': true
+							error: true
 						};
 					}
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.completeTimeRecord(): Request error: '+response.status);
 					return {
-						'error': true,
-						'status': response.status
+						error: true,
+						status: response.status
 					};
 				});
 			}, updateTimeRecord: function(timeRecord, projectId) {
@@ -948,12 +946,11 @@
 
 						// Cache this Time Record
 						cahceTimeRecords([response.data], projectId, null);
-
 						return response.data;
 					} else {
 						console.log('[app.dataFactory] service.updateTimeRecord(): Error reading response.');
 						return {
-							'error': true
+							error: true
 						};
 					}
 				}, function(response) {
@@ -961,47 +958,40 @@
 					console.log('[app.dataFactory] service.updateTimeRecord(): Request error: '+response.status);
 
 					return {
-						'error': true,
-						'status': response.status
+						error: true,
+						status: response.status
 					};
 				});
-			}, createComment: function(options) {
-
-				var data = {
-					'project_id': angular.copy(options.project_id),
-					'parent_id': angular.copy(options.parent_id),
-					'comment': angular.copy(options.comment)
-				};
-
+			}, createComment: function(comment, projectId, parentId) {
+				parentId = parentId || false;
 				return $http({
 					method: 'POST',
-					url: '/api/projects/comments/create.json',
+					url: (parentId ? '/api/v2/projects/'+projectId+'/parent/'+parentId+'/comments' : '/api/v2/projects/'+projectId+'/comments'),
 					params: {
 						't': new Date().getTime()
-					}, data: data
+					}, data: comment
 				}).then(function(response) {
 					// HTTP 200-299 Status
-					if (angular.isObject(response.data)) {
-						if (response.data.hasOwnProperty('comment')) {
-							// Success!!!
-							console.log('[app.dataFactory] service.createComment(): response.data has `comment`, is valid');
+					if (angular.isObject(response.data) && response.status == 200) {
+						// Success
+						console.log('[app.dataFactory] service.createComment(): response.data is Object, response.status: 200');
 
-							// Cache these Comments
-							cacheComments([response.data.comment], [data.project_id, data.parent_id], null);
-
-							return response.data.comment;
-						}
+						// Cache this Comment
+						cacheComments([response.data], [projectId, parentId], null);
+						return response.data;
+					} else {
+						// Error
+						console.log('[app.dataFactory] service.createComment(): Error reading response.');
+						return {
+							error: true
+						};
 					}
-					console.log('[app.dataFactory] service.createComment(): Error reading response.');
-					return {
-						'error': true
-					};
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.createComment(): Request error: '+response.status);
 					return {
-						'error': true,
-						'status': response.status
+						error: true,
+						status: response.status
 					};
 				});
 			}, cachedOrPlaceholderComments: function(parentId) {
@@ -1034,17 +1024,18 @@
 					delete _cache._last_fetch_error;
 					// HTTP 200-299 Status
 					if (angular.isObject(response.data) && response.status == 200) {
+						// Success
 						console.log('[app.dataFactory] service.fetchComments(): response.data is Object, response.status: 200');
 
 						// Cache the comments
 						cacheComments(response.data, [parentId], parentId);
-
 						return _cache;
 					} else {
+						// Error
 						_cache._last_fetch_error = true;
 						console.log('[app.dataFactory] service.fetchComments(): Error reading response.');
 						return {
-							'error': true
+							error: true
 						};
 					}
 				}, function(response) {
@@ -1106,8 +1097,9 @@
 					// HTTP 200-299 Status
 					delete _cache._fetch_in_progress;
 					delete _cache._last_fetch_error;
-					if (angular.isObject(response.data) && response.status == 200) {
-						console.log('[app.dataFactory] service.fetchMilestones(): response.data is Object, response.status: 200');
+					if (angular.isArray(response.data) && response.status == 200) {
+						// Success
+						console.log('[app.dataFactory] service.fetchMilestones(): response.data is Array, response.status: 200');
 
 						// Cache these Milestones
 						cacheMilestones(response.data, projectId, projectId);
@@ -1119,10 +1111,11 @@
 
 						return _cache;
 					} else {
+						// Error
 						_cache._last_fetch_error = true;
 						console.log('[app.dataFactory] service.fetchMilestones(): Error reading response.');
 						return {
-							'error': true
+							error: true
 						};
 					}
 				}, function(response) {
@@ -1131,8 +1124,8 @@
 					_cache._last_fetch_error = response.status;
 					console.log('[app.dataFactory] service.fetchMilestones(): Request error: '+response.status);
 					return {
-						'error': true,
-						'status': response.status
+						error: true,
+						status: response.status
 					};
 				});
 				return _cache._fetch_in_progress;
@@ -1151,7 +1144,8 @@
 					delete _cache._fetch_more_in_progress;
 					delete _cache._last_fetch_error;
 					if (angular.isArray(response.data) && response.status == 200) {
-						console.log('[app.dataFactory] service.fetchMoreMilestones(): response.data is Arry, response.status: 200');
+						// Success
+						console.log('[app.dataFactory] service.fetchMoreMilestones(): response.data is Array, response.status: 200');
 
 						// Cache these Milestones
 						cacheMilestones(response.data, projectId, null);
@@ -1165,6 +1159,7 @@
 
 						return _cache;
 					} else {
+						// Error
 						_cache._last_fetch_error = true;
 						console.log('[app.dataFactory] service.fetchMoreMilestones(): Error reading response.');
 						return {
@@ -1207,13 +1202,14 @@
 					delete _cache._fetch_in_progress;
 					delete _cache._last_fetch_error;
 					if (angular.isObject(response.data) && response.status == 200) {
-						console.log('[app.dataFactory] service.fetchMilestone(): response.data has `project` and `milestones`, is valid');
+						// Success
+						console.log('[app.dataFactory] service.fetchMilestone(): response.data is Object, response.status: 200');
 
-						// Cache these Milestones
+						// Cache this Milestone
 						cacheMilestones([response.data], projectId, false);
-
 						return _cache;
 					} else {
+						// Error
 						_cache._last_fetch_error = true;
 						console.log('[app.dataFactory] service.fetchMilestone(): Error reading response.');
 						return {
@@ -1232,41 +1228,32 @@
 				});
 				return _cache._fetch_in_progress;
 			}, createMilestone: function(milestone, projectId) {
-
-				milestone['project_id'] = projectId;
-
 				return $http({
 					method: 'POST',
-					url: '/api/projects/milestones/create.json',
-					params: {
-						't': new Date().getTime()
-					}, data: milestone
+					url: '/api/v2/projects/'+projectId+'/milestones',
+					data: milestone
 				}).then(function(response) {
 					// HTTP 200-299 Status
-					if (angular.isObject(response.data)) {
-						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('milestone')) {
-							// Success!!!
-							console.log('[app.dataFactory] service.createMilestone(): response.data has `project` and `milestone`, is valid');
+					if (angular.isObject(response.data) && response.status == 200) {
+						// Success!!!
+						console.log('[app.dataFactory] service.createMilestone(): response.data is Object, response.status: 200');
 
-							// Cache this Project
-							cacheProjects([response.data.project], false);
-
-							// Cache this Milestone
-							cacheMilestones([response.data.milestone], projectId, false);
-
-							return response.data.milestone;
-						}
+						// Cache this Milestone
+						cacheMilestones([response.data], projectId, false);
+						return response.data;
+					} else {
+						// Error
+						console.log('[app.dataFactory] service.createMilestone(): Error reading response.');
+						return {
+							error: true
+						};
 					}
-					console.log('[app.dataFactory] service.createMilestone(): Error reading response.');
-					return {
-						'error': true
-					};
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.createMilestone(): Request error: '+response.status);
 					return {
-						'error': true,
-						'status': response.status
+						error: true,
+						status: response.status
 					};
 				});
 			}, updateMilestone: function(milestone, projectId) {
@@ -1282,9 +1269,9 @@
 
 						// Cache this Milestone
 						cacheMilestones([response.data], projectId, false);
-
 						return response.data;
 					} else {
+						// Error
 						console.log('[app.dataFactory] service.updateMilestone(): Error reading response.');
 						return {
 							error: true
@@ -1299,28 +1286,28 @@
 					};
 				})
 			}, milestoneLabelAdd: function(labelId, milestoneId, projectId) {
-
-				var data = {
-					'label_id': labelId
-				};
-
 				return $http({
 					method: 'POST',
 					url: '/api/v2/projects/'+projectId+'/milestones/'+milestoneId+'/labels',
-					data: data
+					data: {
+						'label_id': angular.copy(labelId)
+					}
 				}).then(function(response) {
 					// HTTP 200-299 Status
 					if (angular.isObject(response.data) && response.status == 200) {
+						// Success
+						console.log('[app.dataFactory] service.milestoneLabelAdd(): response.data is Object, response.status: 200');
 
 						// Cache this Label
-						cacheLabels([response.data], [projectId, milestoneId], '');
-
+						cacheLabels([response.data], [projectId, milestoneId], null);
 						return response.data;
+					} else {
+						// Error
+						console.log('[app.dataFactory] service.milestoneLabelAdd(): Error reading response;')
+						return {
+							error: true
+						};
 					}
-					console.log('[app.dataFactory] service.milestoneLabelAdd(): Error reading response;')
-					return {
-						error: true
-					};
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.milestoneLabelAdd(): Request error: '+response.status);
@@ -1338,6 +1325,7 @@
 				}).then(function(response) {
 					// HTTP 200-299 Status
 					if (angular.isObject(response.data) && response.status == 200) {
+						// Success
 
 						// Delete the Label from this Milestone's Labels cache (only)
 						var milestoneLabels = service._labels(milestoneId);
@@ -1349,17 +1337,19 @@
 						}
 
 						return response.data;
+					} else {
+						// Error
+						console.log('[app.dataFactory] service.milestoneLabelRemove(): Error reading response.');
+						return {
+							error: true
+						};
 					}
-					console.log('[app.dataFactory] service.milestoneLabelRemove(): Error reading response.');
-					return {
-						error: true
-					};
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.milestoneLabelRemove(): Request error: '+response.status);
 					return {
-						'error': true,
-						'status': response.status
+						error: true,
+						status: response.status
 					};
 				});
 			}, _labels: function(projectId) {
@@ -1386,33 +1376,24 @@
 				_cache._force_fetch = false;
 				_cache._fetch_in_progress = $http({
 					method: 'GET',
-					url: '/api/projects/labels/list.json',
-					params: {
-						't': new Date().getTime(),
-						'project_id': projectId
-					}
+					url: '/api/v2/projects/'+projectId+'/labels'
 				}).then(function(response) {
 					// HTTP 200-299 Status
 					delete _cache._fetch_in_progress;
 					delete _cache._last_fetch_error;
-					if (angular.isObject(response.data) && response.status == 200) {
-						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('labels')) {
-							// Iterate through these projects, chang anything that must be changed...
-							console.log('[app.dataFactory] service.fetchLabelsForProject(): response.data has `project` and `labels`, is valid');
+					if (angular.isArray(response.data) && response.status == 200) {
+						// Success
+						console.log('[app.dataFactory] service.fetchLabelsForProject(): response.data is Array, response.status: 200');
 
-							// Cache this Project
-							cacheProjects([response.data.project], false);
-
-							// Cache these Labels
-							cacheLabels(response.data.labels, [projectId], projectId);
-
-							return _cache;
-						}
+						// Cache these Labels
+						cacheLabels(response.data, [projectId], projectId);
+						return _cache;
 					} else {
+						// Error
 						_cache._last_fetch_error = true;
 						console.log('[app.dataFactory] service.fetchLabelsForProject(): Error reading response.');
 						return {
-							'error': true
+							error: true
 						};
 					}
 				}, function(response) {
@@ -1421,8 +1402,8 @@
 					_cache._last_fetch_error = response.status;
 					console.log('[app.dataFactory] service.fetchLabelsForProject(): Request error: '+response.status);
 					return {
-						'error': true,
-						'status': response.status
+						error: true,
+						status: response.status
 					};
 				});
 				return _cache._fetch_in_progress;
@@ -1450,13 +1431,12 @@
 				console.log('[app.dataFactory] service.deleteLabel(): Called, `projectId`: '+projectId+', `labelId`: '+labelId);
 				return $http({
 					method: 'DELETE',
-					url: '/api/v2/projects/'+projectId+'/labels/'+labelId,
-					params: {
-						t: new Date().getTime()
-					}
+					url: '/api/v2/projects/'+projectId+'/labels/'+labelId
 				}).then(function(response) {
 					// HTTP 200-299 Status
 					if (angular.isObject(response.data) && response.status == 200) {
+						// Success
+						console.log('[app.dataFactory] service.deleteLabel(): response.data is Object, response.status: 200');
 
 						// Loop through the Label cache and delete any that reference this value
 						var _keys = Object.keys(cache.labels)
@@ -1467,11 +1447,13 @@
 						}
 
 						return true;
+					} else {
+						// Error
+						console.log('[app.dataFactory] service.deleteLabel(): Error reading response.');
+						return {
+							error: true
+						};
 					}
-					console.log('[app.dataFactory] service.deleteLabel(): Error reading response.');
-					return {
-						error: true
-					};
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.deleteLabel(): Request error: '+response.status);
@@ -1481,61 +1463,50 @@
 					};
 				});
 			}, createLabel: function(label, projectId) {
-
-				label['project_id'] = projectId;
-
 				return $http({
 					method: 'POST',
-					url: '/api/projects/labels/create.json',
-					params: {
-						't': new Date().getTime()
-					}, data: label
-				}).then(function(response) {
-					// HTTP 200-299 Status
-					if (angular.isObject(response.data)) {
-						if (response.data.hasOwnProperty('project') && response.data.hasOwnProperty('label')) {
-							// Success!!!
-							console.log('[app.dataFactory] service.createLabel(): response.data has `project` and `label`, is valid');
-
-							// Cache this Project
-							cacheProjects([response.data.project], false);
-
-							// Cache this Label
-							cacheLabels([response.data.label], [projectId], projectId);
-
-							return response.data.label;
-						}
-					}
-					console.log('[app.dataFactory] service.createLabel(): Error reading response.');
-					return {
-						'error': true
-					};
-				}, function(response) {
-					// Error
-					console.log('[app.dataFactory] service.createLabel(): Request error: '+response.status);
-					return {
-						'error': true,
-						'status': response.status
-					};
-				});
-			}, updateLabel: function(label, projectId) {
-
-				label['project_id'] = projectId;
-
-				return $http({
-					method: 'PUT',
-					url: '/api/v2/projects/'+projectId+'/labels/'+label.id,
+					url: '/api/v2/projects/'+projectId+'/labels',
 					data: label
 				}).then(function(response) {
 					// HTTP 200-299 Status
 					if (angular.isObject(response.data) && response.status == 200) {
-						console.log('[app.dataFactory] service.updateLabel(): `response.data`: is Object, `response.status`: 200');
+						// Success!!!
+						console.log('[app.dataFactory] service.createLabel(): response.data is Object, response.status: 200');
+
+						// Cache this Label
+						cacheLabels([response.data], [projectId], projectId);
+						return response.data;
+					} else {
+						// Error
+						console.log('[app.dataFactory] service.createLabel(): Error reading response.');
+						return {
+							error: true
+						};
+					}
+				}, function(response) {
+					// Error
+					console.log('[app.dataFactory] service.createLabel(): Request error: '+response.status);
+					return {
+						error: true,
+						status: response.status
+					};
+				});
+			}, updateLabel: function(label, labelId, projectId) {
+				return $http({
+					method: 'PUT',
+					url: '/api/v2/projects/'+projectId+'/labels/'+labelId,
+					data: label
+				}).then(function(response) {
+					// HTTP 200-299 Status
+					if (angular.isObject(response.data) && response.status == 200) {
+						// Success
+						console.log('[app.dataFactory] service.updateLabel(): response.data is Object, response.status: 200');
 
 						// Cache this Label
 						cacheLabels([response.data], [projectId], false);
-
 						return response.data;
 					} else {
+						// Error
 						console.log('[app.dataFactory] service.updateLabel(): Error reading response.');
 						return {
 							error: true
@@ -1552,7 +1523,7 @@
 			}
 		};
 
-		// Return the service object
+		// Return the service Object
 		return service;
 	}]);
 

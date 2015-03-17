@@ -41,10 +41,9 @@
 		$scope.saveLabel = function(label) {
 
 			dataFactory.updateLabel({
-				id: angular.copy(label.id),
 				name: angular.copy(label._name),
 				color: angular.copy(label._color)
-			}, $scope.projectId).then(function(response) {
+			}, angular.copy(label.id), $scope.projectId).then(function(response) {
 				if (!response.error) {
 					delete label._edit;
 					delete label._name;

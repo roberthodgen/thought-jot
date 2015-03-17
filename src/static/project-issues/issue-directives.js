@@ -113,7 +113,9 @@
 						'parent_id': issue.id,
 						'comment': issue._new_comment
 					};
-					dataFactory.createComment(options).then(function(response) {
+					dataFactory.createComment({
+						comment: angular.copy(issue._new_comment)
+					}, $stateParams.projectId, issue.id).then(function(response) {
 						if (!response.error) {
 							$scope.issue._new_comment = '';
 
@@ -217,7 +219,9 @@
 						'parent_id': issue.id,
 						'comment': issue._new_comment
 					};
-					dataFactory.createComment(options).then(function(response) {
+					dataFactory.createComment({
+						comment: angular.copy(issue._new_comment)
+					}, $stateParams.projectId, issue.id).then(function(response) {
 						if (!response.error) {
 							$scope.issue._new_comment = '';
 

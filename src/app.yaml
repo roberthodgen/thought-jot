@@ -1,5 +1,5 @@
 application: thought-jot
-version: 0-1-0
+version: 0-1-1
 runtime: python27
 api_version: 1
 threadsafe: true
@@ -20,11 +20,6 @@ handlers:
 # API v2 requests
 - url: /api/v2/.*
   script: api_v2.app
-  secure: always
-
-# API requests
-- url: /api/.*
-  script: api.app
   secure: always
 
 # Static files

@@ -22,11 +22,6 @@ handlers:
   script: api_v2.app
   secure: always
 
-# API requests
-- url: /api/.*
-  script: api.app
-  secure: always
-
 # Static files
 - url: /(.*\.(gif|png|jpg|css|js|html))$
   static_files: static/\1

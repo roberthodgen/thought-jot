@@ -21,7 +21,10 @@
 
 		$scope.save = function() {
 			console.log('[app.projectSettingsCtrl] $scope.save(): Called.');
-			dataFactory.updateProject($scope.project).then(function(response) {
+			dataFactory.updateProject({
+				name: angular.copy($scope.project._name),
+				description: angular.copy($scope.project._description)
+			}, $scope.projectId).then(function(response) {
 				if (!response.error) {
 					$state.go('app.project.project-overview');
 				} else {

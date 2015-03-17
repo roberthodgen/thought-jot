@@ -36,7 +36,7 @@
 				issue.labels.push(_label_ids[i]);
 			}
 
-			dataFactory.createMilestone(issue, $scope.projectId).then(function(response) {
+			dataFactory.createMilestone(angular.copy(issue), $scope.projectId).then(function(response) {
 				if (!response.error) {
 					$state.go('app.project.issues.project-issues.view-issue', { milestoneId: response.id });	// Don't forget to link to the NEW Issue!
 				} else {

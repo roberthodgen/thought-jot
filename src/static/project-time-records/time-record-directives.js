@@ -85,7 +85,9 @@
 						'parent_id': timeRecord.id,
 						'comment': timeRecord._new_comment
 					};
-					dataFactory.createComment(options).then(function(response) {
+					dataFactory.createComment({
+						comment: angular.copy(timeRecord._new_comment)
+					}, $stateParams.projectId, timeRecord.id).then(function(response) {
 						if (!response.error) {
 							$scope.timeRecord._new_comment = '';
 						} else {
@@ -161,7 +163,9 @@
 						'parent_id': timeRecord.id,
 						'comment': timeRecord._new_comment
 					};
-					dataFactory.createComment(options).then(function(response) {
+					dataFactory.createComment({
+						comment: angular.copy(timeRecord._new_comment)
+					}, $stateParams.projectId, timeRecord.id).then(function(response) {
 						if (!response.error) {
 							$scope.timeRecord._new_comment = '';
 						} else {

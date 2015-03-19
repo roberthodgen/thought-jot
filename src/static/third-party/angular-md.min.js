@@ -1,6 +1,6 @@
 /**
  * Angular directive to render Markdown text. It's built on blazingly fast markdown parser 'marked'.
- * @version v1.0.0 - 2015-03-19
+ * @version v1.0.1 - 2015-03-19
  * @link https://github.com/yaru22/angular-md
  * @author Brian Park <yaru22@gmail.com>
  * @license MIT License, http://www.opensource.org/licenses/MIT

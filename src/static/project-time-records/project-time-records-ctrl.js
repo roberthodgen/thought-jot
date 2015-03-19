@@ -16,7 +16,6 @@
 			};
 
 			$scope.inProgressTimeRecords = [];
-			$scope.inProgressResults = [];
 
 			$scope.activeResults = [];
 

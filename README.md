@@ -10,7 +10,6 @@ Collaborative time tracker and project management tool.
 - Issue search does not query back-end.
 - Discussion/comments section not yet implemented.
 - Better Angular error handler needed (with respect to HTTP request errors).
-- __[BUG]__ On issues page: label filter cleared when chaing open status.
 - Make it mobile-friendly!
 
 ### Instructions to deploy

@@ -300,7 +300,7 @@
 		*/
 
 		$stateProvider.state('app.project.issues.project-issues', {
-			url: '?f',
+			url: '?f&l',
 			templateUrl: '/project-issues/issues.html',
 			resolve: {
 				issues: ['$stateParams', 'app.dataFactory', function($stateParams, dataFactory) {

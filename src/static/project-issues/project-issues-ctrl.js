@@ -92,29 +92,38 @@
 			return $scope.searchOptions.labels;
 		}, function(newValue, oldValue) {
 
-			console.log('$scope.$watch() triggered!');
+			// Only check this if we're on the Project Issues page...
+			if ($state.is('app.project.issues.project-issues')) {
 
-			var labelKeys = Object.keys(newValue);
-			if (labelKeys.length > 0) {
-				var labelIds = '';
+				// Get all our new Label IDs...
+				var labelKeys = Object.keys(newValue);
+				// See how many labels we've been assigned
+				if (labelKeys.length > 0) {
+					// We have at least one label!
 
-				for (var i = labelKeys.length - 1; i >= 0; i--) {
-					labelIds += labelKeys[i];
+					var labelIds = '';
 
-					if (i != 0) {
-						// Not the last, add a comma...
-						labelIds += ',';
+					// Loop through all keys...
+					for (var i = labelKeys.length - 1; i >= 0; i--) {
+
+						// Add them to `labelIds`...
+						labelIds += labelKeys[i];
+
+						if (i != 0) {
+							// Not the the last ID; add a comma...
+							labelIds += ',';
+						}
 					}
+
+					// Make the State transition...
+					$state.go('app.project.issues.project-issues', { l: labelIds });
+				} else if (newValue !== oldValue) {
+					// We have no labels...
+
+					// Remove `l` from the search params
+					var params = angular.extend({}, $stateParams, { l: '' });
+					$state.go('app.project.issues.project-issues', params);
 				}
-
-				console.log('Transition with labelIds: '+labelIds);
-
-				$state.go('app.project.issues.project-issues', { l: labelIds });
-
-			} else if (newValue !== oldValue) {
-				// Remove `l` from the search params
-				var params = angular.extend({}, $stateParams, { l: '' });
-				$state.go('app.project.issues.project-issues', params);
 			}
 		}, true);
 

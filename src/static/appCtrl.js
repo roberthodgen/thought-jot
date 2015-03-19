@@ -30,6 +30,20 @@
 			});
 
 			$scope.config.sidebar.show = false;
+
+			// Configure Marked to insert links where `#n` appears...
+			marked.defaults.renderer.paragraph = function(text) {
+				// Replace any instances of a '#n' where 'n' is one or more digits...
+				text = text.replace(/(:?^|[\s])(#([0-9]+))\b/g, function(string, whitespace, hash_number, number){
+					// Use Link to the Milestone...
+					return whitespace + '<a ui-sref="app.project.issues.project-issues.view-issue({ milestoneId: \'' + number + '\' })">' + hash_number + '</a>';
+				});
+				return marked.Renderer.prototype.paragraph(text);
+			};
+
+			// Configure Marked to require a space between a header and the opening '#'...
+			var lexer = new marked.Lexer()
+			lexer.rules.heading = /^ *(#{1,6}) +([^\n]+?) *#* *(?:\n+|$)/;
 		};
 
 		$scope.toggleSidebar = function() {

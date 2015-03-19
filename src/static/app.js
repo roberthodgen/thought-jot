@@ -424,7 +424,7 @@
 	}]);
 
 
-	app.config(function($urlRouterProvider){
+	app.config(function($urlRouterProvider) {
 		// $urlRouterProvider.otherwise is invoked when no state matches the URL...
 		$urlRouterProvider.otherwise(function($injector, $location) {
 			// Get `$state`

@@ -593,6 +593,11 @@ textarea.form-control.with-btn-preview {
 *	.select-labels-popover
 */
 
+.select-labels-popover-main {
+	position: relative;
+	z-index: 990;
+}
+
 .select-labels-popover {
 	width: 280px;
 	background-color: #ececec;
@@ -600,6 +605,7 @@ textarea.form-control.with-btn-preview {
 	border-radius: 4px;
 	border: 1px solid #ccc;
 	text-align: left;
+	position: absolute;
 }
 
 .select-labels-popover-title {

@@ -24,6 +24,16 @@
 
 			// Add this Project to the uncompleted seconds watcher...
 			dataFactory.uncompletedSecondsWatchAddProjectId($scope.projectId);
+
+			// The Project stores temporary search parameters for the Issues controller;
+			// this way some settings (namely the `showLabelsPopover` persists through reloads).
+			$scope.searchOptions = {
+				open: 'open',
+				text: {
+					name: ''
+				}, labels: {},
+				showLabelsPopover: false
+			};
 		};
 
 		$scope.createTimeRecord = function() {

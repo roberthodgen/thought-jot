@@ -13,16 +13,6 @@
 				pageTitle: 'Issues: ' + $scope.project.name
 			});
 
-			$scope.searchOptions = {
-				open: 'open',
-				text: {
-					name: ''
-				}, labels: []
-			};
-
-			$scope.inProgressissues = [];
-			$scope.inProgressResults = [];
-
 			$scope.issueResults = [];
 
 			$scope.issuesPluralizeWhen = {
@@ -43,7 +33,7 @@
 		};
 
 		$scope.$on('backgroundClick', function() {
-			var params = angular.extend({ milestoneId: '' }, $stateParams);
+			var params = angular.extend({}, { milestoneId: '' }, $stateParams);
 			$state.go('app.project.issues.project-issues', params);
 		});
 
@@ -82,7 +72,51 @@
 			} else {
 				$scope.searchOptions.open = 'open';
 			}
+
+			if (angular.isDefined(toParams.l)) {
+				// Split the labels string by commas ','
+				var labelIds = toParams.l.split(',');
+
+				for (var i = labelIds.length - 1; i >= 0; i--) {
+					if ($scope.labels.hasOwnProperty(labelIds[i])) {
+						$scope.searchOptions.labels[labelIds[i]] = $scope.labels[labelIds[i]];
+					}
+				}
+			} else {
+				// Clear the labels (if we don't have the `l` param...)
+				$scope.searchOptions.labels = {};
+			}
 		});
+
+		$scope.$watch(function() {
+			return $scope.searchOptions.labels;
+		}, function(newValue, oldValue) {
+
+			console.log('$scope.$watch() triggered!');
+
+			var labelKeys = Object.keys(newValue);
+			if (labelKeys.length > 0) {
+				var labelIds = '';
+
+				for (var i = labelKeys.length - 1; i >= 0; i--) {
+					labelIds += labelKeys[i];
+
+					if (i != 0) {
+						// Not the last, add a comma...
+						labelIds += ',';
+					}
+				}
+
+				console.log('Transition with labelIds: '+labelIds);
+
+				$state.go('app.project.issues.project-issues', { l: labelIds });
+
+			} else if (newValue !== oldValue) {
+				// Remove `l` from the search params
+				var params = angular.extend({}, $stateParams, { l: '' });
+				$state.go('app.project.issues.project-issues', params);
+			}
+		}, true);
 
 		$scope.issueClick = function(issue) {
 			if (!issue._view) {
@@ -98,6 +132,11 @@
 					alert(' Error loading more Issues: '+response.status);
 				}
 			});
+		};
+
+		$scope.labelsAdd = function() {
+			var params = angular.extend({}, { l: 'test'}, $stateParams);
+			$state.go('app.project.issues.project-issues', { l: 'test'});
 		};
 
 

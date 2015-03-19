@@ -20,9 +20,9 @@
 
 		<p>
 			<ul class="list-inline">
-				<li><a href="#" ng-click="showSearchLabels = !showSearchLabels"><strong>Labels</strong></a>:
-				<div select-labels-popover="searchOptions.labels" issue="issue" ng-show="showSearchLabels"></div></li>
-				<li ng-repeat="label in searchOptions.labels | filterDisplayObjects" style="padding:0px;"><a href="#" label="label"></a></li>
+				<li><a href="#" ng-click="searchOptions.showLabelsPopover = !searchOptions.showLabelsPopover"><strong>Labels</strong></a>:
+				<div select-labels-popover="searchOptions.labels" issue="issue" ng-show="searchOptions.showLabelsPopover"></div></li>
+				<li ng-repeat="label in searchOptions.labels | filterDisplayObjects" style="padding:0px;"><span label="label"></span></li>
 			</ul>
 		</p>
 

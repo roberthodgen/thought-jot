@@ -54,12 +54,18 @@
 
 			// Add the `_view` property of the currently viewed issue;
 			if (angular.isDefined(toParams.milestoneId)) {
+				// If we have this Milestone go ahead and view it...
 				if (angular.isDefined($scope.issues[toParams.milestoneId])) {
-					$scope.issues[toParams.milestoneId]._view = true;
-
-					if (toState.name == 'app.project.issues.project-issues.edit-issue') {
-						$scope.issues[toParams.milestoneId]._edit = true;
-					}
+					$scope.viewOrEditMilestone(toParams.milestoneId, (toState.name == 'app.project.issues.project-issues.edit-issue'));
+				} else {
+					// ... otherwise load it!
+					dataFactory.milestone($scope.projectId, toParams.milestoneId).then(function(response) {
+						if (!response.error) {
+							$scope.viewOrEditMilestone(toParams.milestoneId, (toState.name == 'app.project.issues.project-issues.edit-issue'));
+						} else {
+							alert('Error loading Issue.');
+						}
+					});
 				}
 			}
 
@@ -126,6 +132,13 @@
 				}
 			}
 		}, true);
+
+		$scope.viewOrEditMilestone = function(milestoneId, edit) {
+			$scope.issues[milestoneId]._view = true;
+			if (edit) {
+				$scope.issues[milestoneId]._edit = true;
+			}
+		};
 
 		$scope.issueClick = function(issue) {
 			if (!issue._view) {

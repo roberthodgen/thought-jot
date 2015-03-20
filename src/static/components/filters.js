@@ -343,8 +343,6 @@
 				for (var i = _keys.length - 1; i >= 0; i--) {
 					if (issues[_keys[i]].open == open) {
 						_filter.push(issues[_keys[i]]);
-					} else if (issues[_keys[i]]._view) {
-						_filter.push(issues[_keys[i]]);
 					}
 				}
 			}

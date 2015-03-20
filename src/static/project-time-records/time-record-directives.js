@@ -36,7 +36,7 @@
 					$scope.commentsLoaded = false;
 					$scope.commentsError = false;
 
-					dataFactory.comments($scope.timeRecord.id, $stateParams.projectId).then(function(response) {
+					dataFactory.comments($scope.timeRecord.id, 'time-records', $stateParams.projectId).then(function(response) {
 						$scope.commentsLoaded = true;
 						if (!response.error) {
 							// Success
@@ -87,7 +87,7 @@
 					};
 					dataFactory.createComment({
 						comment: angular.copy(timeRecord._new_comment)
-					}, $stateParams.projectId, timeRecord.id).then(function(response) {
+					}, $stateParams.projectId, timeRecord.id, 'time-records').then(function(response) {
 						if (!response.error) {
 							$scope.timeRecord._new_comment = '';
 						} else {
@@ -165,7 +165,7 @@
 					};
 					dataFactory.createComment({
 						comment: angular.copy(timeRecord._new_comment)
-					}, $stateParams.projectId, timeRecord.id).then(function(response) {
+					}, $stateParams.projectId, timeRecord.id, 'time-records').then(function(response) {
 						if (!response.error) {
 							$scope.timeRecord._new_comment = '';
 						} else {

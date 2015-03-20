@@ -49,7 +49,7 @@
 					$scope.commentsLoaded = false;
 					$scope.commentsError = false;
 
-					dataFactory.comments($scope.issue.id, $stateParams.projectId).then(function(response) {
+					dataFactory.comments($scope.issue.id, 'milestones', $stateParams.projectId).then(function(response) {
 						$scope.commentsLoaded = true;
 						if (!response.error) {
 							// Success
@@ -115,7 +115,7 @@
 					};
 					dataFactory.createComment({
 						comment: angular.copy(issue._new_comment)
-					}, $stateParams.projectId, issue.id).then(function(response) {
+					}, $stateParams.projectId, issue.id, 'milestones').then(function(response) {
 						if (!response.error) {
 							$scope.issue._new_comment = '';
 
@@ -152,7 +152,7 @@
 					$scope.commentsLoaded = false;
 					$scope.commentsError = false;
 
-					dataFactory.comments($scope.issue.id, $stateParams.projectId).then(function(response) {
+					dataFactory.comments($scope.issue.id, 'milestones', $stateParams.projectId).then(function(response) {
 						$scope.commentsLoaded = true;
 						if (!response.error) {
 							// Success
@@ -221,7 +221,7 @@
 					};
 					dataFactory.createComment({
 						comment: angular.copy(issue._new_comment)
-					}, $stateParams.projectId, issue.id).then(function(response) {
+					}, $stateParams.projectId, issue.id, 'milestones').then(function(response) {
 						if (!response.error) {
 							$scope.issue._new_comment = '';
 

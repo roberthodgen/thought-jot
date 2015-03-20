@@ -42,7 +42,8 @@
 		return {
 			restrict: 'A',
 			scope: {
-				issue: '=issueView'
+				issue: '=issueView',
+				watch: '@watch'
 			}, controller: ['$scope', '$stateParams', 'app.dataFactory', function($scope, $stateParams, dataFactory) {
 				$scope.init = function() {
 					$scope.comments = {};
@@ -76,6 +77,12 @@
 
 					$scope.showLabelsPopover = false;
 				};
+
+				$scope.$watch(function() {
+					return $scope.watch ? $scope.issue : null;
+				}, function(newIssue, oldIssie) {
+					$scope.init();
+				});
 
 				$scope.commentsPluralizeWhen = {
 					'0': 'No comments',
@@ -145,7 +152,8 @@
 		return {
 			restrict: 'A',
 			scope: {
-				issue: '=issueEdit'
+				issue: '=issueEdit',
+				watch: '@watch'
 			}, controller: ['$scope', '$state', '$stateParams', 'app.dataFactory', function($scope, $state, $stateParams, dataFactory) {
 				$scope.init = function() {
 					$scope.comments = {};
@@ -182,6 +190,12 @@
 					$scope.issue._name = angular.copy($scope.issue.name);
 					$scope.issue._description = angular.copy($scope.issue.description);
 				};
+
+				$scope.$watch(function() {
+					return $scope.watch ? $scope.issue : null;
+				}, function(newIssue, oldIssie) {
+					$scope.init();
+				});
 
 				$scope.commentsPluralizeWhen = {
 					'0': 'No comments',

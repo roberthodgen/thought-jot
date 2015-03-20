@@ -340,7 +340,7 @@ class TimeRecords(webapp2.RequestHandler):
 
 
 class Comments(webapp2.RequestHandler):
-    def get(self, project_id, parent_id=None):
+    def get(self, project_id, parent_type=None, parent_id=None):
         response_object = {}
         user = users.get_current_user()
         if not user:
@@ -355,13 +355,22 @@ class Comments(webapp2.RequestHandler):
             self.abort(404)
         if parent_id:
             # Fetch by Parent ID
-            parent_key = utilities.key_for_urlsafe_id(parent_id)
-            if not parent_key or (project_key != parent_key.parent()):
-                self.abort(400)
-            parent = parent_key.get()
-            if not (parent and (isinstance(parent, model.Milestone) or
-                    isinstance(parent, model.TimeRecord))):
-                self.abort(404)
+            if parent_type == 'milestones':
+                # Milestones
+                print 'using Milestones'
+                milestone = model.Milestone.for_number(project_key,
+                    int(parent_id))
+                if not milestone:
+                    self.abort(404)
+                parent_key = milestone.key
+            else:
+                # assume other...
+                parent_key = utilities.key_for_urlsafe_id(parent_id)
+                if not parent_key or (project_key != parent_key.parent()):
+                    self.abort(400)
+                parent = parent_key.get()
+                if not parent and not isinstance(parent, model.TimeRecord):
+                    self.abort(404)
             comments = model.Comment.query(ancestor=parent_key)
             response_object = []
             for comment in comments:
@@ -376,9 +385,9 @@ class Comments(webapp2.RequestHandler):
         self.response.content_type = 'application/json'
         self.response.out.write(json.dumps(response_object))
 
-    def post(self, project_id, parent_id=None):
-        """ Create a new Comment in the specified Project, bound to another parent
-        object. """
+    def post(self, project_id, parent_type=None, parent_id=None):
+        """ Create a new Comment in the specified Project, bound to another
+        object (either a Time Record or a Milestone. """
         response_object = {}
         user = users.get_current_user()
         if not user:
@@ -401,13 +410,21 @@ class Comments(webapp2.RequestHandler):
             self.abort(401)
         if parent_id:
             # Create with a Object other than the Project as this Comment's parent
-            parent_key = utilities.key_for_urlsafe_id(parent_id)
-            if (not parent_key or (project_key != parent_key.parent())):
-                self.abort(400)
-            parent = parent_key.get()
-            if not (parent and (isinstance(parent, model.Milestone) or
-                    isinstance(parent, model.TimeRecord))):
-                self.abort(404)
+            if parent_type == 'milestones':
+                # Milestones
+                milestone = model.Milestone.for_number(project_key,
+                    int(parent_id))
+                if not milestone:
+                    self.abort(404)
+                parent_key = milestone.key
+            else:
+                # assume other...
+                parent_key = utilities.key_for_urlsafe_id(parent_id)
+                if (not parent_key or (project_key != parent_key.parent())):
+                    self.abort(400)
+                parent = parent_key.get()
+                if not (parent and isinstance(parent, model.TimeRecord)):
+                    self.abort(404)
             # Create with `Project` and `Parent`
             new_comment_key = model.Comment.create_comment(
                 comment_content, parent_key, project_key, user.email)
@@ -500,11 +517,9 @@ class Milestones(webapp2.RequestHandler):
             self.abort(401)
         if milestone_id:
             # Give a specific Milestone
-            milestone_key = utilities.key_for_urlsafe_id(milestone_id)
-            if not milestone_key or (project_key != milestone_key.parent()):
-                self.abort(400)
-            milestone = milestone_key.get()
-            if not (milestone or isinstance(milestone, model.Milestone)):
+            milestone = model.Milestone.for_number(project_key,
+                int(milestone_id))
+            if not milestone:
                 self.abort(404)
             response_object = milestone.json_object()
         else:
@@ -597,15 +612,13 @@ class Milestones(webapp2.RequestHandler):
         if not project_id or not milestone_id or not self.request.body:
             self.abort(400)
         project_key = utilities.key_for_urlsafe_id(project_id)
-        milestone_key = utilities.key_for_urlsafe_id(milestone_id)
         request_object = json.loads(self.request.body)
-        if (not project_key or not
-                milestone_key or (project_key != milestone_key.parent())):
+        milestone = model.Milestone.for_number(project_key, int(milestone_id))
+        if not project_key:
             self.abort(400)
         project = project_key.get()
-        milestone = milestone_key.get()
         if (not (project and isinstance(project, model.Project)) or not
-                (milestone and isinstance(milestone, model.Milestone))):
+                milestone):
             self.abort(404)
         if ((user.email not in project.contributors) and not
                     project.is_owner(user.email)):
@@ -642,14 +655,12 @@ class Milestones(webapp2.RequestHandler):
         if not project_id or not milestone_id:
             self.abort(400)
         project_key = utilities.key_for_urlsafe_id(project_id)
-        milestone_key = utilities.key_for_urlsafe_id(milestone_id)
-        if (not project_key or not milestone_key or
-                (project_key != milestone_key.parnet())):
+        if not project_key:
             self.abort(400)
         project = project_key.get()
-        milestone = milestone_key.get()
+        milestone = model.Milestone.for_number(project_key, int(milestone_id))
         if (not (project and isinstance(project, model.Project)) or not
-                (milestone and isinstance(milestone, model.Milestone))):
+                milestone):
             self.abort(404)
         if ((user.email not in project.contributors) and not
                     project.is_owner(user.email)):
@@ -682,11 +693,9 @@ class Labels(webapp2.RequestHandler):
                 self.abort(401)
         if milestone_id:
             # Return all Labels assigned to this Milestone
-            milestone_key = utilities.key_for_urlsafe_id(milestone_id)
-            if not milestone_key or (project_key != milestone_key.parent()):
-                self.abort(400)
-            milestone = milestone_key.get()
-            if not milestone or not isinstance(milestone, model.Milestone):
+            milestone = model.Milestone.for_number(project_key,
+                int(milestone_id))
+            if not milestone:
                 self.abort(404)
             label_keys = milestone.labels
             for label_key in label_keys:
@@ -717,15 +726,13 @@ class Labels(webapp2.RequestHandler):
         label_id = request_object.get('label_id')
         if milestone_id and label_id:
             # Add an existing Label to a Milestone
-            milestone_key = utilities.key_for_urlsafe_id(milestone_id)
             label_key = utilities.key_for_urlsafe_id(label_id)
-            if (not milestone_key or not label_key or
-                    (project_key != label_key.parent())):
+            if not label_key:
                 self.abort(400)
-            milestone = milestone_key.get()
+            milestone = model.Milestone.for_number(project_key,
+                int(milestone_id))
             label = label_key.get()
-            if (not (milestone and isinstance(milestone, model.Milestone)) or not
-                    (label and isinstance(label, model.Label))):
+            if not milestone or not (label and isinstance(label, model.Label)):
                 self.abort(404)
             milestone.labels.append(label_key)
             milestone.put()
@@ -810,12 +817,9 @@ class Labels(webapp2.RequestHandler):
             self.abort(401)
         if milestone_id:
             # Delete a label only from a Milestone's `labels` array
-            milestone_key = utilities.key_for_urlsafe_id(milestone_id)
-            if not milestone_key:
-                self.abort(400)
-            milestone = milestone_key.get()
-            if (not (milestone and isinstance(milestone, model.Milestone)) or
-                    (project.key != label.key.parent())):
+            milestone = model.Milestone.for_number(project_key,
+                int(milestone_id))
+            if not milestone or (project.key != label.key.parent()):
                 self.abort(404)
             if label_key in milestone.labels:
                 milestone.labels.remove(label_key)
@@ -850,7 +854,7 @@ app = webapp2.WSGIApplication([
         handler=TimeRecords,
         methods=['GET', 'PUT', 'DELETE']
     ), webapp2.Route(
-        '/api/v2/projects/<project_id:([a-zA-Z0-9-_]+)>/<:(time-records|milestones|parent)>/<parent_id:([a-zA-Z0-9-_]+)>/comments',
+        '/api/v2/projects/<project_id:([a-zA-Z0-9-_]+)>/<parent_type:(time-records|milestones)>/<parent_id:([a-zA-Z0-9-_]+)>/comments',
         handler=Comments,
         methods=['GET', 'POST']
     ), webapp2.Route(

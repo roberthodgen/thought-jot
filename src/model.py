@@ -302,11 +302,20 @@ class Milestone(ndb.Model):
         project.put()  # Update the `updated` property of our Project
         return new_milestone.put()
 
+    @classmethod
+    def for_number(cls, project_key, number):
+        """ Return a Milestone object from the datastore belonging to a Project
+        identified by `project_key`;
+        with `number` as it's `number` property. """
+        query = cls.query(cls.number == number,
+            ancestor=project_key)
+        return query.get()
+
     def json_object(self, comments=None):
         """ Return a dictionary representing this Milestone. Will be used for
         sending information about this Milestone via JSON requests. """
         response_object = {
-            'id': self.key.urlsafe(),
+            'id': self.number,
             'created': self.created.replace(tzinfo=UTC()).isoformat(),
             'updated': self.updated.replace(tzinfo=UTC()).isoformat(),
             'name': self.name,

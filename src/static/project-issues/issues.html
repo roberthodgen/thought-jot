@@ -1,49 +1,62 @@
-<div class="row" style="margin-bottom:30px;">
-	<div class="col-sm-8">
-		<div class="input-group">
-			<input type="text" class="form-control" ng-model="searchOptions.text.name" placeholder="Search issues...">
-
-			<div class="input-group-btn">
-				<div class="btn-group">
-					<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-						{{ searchOptions.open | capitalize }} issues <span class="caret"></span>
-					</button>
-					<ul class="dropdown-menu" role="menu">
-						<li ui-sref-active="active"><a ui-sref="app.project.issues.project-issues({ f: '' })">Open</a></li>
-						<li ui-sref-active="active"><a ui-sref="app.project.issues.project-issues({ f: 'closed' })">Closed</a></li>
-						<li class="divider"></li>
-						<li ui-sref-active="active"><a ui-sref="app.project.issues.project-issues({ f: 'all' })">All</a></li>
-					</ul>
-				</div>
+<div ng-if="singleIssueView">
+	<div class="projects-list-group" >
+		<div class="list-group popout">
+			<div class="list-group-item view">
+				<div ng-if="singleIssueView._view && !singleIssueView._edit" issue-view="singleIssueView" watch="true"></div>
+				<div ng-if="singleIssueView._view && singleIssueView._edit" issue-edit="singleIssueView"></div>
 			</div>
 		</div>
-
-		<p>
-			<ul class="list-inline">
-				<li><a href="#" ng-click="searchOptions.showLabelsPopover = !searchOptions.showLabelsPopover"><strong>Labels</strong></a>:
-				<div select-labels-popover="searchOptions.labels" issue="issue" ng-show="searchOptions.showLabelsPopover"></div></li>
-				<li ng-repeat="label in searchOptions.labels | filterDisplayObjects" style="padding:0px;"><span label="label"></span></li>
-			</ul>
-		</p>
-
-	</div>
-	<div class="col-sm-4 text-right">
-		<a ui-sref="app.project.issues.create-issue" class="btn btn-primary">New issue</a>
 	</div>
 </div>
 
-<div class="projects-list-group">
-	<p>Showing <span ng-pluralize count="(issueResults).length" when="issuesPluralizeWhen">{{ searchOptions.open }}</span> of N total</p>
-	<div class="list-group popout">
-		<div class="list-group-item" ng-class="{ 'view': (issue._view) }" ng-click="issueClick(issue);" ng-repeat="issue in issues | filterDisplayObjects | issueOpen:searchOptions.open | issueLabels:searchOptions.labels | filter:searchOptions.text | orderBy:'_created':true as issueResults">
-			<div ng-if="!issue._view" issue-list-item="issue"></div>
-			<div ng-if="issue._view && !issue._edit" issue-view="issue"></div>
-			<div ng-if="issue._view && issue._edit" issue-edit="issue"></div>
+<div ng-show="!singleIssueView">
+	<div class="row" style="margin-bottom:30px;">
+		<div class="col-sm-8" ng-show="!singleIssueView">
+			<div class="input-group">
+				<input type="text" class="form-control" ng-model="searchOptions.text.name" placeholder="Search issues...">
+				<div class="input-group-btn">
+					<div class="btn-group">
+						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+							{{ searchOptions.open | capitalize }} issues <span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu" role="menu">
+							<li ui-sref-active="active"><a ui-sref="app.project.issues.project-issues({ f: '' })">Open</a></li>
+							<li ui-sref-active="active"><a ui-sref="app.project.issues.project-issues({ f: 'closed' })">Closed</a></li>
+							<li class="divider"></li>
+							<li ui-sref-active="active"><a ui-sref="app.project.issues.project-issues({ f: 'all' })">All</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<p>
+				<ul class="list-inline">
+					<li><a href="#" ng-click="searchOptions.showLabelsPopover = !searchOptions.showLabelsPopover"><strong>Labels</strong></a>:
+					<div select-labels-popover="searchOptions.labels" issue="issue" ng-show="searchOptions.showLabelsPopover"></div></li>
+					<li ng-repeat="label in searchOptions.labels | filterDisplayObjects" style="padding:0px;"><span label="label"></span></li>
+				</ul>
+			</p>
+		</div>
+		<div class="col-sm-8" ng-show="singleIssueView">
+			<p><a ui-sref="app.project.issues.project-issues">Back to all Issues</a></p>
+		</div>
+		<div class="col-sm-4 text-right">
+			<a ui-sref="app.project.issues.create-issue" class="btn btn-primary">New issue</a>
 		</div>
 	</div>
-	<p ng-show="issueResults.length == 0">Try broading your search or <a ui-sref="app.project.issues.create-issue">open a new issue</a>.</p>
-</div>
 
-<div class="text-center" ng-show="issues._cursor">
-	<a href="#" ng-click="loadMore();">Load more</a>
+	<div class="projects-list-group">
+		<p>Showing <span ng-pluralize count="(issueResults).length" when="issuesPluralizeWhen">{{ searchOptions.open }}</span> of N total</p>
+		<div class="list-group popout">
+			<div class="list-group-item" ng-class="{ 'view': (issue._view) }" ng-click="issueClick(issue);" ng-repeat="issue in issues | filterDisplayObjects | issueOpen:searchOptions.open | issueLabels:searchOptions.labels | filter:searchOptions.text | orderBy:'_created':true as issueResults">
+				<div ng-if="!issue._view" issue-list-item="issue"></div>
+				<div ng-if="issue._view && !issue._edit" issue-view="issue"></div>
+				<div ng-if="issue._view && issue._edit" issue-edit="issue"></div>
+			</div>
+		</div>
+		<p ng-show="issueResults.length == 0">Try broading your search or <a ui-sref="app.project.issues.create-issue">open a new issue</a>.</p>
+	</div>
+
+	<div class="text-center" ng-show="issues._cursor">
+		<a href="#" ng-click="loadMore();">Load more</a>
+	</div>
 </div>

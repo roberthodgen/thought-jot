@@ -962,11 +962,12 @@
 						status: response.status
 					};
 				});
-			}, createComment: function(comment, projectId, parentId) {
+			}, createComment: function(comment, projectId, parentId, parentType) {
 				parentId = parentId || false;
+				parentType = parentType || 'parent';
 				return $http({
 					method: 'POST',
-					url: (parentId ? '/api/v2/projects/'+projectId+'/parent/'+parentId+'/comments' : '/api/v2/projects/'+projectId+'/comments'),
+					url: (parentId ? '/api/v2/projects/'+projectId+'/'+parentType+'/'+parentId+'/comments' : '/api/v2/projects/'+projectId+'/comments'),
 					params: {
 						't': new Date().getTime()
 					}, data: comment
@@ -999,26 +1000,27 @@
 					cache.comments[parentId] = {};
 				}
 				return cache.comments[parentId];
-			}, comments: function(parentId, projectId) {
+			}, comments: function(parentId, parentType, projectId) {
 				console.log('[app.dataFactory] service.comments(): Called, `parentId`: '+parentId+', `projectId`: '+projectId);
 
 				var _cache = service.cachedOrPlaceholderComments(parentId);
 
 				if ((!_cache._loaded || _cache._force_fetch || refreshIntervalPassed(_cache._loaded, COMMENTS_LIFE)) && !_cache._fetch_in_progress && !_cache._last_fetch_error) {
-					return service.fetchComments(parentId, projectId);
+					return service.fetchComments(parentId, parentType, projectId);
 				} else if (_cache._fetch_in_progress) {
 					return _cache._fetch_in_progress;
 				}
 				var _timeRecords = $q.defer();
 				_timeRecords.resolve(_cache);
 				return _timeRecords.promise;
-			}, fetchComments: function(parentId, projectId) {
-				console.log('[app.dataFactory] service.fetchComments(): Called, `parentId`: '+parentId+', `projectId`: '+projectId);
+			}, fetchComments: function(parentId, parentType, projectId) {
+				console.log('[app.dataFactory] service.fetchComments(): Called, `parentId`: '+parentId+', `parentType`: '+parentType+', `projectId`: '+projectId);
+				parentType = parentType || 'parent';
 				var _cache = service.cachedOrPlaceholderComments(parentId);
 				_cache._force_fetch = false;
 				_cache._fetch_in_progress = $http({
 					method: 'GET',
-					url: '/api/v2/projects/'+projectId+'/parent/'+parentId+'/comments'
+					url: '/api/v2/projects/'+projectId+'/'+parentType+'/'+parentId+'/comments'
 				}).then(function(response) {
 					delete _cache._fetch_in_progress;
 					delete _cache._last_fetch_error;

@@ -321,7 +321,6 @@ class Milestone(ndb.Model):
             'name': self.name,
             'description': self.description,
             'open': self.open,
-            'number': self.number,
             'user': self.user
         }
         if comments:

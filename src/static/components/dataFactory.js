@@ -859,15 +859,21 @@
 					};
 				});
 				return _cache._fetch_more_in_progress;
-			}, createTimeRecord: function(projectId) {
+			}, createTimeRecord: function(projectId, name, completed) {
+				var data = {};
+
+				if (name) {
+					data.name = name;
+				}
+
+				if (completed) {
+					data.completed = completed
+				}
+
 				return $http({
 					method: 'POST',
 					url: '/api/v2/projects/'+projectId+'/time-records',
-					params: {
-						't': new Date().getTime()
-					}, data: {
-						'project_id': projectId
-					}
+					data: data
 				}).then(function(response) {
 					// HTTP 200-299 Status
 					if (angular.isObject(response.data) && response.status == 200) {

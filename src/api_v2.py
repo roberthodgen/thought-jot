@@ -285,15 +285,18 @@ class TimeRecords(webapp2.RequestHandler):
             self.abort(401)
         if project.has_uncompleted_time_records:
             self.abort(400)
-        new_time_record_key = model.TimeRecord.create_time_record(
-            project_key, user.email)
-        new_time_record = new_time_record_key.get()
+        request_object = {}
         if self.request.body:
             request_object = json.loads(self.request.body)
-            name = request_object.get('name')
-            if name:
-                new_time_record.name = name
-            new_time_record.put()
+            completed = request_object.get('completed')
+            new_time_record_key = model.TimeRecord.create_time_record(
+                project_key, user.email,
+                completed=request_object.get('completed'),
+                name=request_object.get('name'))
+        else:
+            new_time_record_key = model.TimeRecord.create_time_record(
+                project_key, user.email)
+        new_time_record = new_time_record_key.get()
         response_object = new_time_record.json_object()
         # Send response
         self.response.content_type = 'application/json'

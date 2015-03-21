@@ -315,7 +315,7 @@
 					}
 
 					// See what State this is...
-					if ($state.is('app.project.issues.project-issues.view-issue') || $state.is('app.project.issues.project-issues')){
+					if ($stateParams.hasOwnProperty('milestoneId') && ($state.is('app.project.issues.project-issues.view-issue') || $state.is('app.project.issues.project-issues.edit-issue'))) {
 						// Single Issue view/edit
 						return dataFactory.milestone($stateParams.projectId, $stateParams.milestoneId).then(function(response) {
 							var obj = {};

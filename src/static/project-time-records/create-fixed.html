@@ -1,0 +1,28 @@
+<form class="form-horizontal" name="createTimeRecordForm" ng-submit="create()">
+
+	<div class="form-group">
+		<label class="control-label col-md-2">Name <span class="text-muted">(optional)</span></label>
+		<div class="col-md-10">
+			<input type="text" class="form-control" ng-model="timeRecord.name" placeholder="{{ dateNow | friendlyStartTime }}...">
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label class="control-label col-md-2" style="margin-top:34px;">Length</label>
+		<div class="col-md-10">
+
+			<timepicker ng-model="timeRecord.completed"></timepicker>
+			<p class="help-block">{{ timeRecord.completed | completedTime }}</p>
+
+		</div>
+	</div>
+
+	<hr>
+
+	<div class="form-group">
+		<div class="col-md-offset-2 col-md-10">
+			<button type="submit" class="btn btn-primary">Create time record</button>
+		</div>
+	</div>
+
+</form>

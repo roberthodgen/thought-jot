@@ -30,6 +30,8 @@
 					}
 				}
 			}
+
+			$scope.singleIssueView = false;
 		};
 
 		$scope.$on('backgroundClick', function() {
@@ -55,18 +57,42 @@
 			// Add the `_view` property of the currently viewed issue;
 			if (angular.isDefined(toParams.milestoneId)) {
 				// If we have this Milestone go ahead and view it...
-				if (angular.isDefined($scope.issues[toParams.milestoneId])) {
+				if (angular.isDefined($scope.issues[toParams.milestoneId]) && (fromState.name == 'app.project.issues.project-issues' || !$scope.singleIssueView)) {
+					console.log('type of: '+ typeof $scope.issueResults)
+					// var keys = Object.keys($scope.issueResults);
+					console.log($scope.issueResults.length);
+					var found = false;
+					for (var i = $scope.issueResults.length - 1; i >= 0; i--) {
+						if ($scope.issueResults[i].id == toParams.milestoneId) {
+							// Found
+							console.log('The issue is found in issueResults!!!!');
+							found = true;
+							continue;
+						} else {
+							// Not found
+							console.log('The issue is NOT found in issueResults!!!!');
+							continue;
+						}
+					};
 					$scope.viewOrEditMilestone(toParams.milestoneId, (toState.name == 'app.project.issues.project-issues.edit-issue'));
+					if (found) {
+						$scope.singleIssueView = false;
+					} else {
+						$scope.singleIssueView = $scope.issues[toParams.milestoneId];
+					}
 				} else {
 					// ... otherwise load it!
 					dataFactory.milestone($scope.projectId, toParams.milestoneId).then(function(response) {
 						if (!response.error) {
 							$scope.viewOrEditMilestone(toParams.milestoneId, (toState.name == 'app.project.issues.project-issues.edit-issue'));
+							$scope.singleIssueView = response;
 						} else {
 							alert('Error loading Issue.');
 						}
 					});
 				}
+			} else {
+				$scope.singleIssueView = false;
 			}
 
 			if (angular.isDefined(toParams.f)) {
@@ -134,9 +160,11 @@
 		}, true);
 
 		$scope.viewOrEditMilestone = function(milestoneId, edit) {
-			$scope.issues[milestoneId]._view = true;
-			if (edit) {
-				$scope.issues[milestoneId]._edit = true;
+			if (angular.isDefined($scope.issues[milestoneId])) {
+				$scope.issues[milestoneId]._view = true;
+				if (edit) {
+					$scope.issues[milestoneId]._edit = true;
+				}
 			}
 		};
 

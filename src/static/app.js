@@ -303,7 +303,7 @@
 			url: '?f&l',
 			templateUrl: '/project-issues/issues.html',
 			resolve: {
-				issues: ['$stateParams', 'app.dataFactory', function($stateParams, dataFactory) {
+				issues: ['$stateParams', '$state', 'app.dataFactory', function($stateParams, $state, dataFactory) {
 
 					var filters = {};
 					if (angular.isDefined($stateParams.f)) {
@@ -314,7 +314,19 @@
 						filters.open = true;
 					}
 
-					return dataFactory.milestones($stateParams.projectId, filters);
+					// See what State this is...
+					if ($stateParams.hasOwnProperty('milestoneId') && ($state.is('app.project.issues.project-issues.view-issue') || $state.is('app.project.issues.project-issues.edit-issue'))) {
+						// Single Issue view/edit
+						return dataFactory.milestone($stateParams.projectId, $stateParams.milestoneId).then(function(response) {
+							var obj = {};
+							obj[response.id] = response;
+							return obj;
+						});
+					} else {
+						// Issue list
+						return dataFactory.milestones($stateParams.projectId, filters);
+					}
+
 				}]
 			}, controller: 'app.projectIssuesCtrl'
 		});

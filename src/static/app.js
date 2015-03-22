@@ -25,6 +25,7 @@
 		'app.projectSharingCtrl',
 		'app.projectsHomeCtrl',
 		'app.projectSettingsCtrl',
+		'app.createTimeRecordCtrl',
 
 		// Directives
 		'app.projectListGroupItem',
@@ -37,7 +38,8 @@
 
 		// Third-party
 		'yaru22.md',	// Markdown via https://github.com/yaru22/angular-md
-		'ui.router'		// Angular UI Router via https://github.com/angular-ui/ui-router
+		'ui.router',		// Angular UI Router via https://github.com/angular-ui/ui-router
+		'ui.bootstrap.timepicker'
 
 	]);
 
@@ -228,6 +230,17 @@
 			}, controller: ['$scope', 'timeRecords', function($scope, timeRecords) {
 				$scope.timeRecords = timeRecords;
 			}]
+		});
+
+
+		/*
+		*	App > Project > Time Records > Create Time Record
+		*/
+
+		$stateProvider.state('app.project.time-records.create-time-record', {
+			url: '/create-issue',
+			templateUrl: '/project-time-records/create-fixed.html',
+			controller: 'app.createTimeRecordCtrl'
 		});
 
 

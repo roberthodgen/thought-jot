@@ -166,7 +166,8 @@ class TimeRecord(ndb.Model):
     start = ndb.DateTimeProperty(required=True, auto_now_add=True)
     # Store a the User's email address who (created) this Time Record
     user = ndb.StringProperty(required=True)
-    # The date/time (in UTC) this Time Record was ended
+    # The date/time (in UTC) this Time Record was ended;
+    # or None for a time Record with pre-set length!
     end = ndb.DateTimeProperty(default=None)
     # The number of seconds this Time Record counted for
     completed = ndb.FloatProperty(default=None)
@@ -176,13 +177,21 @@ class TimeRecord(ndb.Model):
 
     @classmethod
     @ndb.transactional(xg=True)
-    def create_time_record(cls, project_key, user_email):
-        """ Create a new TimeRecord for the Project identified by `project_key`. """
+    def create_time_record(cls, project_key, user_email, name=None,
+        completed=None):
+        """ Create a new TimeRecord for the Project identified by
+        `project_key`. """
         new_time_record = cls(
             parent=project_key,
             user=user_email
         )
-        project_key.get().put()  # Update the `updated` property of our parent
+        project = project_key.get()
+        if completed:
+            new_time_record.completed = float(completed)
+            project.completed += float(completed)
+        if name:
+            new_time_record.name = name
+        project.put()  # Update the `updated` property of our parent
         return new_time_record.put()
 
     @ndb.transactional(xg=True)

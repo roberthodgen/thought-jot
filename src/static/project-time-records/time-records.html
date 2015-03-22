@@ -1,6 +1,6 @@
 <div class="text-right">
 	<a ui-sref="app.project.time-records.create-time-record" class="text-muted" style="margin-right:10px;">New fixed-length time record</a>
-	<button type="button" class="btn btn-primary" ng-click="createTimeRecord();">New time record</button>
+	<button type="button" class="btn btn-primary" ng-click="createTimeRecord();" ng-disabled="project.has_uncompleted_time_records">New time record</button>
 </div>
 
 <div class="projects-list-group" ng-show="todayTimeRecords.length > 0">

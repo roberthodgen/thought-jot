@@ -283,8 +283,6 @@ class TimeRecords(webapp2.RequestHandler):
         if ((user.email not in project.contributors) and not
                 project.is_owner(user.email)):
             self.abort(401)
-        if project.has_uncompleted_time_records:
-            self.abort(400)
         request_object = {}
         if self.request.body:
             request_object = json.loads(self.request.body)

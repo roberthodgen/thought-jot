@@ -21,7 +21,6 @@
 			$scope.inProgressResults = [];
 			
 		};
-
 		
 
 		// Watch for changes in $scope.inProgressResults (an alias from an ngRepeat), to update our inProgressProjects (used for count; hiding the section)

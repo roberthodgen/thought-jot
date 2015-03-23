@@ -2,7 +2,7 @@
 
 	var app = angular.module('app.dataFactory', []);
 
-	app.factory('app.dataFactory', ['$http', '$q', '$interval', function($http, $q, $interval) {
+	app.factory('app.dataFactory', ['$http', '$q', '$interval', 'app.appFactory', function($http, $q, $interval, appFactory) {
 
 		var cache = {};
 		cache.projects = {
@@ -457,6 +457,7 @@
 				return _projects.promise;
 			}, fetchProjects: function() {
 				console.log('[app.dataFactory] service.fetchProjects(): call')
+				appFactory.addLoader();
 
 				var _cache = service.cachedOrPlaceholderProjects();
 
@@ -477,11 +478,13 @@
 
 						// Cache these Projects
 						cacheProjects(response.data, true);
+						appFactory.removeLoader();
 						return _cache;
 					} else {
 						// Error
 						_cache._last_fetch_error = true;
 						console.log('[app.dataFactory] service.fetchProjects(): Error reading response.');
+						appFactory.removeLoader();
 						return {
 							error: true
 						};
@@ -491,6 +494,7 @@
 					delete _cache._fetch_in_progress;
 					_cache._last_fetch_error = response.status;
 					console.log('[app.dataFactory] service.fetchProjects(): Request error: '+response.status);
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status
@@ -499,6 +503,7 @@
 				return _cache._fetch_in_progress;
 			}, createProject: function(options) {
 				console.log('[app.dataFactory] service.createProject(): Called.');
+				appFactory.addLoader();
 				return $http({
 					method: 'POST',
 					url: '/api/v2/projects',
@@ -513,10 +518,12 @@
 
 						// Cache this Project
 						cacheProjects([response.data], false);
+						appFactory.removeLoader();
 						return response.data;
 					} else {
 						// Error
 						console.log('[app.dataFactory] service.createProject(): Error reading response.');
+						appFactory.removeLoader();
 						return {
 							error: true
 						};
@@ -524,6 +531,7 @@
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.createProject(): Request error: '+response.status);
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status
@@ -549,6 +557,7 @@
 				return _projects.promise;
 			}, fetchProject: function(projectId) {
 				console.log('[app.dataFactory] service.fetchProject(): Called, `projectId`: '+projectId);
+				appFactory.addLoader();
 
 				var _cache = service.cachedOrPlaceholderProject(projectId);
 
@@ -566,11 +575,13 @@
 
 						// Cache this Project
 						cacheProjects([response.data], false);
+						appFactory.removeLoader();
 						return _cache;
 					} else {
 						// Error
 						_cache._last_fetch_error = true;
 						console.log('[app.dataFactory] service.fetchProject(): Error reading response.');
+						appFactory.removeLoader();
 						return {
 							error: true
 						};
@@ -580,6 +591,7 @@
 					delete _cache._fetch_in_progress;
 					_cache._last_fetch_error = response.status;
 					console.log('[app.dataFactory] service.fetchProject(): Request error: '+response.status);
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status
@@ -588,6 +600,7 @@
 				return _cache._fetch_in_progress;
 			}, updateProject: function(project, projectId) {
 				project._update_in_progress = true;
+				appFactory.addLoader();
 				return $http({
 					method: 'PUT',
 					url: '/api/v2/projects/'+projectId,
@@ -603,10 +616,12 @@
 
 						// Cache this Project
 						cacheProjects([response.data], false);
+						appFactory.removeLoader();
 						return response.data;
 					} else {
 						// Error
 						console.log('[app.dataFactory] service.updateProject(): Error reading response.');
+						appFactory.removeLoader();
 						return {
 							error: true
 						};
@@ -615,12 +630,14 @@
 					// Error
 					delete timeRecord._update_in_progress;
 					console.log('[app.dataFactory] service.updateProject(): Request error: '+response.status);
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status
 					};
 				});
 			}, projectContributorsAdd: function(email, projectId) {
+				appFactory.addLoader();
 				return $http({
 					method: 'POST',
 					url: '/api/v2/projects/'+projectId+'/contributors/'+encodeURIComponent(email)
@@ -632,9 +649,11 @@
 
 						// Cache this Project
 						cacheProjects([response.data], projectId, null);
+						appFactory.removeLoader();
 						return response.data;
 					} else {
 						console.log('[app.dataFactory] service.(): Error reading response.');
+						appFactory.removeLoader();
 						return {
 							error: true
 						};
@@ -642,12 +661,14 @@
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.projectContributorsAdd(): Request error: '+response.status);
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status
 					};
 				});
 			}, projectContributorsRemove: function(email, projectId) {
+				appFactory.addLoader();
 				return $http({
 					method: 'DELETE',
 					url: '/api/v2/projects/'+projectId+'/contributors/'+encodeURIComponent(email)
@@ -659,10 +680,12 @@
 
 						// Cache this Project
 						cacheProjects([response.data], projectId, null);
+						appFactory.removeLoader();
 						return response.data;
 					} else {
 						// Error
 						console.log('[app.dataFactory] service.(): Error reading response.');
+						appFactory.removeLoader();
 						return {
 							error: true
 						};
@@ -670,12 +693,14 @@
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.projectContributorsRemove(): Request error: '+response.status);
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status
 					};
 				});
 			}, projectObserversAdd: function(email, projectId) {
+				appFactory.addLoader();
 				return $http({
 					method: 'POST',
 					url: '/api/v2/projects/'+projectId+'/observers/'+encodeURIComponent(email)
@@ -687,18 +712,27 @@
 
 						// Cache this Project
 						cacheProjects([response.data], projectId, null);
-
+						appFactory.removeLoader();
 						return response.data;
+					} else {
+						// Error
+						console.log('[app.dataFactory] service.projectObserversAdd(): Error reading response.');
+						appFactory.removeLoader();
+						return {
+							error: true
+						};
 					}
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.projectObserversAdd(): Request error: '+response.status);
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status
 					};
 				});
 			}, projectObserversRemove: function(email, projectId) {
+				appFactory.addLoader();
 				return $http({
 					method: 'DELETE',
 					url: '/api/v2/projects/'+projectId+'/observers/'+encodeURIComponent(email)
@@ -710,12 +744,20 @@
 
 						// Cache this Project
 						cacheProjects([response.data], projectId, null);
-
+						appFactory.removeLoader();
 						return response.data;
+					} else {
+						// Error
+						console.log('[app.dataFactory] service.projectObserversRemove(): Error reading response.');
+						appFactory.removeLoader();
+						return {
+							error: true
+						};
 					}
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.projectObserversRemove(): Request error: '+response.status);
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status
@@ -771,6 +813,7 @@
 				return _timeRecords.promise;
 			}, fetchTimeRecords: function(projectId) {
 				console.log('[app.dataFactory] service.fetchTimeRecords(): Called, `projectId`: '+projectId)
+				appFactory.addLoader();
 				var _cache = service.cachedOrPlaceholderTimeRecords(projectId);
 				_cache._force_fetch = false;
 				_cache._fetch_in_progress = $http({
@@ -792,11 +835,13 @@
 							_cache._cursor = response.headers('X-Cursor');
 						}
 
+						appFactory.removeLoader();
 						return _cache;
 					} else {
 						// Error
 						_cache._last_fetch_error = true;
 						console.log('[app.dataFactory] service.fetchTimeRecords(): Error reading response.');
+						appFactory.removeLoader();
 						return {
 							error: true
 						};
@@ -806,6 +851,7 @@
 					delete _cache._fetch_in_progress;
 					_cache._last_fetch_error = response.status;
 					console.log('[app.dataFactory] service.fetchTimeRecords(): Request error: '+response.status);
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status
@@ -814,6 +860,7 @@
 				return _cache._fetch_in_progress;
 			}, fetchMoreTimeRecords: function(projectId, cursor) {
 				console.log('[app.dataFactory] service.fetchMoreTimeRecords(): Called, `projectId`: '+projectId+', `cursor`: '+cursor);
+				appFactory.addLoader();
 				var _cache = service.cachedOrPlaceholderTimeRecords(projectId);
 				_cache._fetch_more_in_progress = $http({
 					method: 'GET',
@@ -839,11 +886,13 @@
 							_cache._cursor = false;
 						}
 
+						appFactory.removeLoader();
 						return _cache;
 					} else {
 						// Error
 						_cache._last_fetch_error = true;
 						console.log('[app.dataFactory] service.fetchMoreTimeRecords(): Error reading response.');
+						appFactory.removeLoader();
 						return {
 							error: true
 						};
@@ -853,6 +902,7 @@
 					delete _cache._fetch_more_in_progress;
 					_cache._last_fetch_error = response.status;
 					console.log('[app.dataFactory] service.fetchMoreTimeRecords(): Request error: '+response.status);
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status
@@ -860,6 +910,7 @@
 				});
 				return _cache._fetch_more_in_progress;
 			}, createTimeRecord: function(projectId, name, completed) {
+				appFactory.addLoader();
 				var data = {};
 
 				if (name) {
@@ -887,10 +938,11 @@
 						var project = service.cachedOrPlaceholderProject(projectId);
 						project._force_fetch = true;
 						service.project(projectId);
-
+						appFactory.removeLoader();
 						return response.data;
 					} else {
 						console.log('[app.dataFactory] service.createTimeRecord(): Error reading response.');
+						appFactory.removeLoader();
 						return {
 							error: true
 						};
@@ -898,12 +950,14 @@
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.createTimeRecord(): Request error: '+response.status);
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status
 					};
 				});
 			}, completeTimeRecord: function(timeRecordId, projectId) {
+				appFactory.addLoader();
 				return $http({
 					method: 'PUT',
 					url: '/api/v2/projects/'+projectId+'/time-records/'+timeRecordId,
@@ -923,10 +977,11 @@
 						var project = service.cachedOrPlaceholderProject(projectId);
 						project._force_fetch = true;
 						service.project(projectId);
-
+						appFactory.removeLoader();
 						return response.data;
 					} else {
 						console.log('[app.dataFactory] service.completeTimeRecord(): Error reading response.');
+						appFactory.removeLoader();
 						return {
 							error: true
 						};
@@ -934,12 +989,14 @@
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.completeTimeRecord(): Request error: '+response.status);
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status
 					};
 				});
 			}, updateTimeRecord: function(timeRecord, projectId) {
+				appFactory.addLoader();
 				return $http({
 					method: 'PUT',
 					url: '/api/v2/projects/'+projectId+'/time-records/'+timeRecord.id,
@@ -952,9 +1009,12 @@
 
 						// Cache this Time Record
 						cahceTimeRecords([response.data], projectId, null);
+						appFactory.removeLoader();
 						return response.data;
 					} else {
+						// Error
 						console.log('[app.dataFactory] service.updateTimeRecord(): Error reading response.');
+						appFactory.removeLoader();
 						return {
 							error: true
 						};
@@ -962,13 +1022,14 @@
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.updateTimeRecord(): Request error: '+response.status);
-
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status
 					};
 				});
 			}, createComment: function(comment, projectId, parentId, parentType) {
+				appFactory.addLoader();
 				parentId = parentId || false;
 				parentType = parentType || 'parent';
 				return $http({
@@ -985,10 +1046,12 @@
 
 						// Cache this Comment
 						cacheComments([response.data], [projectId, parentId], null);
+						appFactory.removeLoader();
 						return response.data;
 					} else {
 						// Error
 						console.log('[app.dataFactory] service.createComment(): Error reading response.');
+						appFactory.removeLoader();
 						return {
 							error: true
 						};
@@ -996,6 +1059,7 @@
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.createComment(): Request error: '+response.status);
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status
@@ -1021,6 +1085,7 @@
 				return _timeRecords.promise;
 			}, fetchComments: function(parentId, parentType, projectId) {
 				console.log('[app.dataFactory] service.fetchComments(): Called, `parentId`: '+parentId+', `parentType`: '+parentType+', `projectId`: '+projectId);
+				appFactory.addLoader();
 				parentType = parentType || 'parent';
 				var _cache = service.cachedOrPlaceholderComments(parentId);
 				_cache._force_fetch = false;
@@ -1037,11 +1102,13 @@
 
 						// Cache the comments
 						cacheComments(response.data, [parentId], parentId);
+						appFactory.removeLoader();
 						return _cache;
 					} else {
 						// Error
 						_cache._last_fetch_error = true;
 						console.log('[app.dataFactory] service.fetchComments(): Error reading response.');
+						appFactory.removeLoader();
 						return {
 							error: true
 						};
@@ -1051,6 +1118,7 @@
 					delete _cache._fetch_in_progress;
 					_cache._last_fetch_error = response.status;
 					console.log('[app.dataFactory] service.fetchComments(): Request error: '+response.status);
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status
@@ -1094,7 +1162,8 @@
 				_milestones.resolve(_cache);
 				return _milestones.promise;
 			}, fetchMilestones: function(projectId, filters) {
-				console.log('[app.dataFactory] service.fetchMilestones(): call, projectId: '+projectId)
+				console.log('[app.dataFactory] service.fetchMilestones(): call, projectId: '+projectId);
+				appFactory.addLoader();
 				var _cache = service.cachedOrPlaceholderMilestones(projectId);
 				_cache._force_fetch = false;
 				_cache._fetch_in_progress = $http({
@@ -1117,11 +1186,13 @@
 							_cache._cursor = response.headers('X-Cursor');
 						}
 
+						appFactory.removeLoader();
 						return _cache;
 					} else {
 						// Error
 						_cache._last_fetch_error = true;
 						console.log('[app.dataFactory] service.fetchMilestones(): Error reading response.');
+						appFactory.removeLoader();
 						return {
 							error: true
 						};
@@ -1131,6 +1202,7 @@
 					delete _cache._fetch_in_progress;
 					_cache._last_fetch_error = response.status;
 					console.log('[app.dataFactory] service.fetchMilestones(): Request error: '+response.status);
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status
@@ -1139,6 +1211,7 @@
 				return _cache._fetch_in_progress;
 			}, fetchMoreMilestones: function(projectId, cursor, filters) {
 				console.log('[app.dataFactory] service.fetchMoreMilestones(): Called, `projectId`: '+projectId+', `cursor`: '+cursor);
+				appFactory.addLoader();
 				filters = filters || {};
 				var _cache = service.cachedOrPlaceholderMilestones(projectId);
 				_cache._fetch_more_in_progress = $http({
@@ -1165,11 +1238,13 @@
 							_cache._cursor = false;
 						}
 
+						appFactory.removeLoader();
 						return _cache;
 					} else {
 						// Error
 						_cache._last_fetch_error = true;
 						console.log('[app.dataFactory] service.fetchMoreMilestones(): Error reading response.');
+						appFactory.removeLoader();
 						return {
 							error: true
 						};
@@ -1179,6 +1254,7 @@
 					delete _cache._fetch_more_in_progress;
 					_cache._last_fetch_error = response.status;
 					console.log('[app.dataFactory] service.fetchMoreMilestones(): Request error: '+response.status);
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status
@@ -1200,6 +1276,7 @@
 				return _milestone.promise;
 			}, fetchMilestone: function(projectId, milestoneId) {
 				console.log('[app.dataFactory] service.fetchMilestone(): Called, `projectId`: '+projectId+', `milestoneId`: '+milestoneId);
+				appFactory.addLoader();
 				var _cache = service.cachedOrPlaceholderMilestone(projectId, milestoneId);
 				_cache._force_fetch = false;
 				_cache._fetch_in_progress = $http({
@@ -1215,11 +1292,13 @@
 
 						// Cache this Milestone
 						cacheMilestones([response.data], projectId, false);
+						appFactory.removeLoader();
 						return _cache;
 					} else {
 						// Error
 						_cache._last_fetch_error = true;
 						console.log('[app.dataFactory] service.fetchMilestone(): Error reading response.');
+						appFactory.removeLoader();
 						return {
 							error: true
 						};
@@ -1229,6 +1308,7 @@
 					delete _cache._fetch_in_progress;
 					_cache._last_fetch_error = response.status;
 					console.log('[app.dataFactory] service.fetchMilestone(): Request error: '+response.status);
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status
@@ -1236,6 +1316,7 @@
 				});
 				return _cache._fetch_in_progress;
 			}, createMilestone: function(milestone, projectId) {
+				appFactory.addLoader();
 				return $http({
 					method: 'POST',
 					url: '/api/v2/projects/'+projectId+'/milestones',
@@ -1248,10 +1329,12 @@
 
 						// Cache this Milestone
 						cacheMilestones([response.data], projectId, false);
+						appFactory.removeLoader();
 						return response.data;
 					} else {
 						// Error
 						console.log('[app.dataFactory] service.createMilestone(): Error reading response.');
+						appFactory.removeLoader();
 						return {
 							error: true
 						};
@@ -1259,12 +1342,14 @@
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.createMilestone(): Request error: '+response.status);
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status
 					};
 				});
 			}, updateMilestone: function(milestone, projectId) {
+				appFactory.addLoader();
 				return $http({
 					method: 'PUT',
 					url: '/api/v2/projects/'+projectId+'/milestones/'+milestone.id,
@@ -1277,10 +1362,12 @@
 
 						// Cache this Milestone
 						cacheMilestones([response.data], projectId, false);
+						appFactory.removeLoader();
 						return response.data;
 					} else {
 						// Error
 						console.log('[app.dataFactory] service.updateMilestone(): Error reading response.');
+						appFactory.removeLoader();
 						return {
 							error: true
 						};
@@ -1288,12 +1375,14 @@
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.updateMilestone(): Request error: '+response.error);
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status
 					};
 				})
 			}, milestoneLabelAdd: function(labelId, milestoneId, projectId) {
+				appFactory.addLoader();
 				return $http({
 					method: 'POST',
 					url: '/api/v2/projects/'+projectId+'/milestones/'+milestoneId+'/labels',
@@ -1308,10 +1397,12 @@
 
 						// Cache this Label
 						cacheLabels([response.data], [projectId, milestoneId], null);
+						appFactory.removeLoader();
 						return response.data;
 					} else {
 						// Error
-						console.log('[app.dataFactory] service.milestoneLabelAdd(): Error reading response;')
+						console.log('[app.dataFactory] service.milestoneLabelAdd(): Error reading response.');
+						appFactory.removeLoader();
 						return {
 							error: true
 						};
@@ -1319,6 +1410,7 @@
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.milestoneLabelAdd(): Request error: '+response.status);
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status
@@ -1326,7 +1418,7 @@
 				});
 			}, milestoneLabelRemove: function(labelId, milestoneId, projectId) {
 				console.log('[app.dataFactory] service.milestoneLabelRemove(): Called: `labelId`: '+labelId+', `milestoneId`: '+milestoneId+', `projectId`: '+projectId);
-
+				appFactory.addLoader();
 				return $http({
 					method: 'DELETE',
 					url: '/api/v2/projects/'+projectId+'/milestones/'+milestoneId+'/labels/'+labelId
@@ -1344,10 +1436,12 @@
 							}
 						}
 
+						appFactory.removeLoader();
 						return response.data;
 					} else {
 						// Error
 						console.log('[app.dataFactory] service.milestoneLabelRemove(): Error reading response.');
+						appFactory.removeLoader();
 						return {
 							error: true
 						};
@@ -1355,6 +1449,7 @@
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.milestoneLabelRemove(): Request error: '+response.status);
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status
@@ -1379,7 +1474,8 @@
 				_labels.resolve(_cache);
 				return _labels.promise;
 			}, fetchLabelsForProject: function(projectId) {
-				console.log('[app.dataFactory] service.fetchLabelsForProject(): call, projectId: '+projectId)
+				console.log('[app.dataFactory] service.fetchLabelsForProject(): call, projectId: '+projectId);
+				appFactory.addLoader();
 				var _cache = service._labels(projectId);
 				_cache._force_fetch = false;
 				_cache._fetch_in_progress = $http({
@@ -1395,11 +1491,13 @@
 
 						// Cache these Labels
 						cacheLabels(response.data, [projectId], projectId);
+						appFactory.removeLoader();
 						return _cache;
 					} else {
 						// Error
 						_cache._last_fetch_error = true;
 						console.log('[app.dataFactory] service.fetchLabelsForProject(): Error reading response.');
+						appFactory.removeLoader();
 						return {
 							error: true
 						};
@@ -1409,6 +1507,7 @@
 					delete _cache._fetch_in_progress;
 					_cache._last_fetch_error = response.status;
 					console.log('[app.dataFactory] service.fetchLabelsForProject(): Request error: '+response.status);
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status
@@ -1437,6 +1536,7 @@
 				return _labels.promise;
 			}, deleteLabel: function(projectId, labelId) {
 				console.log('[app.dataFactory] service.deleteLabel(): Called, `projectId`: '+projectId+', `labelId`: '+labelId);
+				appFactory.addLoader();
 				return $http({
 					method: 'DELETE',
 					url: '/api/v2/projects/'+projectId+'/labels/'+labelId
@@ -1454,10 +1554,12 @@
 							}
 						}
 
+						appFactory.removeLoader();
 						return true;
 					} else {
 						// Error
 						console.log('[app.dataFactory] service.deleteLabel(): Error reading response.');
+						appFactory.removeLoader();
 						return {
 							error: true
 						};
@@ -1465,12 +1567,14 @@
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.deleteLabel(): Request error: '+response.status);
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status
 					};
 				});
 			}, createLabel: function(label, projectId) {
+				appFactory.addLoader();
 				return $http({
 					method: 'POST',
 					url: '/api/v2/projects/'+projectId+'/labels',
@@ -1483,10 +1587,12 @@
 
 						// Cache this Label
 						cacheLabels([response.data], [projectId], projectId);
+						appFactory.removeLoader();
 						return response.data;
 					} else {
 						// Error
 						console.log('[app.dataFactory] service.createLabel(): Error reading response.');
+						appFactory.removeLoader();
 						return {
 							error: true
 						};
@@ -1494,12 +1600,14 @@
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.createLabel(): Request error: '+response.status);
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status
 					};
 				});
 			}, updateLabel: function(label, labelId, projectId) {
+				appFactory.addLoader();
 				return $http({
 					method: 'PUT',
 					url: '/api/v2/projects/'+projectId+'/labels/'+labelId,
@@ -1512,10 +1620,12 @@
 
 						// Cache this Label
 						cacheLabels([response.data], [projectId], false);
+						appFactory.removeLoader();
 						return response.data;
 					} else {
 						// Error
 						console.log('[app.dataFactory] service.updateLabel(): Error reading response.');
+						appFactory.removeLoader();
 						return {
 							error: true
 						};
@@ -1523,6 +1633,7 @@
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.updateLabel(): Request error: '+response.status);
+					appFactory.removeLoader();
 					return {
 						error: true,
 						status: response.status

@@ -54,7 +54,7 @@
 		//		link: ''				// The href attribute of the main navbar link
 			},
 		//	project: {},				// A Project object representing the currently active/viewed project
-			loaders: 0
+			loaders: 0				// Stores an (int); the current number of pending HTTP requests (via `addLoader()`)
 		};
 
 		var service = {

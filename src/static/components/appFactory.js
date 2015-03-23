@@ -100,11 +100,15 @@
 
 				return currentConfiguration;
 			}, addLoader: function() {
+				// Increment the `loaders` property by one;
+				// Another HTTP request has likely started!
 				currentConfiguration.loaders += 1;
 				if (!NProgress.isStarted()) {
 					NProgress.start();
 				}
 			}, removeLoader: function() {
+				// Decrease the `loaders` property by one;
+				// An HTTP request has finished (in an error or success)
 				currentConfiguration.loaders -= 1;
 				if (currentConfiguration.loaders == 0) {
 					NProgress.done();

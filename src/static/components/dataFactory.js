@@ -2,7 +2,7 @@
 
 	var app = angular.module('app.dataFactory', []);
 
-	app.factory('app.dataFactory', ['$http', '$q', '$interval', function($http, $q, $interval) {
+	app.factory('app.dataFactory', ['$http', '$q', '$interval', 'app.appFactory', function($http, $q, $interval, appFactory) {
 
 		var cache = {};
 		cache.projects = {
@@ -687,8 +687,13 @@
 
 						// Cache this Project
 						cacheProjects([response.data], projectId, null);
-
 						return response.data;
+					} else {
+						// Error
+						console.log('[app.dataFactory] service.projectObserversAdd(): Error reading response.');
+						return {
+							error: true
+						};
 					}
 				}, function(response) {
 					// Error
@@ -710,8 +715,13 @@
 
 						// Cache this Project
 						cacheProjects([response.data], projectId, null);
-
 						return response.data;
+					} else {
+						// Error
+						console.log('[app.dataFactory] service.projectObserversRemove(): Error reading response.');
+						return {
+							error: true
+						};
 					}
 				}, function(response) {
 					// Error
@@ -887,7 +897,6 @@
 						var project = service.cachedOrPlaceholderProject(projectId);
 						project._force_fetch = true;
 						service.project(projectId);
-
 						return response.data;
 					} else {
 						console.log('[app.dataFactory] service.createTimeRecord(): Error reading response.');
@@ -923,7 +932,6 @@
 						var project = service.cachedOrPlaceholderProject(projectId);
 						project._force_fetch = true;
 						service.project(projectId);
-
 						return response.data;
 					} else {
 						console.log('[app.dataFactory] service.completeTimeRecord(): Error reading response.');
@@ -954,6 +962,7 @@
 						cahceTimeRecords([response.data], projectId, null);
 						return response.data;
 					} else {
+						// Error
 						console.log('[app.dataFactory] service.updateTimeRecord(): Error reading response.');
 						return {
 							error: true
@@ -962,7 +971,6 @@
 				}, function(response) {
 					// Error
 					console.log('[app.dataFactory] service.updateTimeRecord(): Request error: '+response.status);
-
 					return {
 						error: true,
 						status: response.status
@@ -1094,7 +1102,7 @@
 				_milestones.resolve(_cache);
 				return _milestones.promise;
 			}, fetchMilestones: function(projectId, filters) {
-				console.log('[app.dataFactory] service.fetchMilestones(): call, projectId: '+projectId)
+				console.log('[app.dataFactory] service.fetchMilestones(): call, projectId: '+projectId);
 				var _cache = service.cachedOrPlaceholderMilestones(projectId);
 				_cache._force_fetch = false;
 				_cache._fetch_in_progress = $http({
@@ -1311,7 +1319,7 @@
 						return response.data;
 					} else {
 						// Error
-						console.log('[app.dataFactory] service.milestoneLabelAdd(): Error reading response;')
+						console.log('[app.dataFactory] service.milestoneLabelAdd(): Error reading response.');
 						return {
 							error: true
 						};
@@ -1326,7 +1334,6 @@
 				});
 			}, milestoneLabelRemove: function(labelId, milestoneId, projectId) {
 				console.log('[app.dataFactory] service.milestoneLabelRemove(): Called: `labelId`: '+labelId+', `milestoneId`: '+milestoneId+', `projectId`: '+projectId);
-
 				return $http({
 					method: 'DELETE',
 					url: '/api/v2/projects/'+projectId+'/milestones/'+milestoneId+'/labels/'+labelId
@@ -1379,7 +1386,7 @@
 				_labels.resolve(_cache);
 				return _labels.promise;
 			}, fetchLabelsForProject: function(projectId) {
-				console.log('[app.dataFactory] service.fetchLabelsForProject(): call, projectId: '+projectId)
+				console.log('[app.dataFactory] service.fetchLabelsForProject(): call, projectId: '+projectId);
 				var _cache = service._labels(projectId);
 				_cache._force_fetch = false;
 				_cache._fetch_in_progress = $http({
@@ -1533,6 +1540,26 @@
 
 		// Return the service Object
 		return service;
+	}]);
+
+
+	// $http interceptor for the progress indicator
+	app.factory('progressInterceptor', ['app.appFactory', function(appFactory) {
+		return {
+			request: function(config) {
+				appFactory.addLoader();
+				return config;
+			}, requestError: function(rejection) {
+				appFactory.removeLoader();
+				return rejection;
+			}, response: function(response) {
+				appFactory.removeLoader();
+				return response;
+			}, responseError: function(rejection) {
+				appFactory.removeLoader();
+				return rejection;
+			}
+		};
 	}]);
 
 })();

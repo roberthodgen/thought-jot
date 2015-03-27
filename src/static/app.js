@@ -493,4 +493,10 @@
 		$locationProvider.html5Mode(true);
 	}]);
 
+	
+	// Add our custom `progressInterceptor` as an $http intereceptor
+	app.config(['$httpProvider', function($httpProvider) {
+		$httpProvider.interceptors.push('progressInterceptor');
+	}]);
+
 })();

@@ -52,8 +52,9 @@
 			navbar: {
 				title: ''				// The name that should appear in the navbar
 		//		link: ''				// The href attribute of the main navbar link
-			}
+			},
 		//	project: {},				// A Project object representing the currently active/viewed project
+			loaders: 0				// Stores an (int); the current number of pending HTTP requests (via `addLoader()`)
 		};
 
 		var service = {
@@ -98,6 +99,22 @@
 				}
 
 				return currentConfiguration;
+			}, addLoader: function() {
+				// Increment the `loaders` property by one;
+				// Another HTTP request has likely started!
+				currentConfiguration.loaders += 1;
+				if (!NProgress.isStarted()) {
+					NProgress.start();
+				}
+			}, removeLoader: function() {
+				// Decrease the `loaders` property by one;
+				// An HTTP request has finished (in an error or success)
+				currentConfiguration.loaders -= 1;
+				if (currentConfiguration.loaders == 0) {
+					NProgress.done();
+				} else {
+					NProgress.inc(0.2);
+				}
 			}
 		};
 

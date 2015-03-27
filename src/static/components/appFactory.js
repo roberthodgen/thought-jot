@@ -113,7 +113,7 @@
 				if (currentConfiguration.loaders == 0) {
 					NProgress.done();
 				} else {
-					NProgress.inc();
+					NProgress.inc(0.2);
 				}
 			}
 		};

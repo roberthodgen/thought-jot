@@ -358,7 +358,6 @@ class Comments(webapp2.RequestHandler):
             # Fetch by Parent ID
             if parent_type == 'milestones':
                 # Milestones
-                print 'using Milestones'
                 milestone = model.Milestone.for_number(project_key,
                     int(parent_id))
                 if not milestone:
